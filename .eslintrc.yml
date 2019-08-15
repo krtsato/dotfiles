@@ -1,0 +1,68 @@
+env:
+  browser: true
+  es6: true
+
+extends:
+  - eslint:recommended
+  - airbnb
+  - plugin:import/errors
+  - plugin:import/warnings
+  - plugin:jsx-a11y/recommended
+  - plugin:react/recommended
+  - plugin:prettier/recommended
+  - prettier/react
+
+globals:
+  Atomics: readonly
+  SharedArrayBuffer: readonly
+
+parser: babel-eslint
+
+parserOptions:
+  ecmaFeatures:
+    jsx: true
+  ecmaVersion: 2018
+  sourceType: module
+  babelOptions:
+    configFile: "babel.config.js"
+
+plugins:
+  - import
+  - react
+  - react-hooks
+
+rules:
+  # Remove rules from default eslint configuration.
+  # e.g. indent, semi, quotes.
+  linebreak-style:
+    - error
+    - unix
+  
+  # Overwrite default and airbnb rules
+  no-console: off
+  no-alert: off
+  no-unused-expressions: off
+  no-param-reassign: off
+  camelcase:
+    - error
+    - allow:
+      - user_id
+      - showcase_id
+      - crystal_id
+
+  jsx-a11y/no-autofocus: off
+  jsx-a11y/no-onchange: off
+  jsx-a11y/media-has-caption: off
+
+  # Add import rules
+  import/no-unresolved: off
+  import/prefer-default-export: off
+
+  # Add react rules
+  react/forbid-prop-types: off
+  react/jsx-boolean-value: off
+  react/require-default-props: off
+
+  # Add react-hooks rules
+  react-hooks/rules-of-hooks: error
+  react-hooks/exhaustive-deps: off

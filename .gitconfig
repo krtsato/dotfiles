@@ -1,0 +1,34 @@
+[user]
+	name = krtsato
+	email = ev60596@meiji.ac.jp
+[core]
+	editor = vim -c \"set fenc= utf-8\"
+[color]
+	diff = auto
+	status = auto
+	branch = auto
+	ui = true
+[status]
+	diff = auto
+[push]
+	defaul = simple
+[alias]
+  # Rewrite and add to default alias.
+	# To check them, command "git alias".
+        a = !git add . && git status
+	acm = !git add . && git commit -m
+	b = branch
+	bd = branch -d
+        ca = commit --amend
+	cl = clone
+        cm = commit -m
+	co = checkout
+	cob = checkout -b
+	copo = !git checkout master && git pull origin master
+        d = dif
+        d = difff
+	l = log --graph --date=short --decorate=short --pretty=format:'%C(auto)%h %C(auto, dim)%cd %C(auto, dim)%cn %C(auto)%s%C(auto)%d\n'
+	pl = pull
+	ps = push
+	pso = push origin
+	ssb = status -sb

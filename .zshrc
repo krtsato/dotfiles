@@ -1,0 +1,35 @@
+#!/usr/local/bin/zsh
+
+# zsh $PROMPT | default : PROMPT=%m%#
+autoload -Uz colors && colors
+PROMPT="%{$fg[green]%}%1~ %# %{$reset_color%}"
+
+# zsh-completions
+autoload -Uz compinit && compinit -u
+fpath=(/usr/local/share/zsh-completions $fpath)
+## match dotfiles without '.' in a completion
+setopt GLOB_DOTS
+
+# zsh coloring
+## for directories, symbolic links, executable files
+export LSCOLORS=cxgxxxxxfxxxxxxxxxxxxx
+## for completions 
+zstyle ':completion:*' list-colors di=32 ln=36 ex=35$ source ~/.zshrc
+
+# my shell scripts
+export PATH=/Users/satoshi/shells:$PATH
+
+# openssl installed by homebrew, not default version
+export PATH=/usr/local/opt/openssl/bin:$PATH
+
+# hyper-tab-icons-plus
+precmd() {
+   pwd=$(pwd)
+   cwd=${pwd##*/}
+   print -Pn "\e]0;$cwd\a"
+}
+
+preexec() {
+   printf "\033]0;%s\a" "${1%% *} | $cwd"
+}
+

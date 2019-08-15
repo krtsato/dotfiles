@@ -1,0 +1,72 @@
+extends:
+  - stylelint-config-recommended-scss
+  - stylelint-prettier/recommended
+  - stylelint-config-prettier
+
+plugins:
+  - stylelint-scss
+  - stylelint-order
+
+rules:
+  # Add config-recommended-scss
+  block-closing-brace-empty-line-before: never
+
+  # Add scss rules
+  scss/at-rule-no-unknown: true
+
+  # Add order rules
+  order/order:
+    - custom-properties
+    - dollar-variables
+    - at-variables
+    - declarations
+    - rules
+    - at-rules
+    - less-mixins
+  order/properties-order:
+    - display
+    - background
+    - groupName: position
+      emptyLineBefore: always
+      properties: 
+        - position
+        - top
+        - right
+        - bottom
+        - left
+        - z-index
+    - groupName: dimensions
+      emptyLineBefore: always
+      properties: 
+        - width
+        - min-width
+        - max-width
+        - height
+        - min-height
+        - max-height
+    - groupName: margin
+      emptyLineBefore: always
+      properties: 
+        - margin
+        - margin-top
+        - margin-right
+        - margin-bottom
+        - margin-left
+    - groupName: padding
+      emptyLineBefore: always
+      properties: 
+        - padding
+        - padding-top
+        - padding-right
+        - padding-bottom
+        - padding-left
+    - groupName: font
+      emptyLineBefore: always
+      properties:
+        - font
+        - font-family
+        - font-style
+        - font-weight
+        - font-size
+    - text-align
+  order/properties-alphabetical-order: false
