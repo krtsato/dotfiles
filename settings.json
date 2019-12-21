@@ -12,5 +12,7 @@
   "workbench.editor.enablePreview": false, // 新規ファイルを開くときプレビュー不要
   "workbench.editor.enablePreviewFromQuickOpen": false, // ショートカットキーでも同様
   "workbench.editor.highlightModifiedTabs": true, // 未保存のタブにハイライン付加
-  "workbench.iconTheme": "material-icon-theme" // 拡張機能 Material Icon Theme
+  "workbench.iconTheme": "material-icon-theme",
+  "editor.suggestSelection": "first",
+  "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue" // 拡張機能 Material Icon Theme
 }

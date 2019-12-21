@@ -32,7 +32,6 @@ cask "processing"
 cask "skype"
 cask "slack"
 cask "visual-studio-code"
-cask "waves-central"
 cask "caskroom/fonts/font-ricty-diminished"
 mas "iMovie", id: 408981434
 mas "Keynote", id: 409183694
