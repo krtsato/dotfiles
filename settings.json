@@ -1,18 +1,28 @@
 {
   "editor.cursorBlinking": "smooth", // カーソルが滑らかに点滅
   "editor.cursorStyle": "block", // カーソルはブロック型
-  "editor.fontFamily": "'Ricty Diminished', Menlo, Monaco, 'Courier New', monospace", // デフォルトフォントにRicty Diminishedを追加
-  "editor.fontSize": 15, // フォントサイズは15で統一
+  "editor.fontFamily": "'Ricty Diminished', Menlo, Monaco, 'Courier New', monospace", // デフォルトフォントに Ricty Diminished を追加
+  "editor.fontSize": 15, // フォントサイズは 15 で統一
   "editor.formatOnPaste": true, // コードをコピペするときフォーマット
   "editor.renderIndentGuides": true, // ガイドラインを可視化
-  "telemetry.enableTelemetry": false, // Microsoftへのデータ送信を停止
+  "editor.tabSize": 2, // tab は 2 スペースで統一
+  "editor.suggestSelection": "first", // 入力候補の初期項目
+  "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue", // 入力候補が recentlyUsed のとき入力結果を反映
+  "telemetry.enableTelemetry": false, // Microsoft へのデータ送信を停止
   "terminal.integrated.fontFamily": "Ricty Diminished", // 統合ターミナルのフォントを変更
   "terminal.integrated.fontSize": 15, // 統合ターミナルのフォントサイズを変更
   "terminal.integrated.shell.osx": "/usr/local/bin/zsh", // 統合ターミナルのシェルを変更
   "workbench.editor.enablePreview": false, // 新規ファイルを開くときプレビュー不要
   "workbench.editor.enablePreviewFromQuickOpen": false, // ショートカットキーでも同様
   "workbench.editor.highlightModifiedTabs": true, // 未保存のタブにハイライン付加
-  "workbench.iconTheme": "material-icon-theme",
-  "editor.suggestSelection": "first",
-  "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue" // 拡張機能 Material Icon Theme
+  "workbench.iconTheme": "material-icon-theme", // 拡張機能 Material Icon Theme
+  "markdown.preview.fontFamily": "'Ricty Diminished', monospace", // Markdown プレビュー画面でのフォント
+  "markdown.preview.fontSize": 11, // Markdown プレビュー画面でのフォントサイズ
+  "markdown.preview.lineHeight": 1.5, // Markdown の行間は 1.5 行
+  "markdown.extension.list.indentationSize": "inherit", // VSCooe のインデントに合わせる
+  "markdown.extension.preview.autoShowPreviewToSide": true, // 画面右に Markdown のプレビュー表示
+  "markdown.extension.toc.githubCompatibility": true, // 目次に GitHub 仕様を適用
+  "markdown.extension.toc.updateOnSave": false, // 保存時に目次を非更新
+  "markdown-pdf.breaks": true, // PDF出力に改行を反映
+  "markdown-pdf.styles": ["~/dotfiles/markdown-pdf.css"] // PDF出力にCSSを適用
 }
