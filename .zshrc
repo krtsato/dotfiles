@@ -33,3 +33,11 @@ preexec() {
    printf "\033]0;%s\a" "${1%% *} | $cwd"
 }
 
+# golang
+## for executable binary, such as go, godoc and gofmt
+GOROOT=$(go env GOROOT)
+export PATH=$GOROOT/bin:$PATH
+
+## for external go packages
+GOPATH=$(go env GOPATH)
+export PATH=$GOPATH/bin:$PATH
