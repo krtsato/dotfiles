@@ -3,9 +3,11 @@
   "editor.cursorStyle": "block", // カーソルはブロック型
   "editor.fontFamily": "'Ricty Diminished', Menlo, Monaco, 'Courier New', monospace", // デフォルトフォントに Ricty Diminished を追加
   "editor.fontSize": 15, // フォントサイズは 15 で統一
-  "editor.formatOnPaste": true, // コードをコピペするときフォーマット
+  "editor.formatOnSave": true, // コードの保存時にフォーマット
+  "editor.formatOnPaste": true, // コードのコピペ時にフォーマット
   "editor.renderIndentGuides": true, // ガイドラインを可視化
   "editor.tabSize": 2, // tab は 2 スペースで統一
+  "editor.snippetSuggestions": "none", // スニペットは Dash を使うため非表示
   "editor.suggestSelection": "first", // 入力候補の初期項目
   "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue", // 入力候補が recentlyUsed のとき入力結果を反映
   "telemetry.enableTelemetry": false, // Microsoft へのデータ送信を停止
@@ -16,6 +18,18 @@
   "workbench.editor.enablePreviewFromQuickOpen": false, // ショートカットキーでも同様
   "workbench.editor.highlightModifiedTabs": true, // 未保存のタブにハイライン付加
   "workbench.iconTheme": "material-icon-theme", // 拡張機能 Material Icon Theme
+  /* Golang */
+  "go.lintTool": "golangci-lint", // Linter 厳格化のため golangci-lint を採用
+  "go.lintOnSave": "file", // ファイル保存時に Lint を実行
+  "go.lintFlags": [
+    "--fast" // golangci-lint の中でも高速な Linter を VSCode 上で実行
+  ],
+  "go.useLanguageServer": true, // 言語サーバに gopls を採用
+  "gopls": {
+    "usePlaceholders": true, // 関数の引数や構造体のフィールドも補完対象
+    "completeUnimported": true // パッケージ不使用時に import 文を削除
+  },
+  /* Markdown */
   "markdown.preview.fontFamily": "'Ricty Diminished', monospace", // Markdown プレビュー画面でのフォント
   "markdown.preview.fontSize": 11, // Markdown プレビュー画面でのフォントサイズ
   "markdown.preview.lineHeight": 1.5, // Markdown の行間は 1.5 行
@@ -24,5 +38,7 @@
   "markdown.extension.toc.githubCompatibility": true, // 目次に GitHub 仕様を適用
   "markdown.extension.toc.updateOnSave": false, // 保存時に目次を非更新
   "markdown-pdf.breaks": true, // PDF出力に改行を反映
-  "markdown-pdf.styles": ["~/dotfiles/markdown-pdf.css"] // PDF出力にCSSを適用
+  "markdown-pdf.styles": [
+    "~/dotfiles/markdown-pdf.css" // PDF 出力に CSS を適用
+  ]
 }
