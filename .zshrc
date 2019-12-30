@@ -13,7 +13,7 @@ setopt GLOB_DOTS
 # zsh coloring
 ## for directories, symbolic links, executable files
 export LSCOLORS=cxgxxxxxfxxxxxxxxxxxxx
-## for completions 
+## for completions
 zstyle ':completion:*' list-colors di=32 ln=36 ex=35$ source ~/.zshrc
 
 # my shell scripts
@@ -34,6 +34,9 @@ preexec() {
 }
 
 # golang
+## for modules
+export GO111MODULE=on
+
 ## for executable binary, such as go, godoc and gofmt
 GOROOT=$(go env GOROOT)
 export PATH=$GOROOT/bin:$PATH
