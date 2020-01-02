@@ -18,6 +18,11 @@
   "workbench.editor.enablePreviewFromQuickOpen": false, // ショートカットキーでも同様
   "workbench.editor.highlightModifiedTabs": true, // 未保存のタブにハイライン付加
   "workbench.iconTheme": "material-icon-theme", // 拡張機能 Material Icon Theme
+  "workbench.startupEditor": "newUntitledFile", // VSCode 起動時に Welcome ページを非表示
+  /* Docker*/
+  "[dockerfile]": {
+    "editor.defaultFormatter": "ms-azuretools.vscode-docker" // VSCode の拡張機能 Docker で整形
+  },
   /* Golang */
   "go.lintTool": "golangci-lint", // Linter 厳格化のため golangci-lint を採用
   "go.lintOnSave": "file", // ファイル保存時に Lint を実行
