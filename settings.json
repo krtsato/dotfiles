@@ -3,12 +3,17 @@
   "editor.cursorStyle": "block", // カーソルはブロック型
   "editor.fontFamily": "'Ricty Diminished', Menlo, Monaco, 'Courier New', monospace", // デフォルトフォントに Ricty Diminished を追加
   "editor.fontSize": 15, // フォントサイズは 15 で統一
-  "editor.formatOnSave": true, // コードの保存時にフォーマット
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true // JavaScript の保存時に ESLint を適用
+  },
+  "editor.codeActionsOnSaveTimeout": 2000, // 2秒以内に codeActions を実行
+  "editor.defaultFormatter": "esbenp.prettier-vscode", // formatter に Prettier を使用
   "editor.formatOnPaste": true, // コードのコピペ時にフォーマット
   "editor.renderIndentGuides": true, // ガイドラインを可視化
-  "editor.tabSize": 2, // tab は 2 スペースで統一
+  "editor.tabCompletion": "on", // 文字入力後の tab キーで候補を表示
+  "editor.tabSize": 2, // tab キー は 2 スペースで統一
   "editor.snippetSuggestions": "none", // スニペットは Dash を使うため非表示
-  "editor.suggestSelection": "first", // 入力候補の初期項目
+  "editor.suggestSelection": "first", // 入力候補の初期項目i
   "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue", // 入力候補が recentlyUsed のとき入力結果を反映
   "telemetry.enableTelemetry": false, // Microsoft へのデータ送信を停止
   "terminal.integrated.fontFamily": "Ricty Diminished", // 統合ターミナルのフォントを変更
@@ -33,6 +38,10 @@
   "gopls": {
     "usePlaceholders": true, // 関数の引数や構造体のフィールドも補完対象
     "completeUnimported": true // パッケージ不使用時に import 文を削除
+  },
+  /* JavaScript */
+  "eslint.options": {
+    "ignorePattern": "webpack.config.js" // VSCode 視点で ESLint を無効
   },
   /* Markdown */
   "markdown.preview.fontFamily": "'Ricty Diminished', monospace", // Markdown プレビュー画面でのフォント

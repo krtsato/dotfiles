@@ -1,13 +1,15 @@
 CoenraadS.bracket-pair-colorizer-2
 DavidAnson.vscode-markdownlint
+dbaeumer.vscode-eslint
+esbenp.prettier-vscode
 foxundermoon.shell-format
 mikestead.dotenv
+ms-azuretools.vscode-docker
 MS-CEINTL.vscode-language-pack-ja
 ms-vscode.Go
 oderwat.indent-rainbow
 PKief.material-icon-theme
 VisualStudioExptTeam.vscodeintellicode
 vscodevim.vim
-wix.vscode-import-cost
 yzane.markdown-pdf
 yzhang.markdown-all-in-one
