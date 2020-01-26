@@ -40,9 +40,7 @@
     "completeUnimported": true // パッケージ不使用時に import 文を削除
   },
   /* JavaScript */
-  "eslint.options": {
-    "ignorePattern": "webpack.config.js" // VSCode 視点で ESLint を無効
-  },
+  "javascript.format.enable": false,
   /* Markdown */
   "markdown.preview.fontFamily": "'Ricty Diminished', monospace", // Markdown プレビュー画面でのフォント
   "markdown.preview.fontSize": 11, // Markdown プレビュー画面でのフォントサイズ
@@ -54,5 +52,6 @@
   "markdown-pdf.breaks": true, // PDF出力に改行を反映
   "markdown-pdf.styles": [
     "~/dotfiles/markdown-pdf.css" // PDF 出力に CSS を適用
-  ]
+  ],
+  "window.zoomLevel": 0,
 }
