@@ -2,7 +2,7 @@
   "editor.cursorBlinking": "smooth", // カーソルが滑らかに点滅
   "editor.cursorStyle": "block", // カーソルはブロック型
   "editor.fontFamily": "'Ricty Diminished', Menlo, Monaco, 'Courier New', monospace", // デフォルトフォントに Ricty Diminished を追加
-  "editor.fontSize": 15, // フォントサイズは 15 で統一
+  "editor.fontSize": 12, // フォントサイズは 15 で統一
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true // JavaScript の保存時に ESLint を適用
   },
