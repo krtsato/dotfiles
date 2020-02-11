@@ -52,6 +52,5 @@
   "markdown-pdf.breaks": true, // PDF出力に改行を反映
   "markdown-pdf.styles": [
     "~/dotfiles/markdown-pdf.css" // PDF 出力に CSS を適用
-  ],
-  "window.zoomLevel": 0,
+  ]
 }
