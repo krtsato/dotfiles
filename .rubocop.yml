@@ -1,15 +1,19 @@
 inherit_from:
   - .rubocop_todo.yml
 
-Rails:
-  Enabled: true
+require:
+  - rubocop-performance
+  - rubocop-rails
+  - rubocop-rspec
 
 AllCops:
-  TargetRubyVersion: 2.6
+  TargetRubyVersion: 2.7
   Exclude:
+    - app/views/**/*
     - bin/**/*
     - config/**/*
     - db/**/*
+    - init_proj/**/*
     - lib/**/*
     - log/**/*
     - node_modules/**/*
@@ -19,10 +23,10 @@ AllCops:
     - vendor/**/*
     - config.ru
     - Gemfile
-    - Rakefile  
+    - Rakefile
 
-Layout/IndentationConsistency:
-  EnforcedStyle: rails
+Layout/LineLength:
+  Max: 135
 
 Layout/SpaceInLambdaLiteral:
   EnforcedStyle: require_space
@@ -36,17 +40,27 @@ Layout/SpaceInsideHashLiteralBraces:
 Metrics/AbcSize:
   Max: 20
 
-Metrics/LineLength:
-  Max: 135
-
 Metrics/MethodLength:
   Max: 15
 
+Style/AsciiComments:
+  Enabled: true
+
 Style/Documentation:
   Enabled: false
+
+Style/HashEachMethods:
+  Enabled: true
+
+Style/HashTransformKeys:
+  Enabled: true
+
+Style/HashTransformValues:
+  Enabled: true
 
 Style/RedundantSelf:
   Enabled: false
 
 Style/SymbolArray:
   EnforcedStyle: brackets
+
