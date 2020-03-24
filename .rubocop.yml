@@ -26,19 +26,24 @@ AllCops:
     - Rakefile
 
 Layout/LineLength:
-  Max: 135
+  Max: 120
 
 Layout/SpaceInLambdaLiteral:
   EnforcedStyle: require_space
 
 Layout/SpaceInsideBlockBraces:
   EnforcedStyle: no_space
+  SpaceBeforeBlockParameters: false
 
 Layout/SpaceInsideHashLiteralBraces:
   EnforcedStyle: no_space
 
 Metrics/AbcSize:
   Max: 20
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
 
 Metrics/MethodLength:
   Max: 15
@@ -58,9 +63,8 @@ Style/HashTransformKeys:
 Style/HashTransformValues:
   Enabled: true
 
-Style/RedundantSelf:
+Style/IfUnlessModifier:
   Enabled: false
 
-Style/SymbolArray:
-  EnforcedStyle: brackets
-
+Style/RedundantSelf:
+  Enabled: false
