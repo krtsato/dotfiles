@@ -45,8 +45,7 @@
   "markdown.preview.fontFamily": "'Ricty Diminished', monospace", // Markdown プレビュー画面でのフォント
   "markdown.preview.fontSize": 11, // Markdown プレビュー画面でのフォントサイズ
   "markdown.preview.lineHeight": 1.5, // Markdown の行間は 1.5 行
-  "markdown.extension.list.indentationSize": "inherit", // VSCooe のインデントに合わせる
-  "markdown.extension.preview.autoShowPreviewToSide": true, // 画面右に Markdown のプレビュー表示
+  "markdown.extension.list.indentationSize": "inherit", // 画面右に Markdown のプレビュー表示
   "markdown.extension.toc.githubCompatibility": true, // 目次に GitHub 仕様を適用
   "markdown.extension.toc.updateOnSave": false, // 保存時に目次を非更新
   "markdown-pdf.breaks": true, // PDF出力に改行を反映

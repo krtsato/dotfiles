@@ -14,7 +14,6 @@ AllCops:
     - config/**/*
     - db/**/*
     - init_proj/**/*
-    - lib/**/*
     - log/**/*
     - node_modules/**/*
     - public/**/*
@@ -48,8 +47,13 @@ Metrics/BlockLength:
 Metrics/MethodLength:
   Max: 15
 
+RSpec/ExampleLength:
+  Exclude:
+    - spec/features/**/*
+  Max: 10
+
 Style/AsciiComments:
-  Enabled: true
+  Enabled: false
 
 Style/Documentation:
   Enabled: false
