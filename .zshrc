@@ -34,9 +34,6 @@ preexec() {
 }
 
 # golang
-## for modules
-export GO111MODULE=on
-
 ## for executable binary, such as go, godoc and gofmt
 GOROOT=$(go env GOROOT)
 export PATH=$GOROOT/bin:$PATH
@@ -44,3 +41,6 @@ export PATH=$GOROOT/bin:$PATH
 ## for external go packages
 GOPATH=$(go env GOPATH)
 export PATH=$GOPATH/bin:$PATH
+
+## for modules
+export GO111MODULE=on

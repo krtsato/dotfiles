@@ -3,11 +3,7 @@
   "editor.cursorStyle": "block", // カーソルはブロック型
   "editor.fontFamily": "'Ricty Diminished', Menlo, Monaco, 'Courier New', monospace", // デフォルトフォントに Ricty Diminished を追加
   "editor.fontSize": 12, // フォントサイズは 15 で統一
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true // JavaScript の保存時に ESLint を適用
-  },
   "editor.codeActionsOnSaveTimeout": 2000, // 2秒以内に codeActions を実行
-  "editor.defaultFormatter": "esbenp.prettier-vscode", // formatter に Prettier を使用
   "editor.formatOnPaste": true, // コードのコピペ時にフォーマット
   "editor.renderIndentGuides": true, // ガイドラインを可視化
   "editor.tabCompletion": "on", // 文字入力後の tab キーで候補を表示
@@ -29,6 +25,11 @@
     "editor.defaultFormatter": "ms-azuretools.vscode-docker" // VSCode の拡張機能 Docker で整形
   },
   /* Golang */
+  "[go]": {
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    }
+  },
   "go.lintTool": "golangci-lint", // Linter 厳格化のため golangci-lint を採用
   "go.lintOnSave": "file", // ファイル保存時に Lint を実行
   "go.lintFlags": [
@@ -40,7 +41,13 @@
     "completeUnimported": true // パッケージ不使用時に import 文を削除
   },
   /* JavaScript */
-  "javascript.format.enable": false,
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode", // formatter に Prettier を使用
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true // JavaScript の保存時に ESLint を適用
+    }
+  },
+  "javascript.format.enable": false, // format は prettier に任せる
   /* Markdown */
   "markdown.preview.fontFamily": "'Ricty Diminished', monospace", // Markdown プレビュー画面でのフォント
   "markdown.preview.fontSize": 11, // Markdown プレビュー画面でのフォントサイズ
