@@ -49,6 +49,9 @@
   },
   "javascript.format.enable": false, // format は prettier に任せる
   /* Markdown */
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode" // formatter に Prettier を使用
+  },
   "markdown.preview.fontFamily": "'Ricty Diminished', monospace", // Markdown プレビュー画面でのフォント
   "markdown.preview.fontSize": 11, // Markdown プレビュー画面でのフォントサイズ
   "markdown.preview.lineHeight": 1.5, // Markdown の行間は 1.5 行
