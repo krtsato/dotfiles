@@ -48,6 +48,10 @@
     }
   },
   "javascript.format.enable": false, // format は prettier に任せる
+  /* Ruby */
+  "[ruby]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode" // formatter に Prettier を使用
+  },
   /* Markdown */
   "[markdown]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode" // formatter に Prettier を使用
@@ -61,5 +65,6 @@
   "markdown-pdf.breaks": true, // PDF出力に改行を反映
   "markdown-pdf.styles": [
     "~/dotfiles/markdown-pdf.css" // PDF 出力に CSS を適用
-  ]
+  ],
+  "diffEditor.ignoreTrimWhitespace": false
 }
