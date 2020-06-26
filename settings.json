@@ -41,13 +41,12 @@
     "completeUnimported": true // パッケージ不使用時に import 文を削除
   },
   /* JavaScript */
-  "[javascript]": {
+  "[typescriptreact]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode", // formatter に Prettier を使用
     "editor.codeActionsOnSave": {
       "source.fixAll.eslint": true // JavaScript の保存時に ESLint を適用
     }
   },
-  "javascript.format.enable": false, // format は prettier に任せる
   /* Ruby */
   "[ruby]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode" // formatter に Prettier を使用
@@ -66,5 +65,10 @@
   "markdown-pdf.styles": [
     "~/dotfiles/markdown-pdf.css" // PDF 出力に CSS を適用
   ],
-  "diffEditor.ignoreTrimWhitespace": false
+  /* Swagger */
+  "swaggerViewer.defaultPort": 8080,
+  /* Yaml */
+  "[yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }
