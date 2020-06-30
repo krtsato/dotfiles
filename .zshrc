@@ -44,3 +44,6 @@ export PATH=$GOPATH/bin:$PATH
 
 ## for modules
 export GO111MODULE=on
+
+# Ruby
+export PATH=/usr/local/opt/ruby/bin:$PATH

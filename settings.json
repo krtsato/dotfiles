@@ -3,7 +3,6 @@
   "editor.cursorStyle": "block", // カーソルはブロック型
   "editor.fontFamily": "'Ricty Diminished', Menlo, Monaco, 'Courier New', monospace", // デフォルトフォントに Ricty Diminished を追加
   "editor.fontSize": 12, // フォントサイズは 15 で統一
-  "editor.codeActionsOnSaveTimeout": 2000, // 2秒以内に codeActions を実行
   "editor.formatOnPaste": true, // コードのコピペ時にフォーマット
   "editor.renderIndentGuides": true, // ガイドラインを可視化
   "editor.tabCompletion": "on", // 文字入力後の tab キーで候補を表示
@@ -28,7 +27,7 @@
   "[go]": {
     "editor.codeActionsOnSave": {
       "source.organizeImports": true
-    }
+    } // Go の標準機を使用
   },
   "go.lintTool": "golangci-lint", // Linter 厳格化のため golangci-lint を採用
   "go.lintOnSave": "file", // ファイル保存時に Lint を実行
@@ -47,10 +46,17 @@
       "source.fixAll.eslint": true // JavaScript の保存時に ESLint を適用
     }
   },
+  /* ESLint*/
+  "eslint.workingDirectories": [
+    "frontend" // workspace の frontend 配下で ESLint を使う
+  ],
+  /* Prettier */
+  "prettier.configPath": "~/dotfiles/.prettierrc.yml", // dotfiles で管理する
+  "prettier.withNodeModules": true, // workspace の node_modules にある Prettier を使う
   /* Ruby */
-  "[ruby]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode" // formatter に Prettier を使用
-  },
+  "ruby.rubocop.configFilePath": "backend/main_api/.rubocop.yml", // workspace をルートとしたディレクトリしか指定できない
+  "ruby.rubocop.executePath": "/usr/local/lib/ruby/gems/2.7.0/bin/", // マシングローバルに rubocop 系統をインストールした
+  "ruby.rubocop.onSave": true, // 保存時に rubocop が実行される
   /* Markdown */
   "[markdown]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode" // formatter に Prettier を使用
@@ -63,12 +69,15 @@
   "markdown.extension.toc.updateOnSave": false, // 保存時に目次を非更新
   "markdown-pdf.breaks": true, // PDF出力に改行を反映
   "markdown-pdf.styles": [
-    "~/dotfiles/markdown-pdf.css" // PDF 出力に CSS を適用
-  ],
+    "~/dotfiles/markdown-pdf.css"
+  ], // PDF 出力に CSS を適用
   /* Swagger */
   "swaggerViewer.defaultPort": 8080,
   /* Yaml */
   "[yaml]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
   }
 }
