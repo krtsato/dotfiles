@@ -4,6 +4,7 @@ DavidAnson.vscode-markdownlint
 dbaeumer.vscode-eslint
 esbenp.prettier-vscode
 foxundermoon.shell-format
+george-alisson.html-preview-vscode
 golang.go
 mikestead.dotenv
 misogi.ruby-rubocop
