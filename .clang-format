@@ -1,0 +1,6 @@
+Language: Proto
+BasedOnStyle: Google
+IndentWidth: 2
+TabWidth: 2
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
