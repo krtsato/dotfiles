@@ -64,7 +64,7 @@
   "ruby.rubocop.onSave": true, // 保存時に rubocop が実行される
   /* Markdown */
   "[markdown]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode", // formatter に Prettier を使用
+    "editor.defaultFormatter": "yzhang.markdown-all-in-one",
     "editor.formatOnSave": true
   },
   "markdown.preview.fontFamily": "'Ricty Diminished', monospace", // Markdown プレビュー画面でのフォント
@@ -75,13 +75,13 @@
   "markdown.extension.toc.updateOnSave": false, // 保存時に目次を非更新
   "markdown-pdf.breaks": true, // PDF出力に改行を反映
   "markdown-pdf.styles": [
-    "~/dotfiles/markdown-pdf.css"
-  ], // PDF 出力に CSS を適用
+    "~/dotfiles/markdown-pdf.css" // PDF 出力に CSS を適用
+  ],
   /* Swagger */
   "swaggerViewer.defaultPort": 8080,
   /* Yaml */
   "[yaml]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": "redhat.vscode-yaml",
     "editor.formatOnSave": true
   },
   /* JSONC */
