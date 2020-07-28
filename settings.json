@@ -26,8 +26,8 @@
   /* Golang */
   "[go]": {
     "editor.codeActionsOnSave": {
-      "source.organizeImports": true
-    } // Go の標準機を使用
+      "source.organizeImports": true // Go の標準機能を使用
+    }
   },
   "go.lintTool": "golangci-lint", // Linter 厳格化のため golangci-lint を採用
   "go.lintOnSave": "file", // ファイル保存時に Lint を実行
