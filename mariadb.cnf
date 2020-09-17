@@ -1,0 +1,33 @@
+# docs: https://mariadb.com/kb/en/configuring-mariadb-with-option-files/
+
+[client]
+default_character_set=utf8mb4
+
+[mariadb]
+# 基本設定
+character_set_server=utf8mb4
+datadir=/var/lib/mysql
+
+# slow query log 有効化
+slow_query_log=1
+
+# 5 秒以上時間を要したクエリを記録
+long_query_time=5
+
+# index が未使用のクエリを出力
+log_queries_not_using_indexes=1
+
+# log のパス
+slow_query_log_file=/var/log/slow.log
+log_error=/var/log/error.log
+general_log_file=/var/log/general.log
+
+# 普遍的なログは出力しない
+general_log=0
+
+[mariadb_safe]
+# PID ファイル
+pid_file=/var/run/mysqld/mysqld.pid
+
+# Socket ファイル
+socket=/run/mysqld/mysqld.sock
