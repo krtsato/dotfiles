@@ -1,4 +1,3 @@
-Arjun.swagger-viewer
 CoenraadS.bracket-pair-colorizer-2
 DavidAnson.vscode-markdownlint
 dbaeumer.vscode-eslint
@@ -7,15 +6,12 @@ foxundermoon.shell-format
 george-alisson.html-preview-vscode
 golang.go
 mikestead.dotenv
-misogi.ruby-rubocop
 ms-azuretools.vscode-docker
 MS-CEINTL.vscode-language-pack-ja
 oderwat.indent-rainbow
 PKief.material-icon-theme
 redhat.vscode-yaml
 VisualStudioExptTeam.vscodeintellicode
-vscodevim.vim
-wingrunr21.vscode-ruby
 xaver.clang-format
 yzane.markdown-pdf
 yzhang.markdown-all-in-one
