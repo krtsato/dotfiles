@@ -8,7 +8,7 @@
   "editor.tabCompletion": "on", // 文字入力後の tab キーで候補を表示
   "editor.tabSize": 2, // tab キー は 2 スペースで統一
   "editor.snippetSuggestions": "none", // スニペットは Dash を使うため非表示
-  "editor.suggestSelection": "first", // 入力候補の初期項目i
+  "editor.suggestSelection": "first", // 入力候補の初期項目
   "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue", // 入力候補が recentlyUsed のとき入力結果を反映
   "telemetry.enableTelemetry": false, // Microsoft へのデータ送信を停止
   "terminal.integrated.fontFamily": "Ricty Diminished", // 統合ターミナルのフォントを変更
@@ -32,6 +32,7 @@
   "go.lintTool": "golangci-lint", // Linter 厳格化のため golangci-lint を採用
   "go.lintOnSave": "file", // ファイル保存時に Lint を実行
   "go.lintFlags": [
+    "--config=${workspaceFolder}/configs/.golangci.yml",
     "--fast" // golangci-lint の中でも高速な Linter を VSCode 上で実行
   ],
   "go.useLanguageServer": true, // 言語サーバに gopls を採用
@@ -52,13 +53,81 @@
   "markdown.extension.toc.updateOnSave": false, // 保存時に目次を非更新
   "markdown-pdf.breaks": true, // PDF出力に改行を反映
   "markdown-pdf.styles": [
-    "~/dotfiles/markdown-pdf.css" // PDF 出力に CSS を適用
+    "~/myrepo/dotfiles/markdown-pdf.css" // PDF 出力に CSS を適用
   ],
   /* Yaml */
   "[yaml]": {
     "editor.defaultFormatter": "redhat.vscode-yaml",
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "editor.autoIndent": "full"
   },
+  "yaml.format.printWidth": 120,
+  "yaml.customTags": [
+    "!And scalar",
+    "!And mapping",
+    "!And sequence",
+    "!If scalar",
+    "!If mapping",
+    "!If sequence",
+    "!Not scalar",
+    "!Not mapping",
+    "!Not sequence",
+    "!Equals scalar",
+    "!Equals mapping",
+    "!Equals sequence",
+    "!Or scalar",
+    "!Or mapping",
+    "!Or sequence",
+    "!FindInMap scalar",
+    "!FindInMap mappping",
+    "!FindInMap sequence",
+    "!Base64 scalar",
+    "!Base64 mapping",
+    "!Base64 sequence",
+    "!Cidr scalar",
+    "!Cidr mapping",
+    "!Cidr sequence",
+    "!Ref scalar",
+    "!Ref mapping",
+    "!Ref sequence",
+    "!Sub scalar",
+    "!Sub mapping",
+    "!Sub sequence",
+    "!GetAtt scalar",
+    "!GetAtt mapping",
+    "!GetAtt sequence",
+    "!GetAZs scalar",
+    "!GetAZs mapping",
+    "!GetAZs sequence",
+    "!ImportValue scalar",
+    "!ImportValue mapping",
+    "!ImportValue sequence",
+    "!Select scalar",
+    "!Select mapping",
+    "!Select sequence",
+    "!Split scalar",
+    "!Split mapping",
+    "!Split sequence",
+    "!Join scalar",
+    "!Join mapping",
+    "!Join sequence",
+    "!And",
+    "!If",
+    "!Not",
+    "!Equals",
+    "!Or",
+    "!FindInMap",
+    "!Base64",
+    "!Join",
+    "!Cidr",
+    "!Ref",
+    "!Sub",
+    "!GetAtt",
+    "!GetAZs",
+    "!ImportValue",
+    "!Select",
+    "!Split"
+  ],
   /* JSONC */
   "[jsonc]": {
     "editor.defaultFormatter": "vscode.json-language-features",
@@ -69,5 +138,7 @@
   "[proto3]": {
     "editor.defaultFormatter": "xaver.clang-format",
     "editor.formatOnSave": true
-  }
+  },
+  /* draw.io */
+  "hediet.vscode-drawio.local-storage": "eyIuZHJhd2lvLWNvbmZpZyI6IntcImxhbmd1YWdlXCI6XCJcIixcImN1c3RvbUZvbnRzXCI6W10sXCJsaWJyYXJpZXNcIjpcImdlbmVyYWxcIixcImN1c3RvbUxpYnJhcmllc1wiOltcIkwuc2NyYXRjaHBhZFwiXSxcInBsdWdpbnNcIjpbXSxcInJlY2VudENvbG9yc1wiOltcIkZGRkZGRlwiXSxcImZvcm1hdFdpZHRoXCI6XCIyNDBcIixcImNyZWF0ZVRhcmdldFwiOmZhbHNlLFwicGFnZUZvcm1hdFwiOntcInhcIjowLFwieVwiOjAsXCJ3aWR0aFwiOjE2MDAsXCJoZWlnaHRcIjo5MDB9LFwic2VhcmNoXCI6dHJ1ZSxcInNob3dTdGFydFNjcmVlblwiOnRydWUsXCJncmlkQ29sb3JcIjpcIiNkMGQwZDBcIixcImRhcmtHcmlkQ29sb3JcIjpcIiM2ZTZlNmVcIixcImF1dG9zYXZlXCI6dHJ1ZSxcInJlc2l6ZUltYWdlc1wiOm51bGwsXCJvcGVuQ291bnRlclwiOjAsXCJ2ZXJzaW9uXCI6MTgsXCJ1bml0XCI6MSxcImlzUnVsZXJPblwiOmZhbHNlLFwidWlcIjpcIlwifSJ9"
 }
