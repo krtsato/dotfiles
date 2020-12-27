@@ -41,6 +41,8 @@ export PATH=$GOROOT/bin:$PATH
 ## for external go packages
 GOPATH=$(go env GOPATH)
 export PATH=$GOPATH/bin:$PATH
+export GOPROXY=direct
+export GOSUMDB=off
 
 ## for modules
 export GO111MODULE=on

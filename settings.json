@@ -38,7 +38,10 @@
   "go.useLanguageServer": true, // 言語サーバに gopls を採用
   "gopls": {
     "usePlaceholders": true, // 関数の引数や構造体のフィールドも補完対象
-    "completeUnimported": true // パッケージ不使用時に import 文を削除
+    "completeUnimported": true, // パッケージ不使用時に import 文を削除
+    "buildFlags": [
+      "-tags=wireinject"
+    ]
   },
   /* Markdown */
   "[markdown]": {
