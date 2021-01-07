@@ -49,3 +49,8 @@ export GO111MODULE=on
 
 # Ruby
 export PATH=/usr/local/opt/ruby/bin:$PATH
+
+# Serverless Framework
+# tabtab source for packages
+# uninstall by removing these lines
+[[ -f ~/.config/tabtab/__tabtab.zsh ]] && . ~/.config/tabtab/__tabtab.zsh || true

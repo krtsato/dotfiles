@@ -4,6 +4,7 @@ default_character_set=utf8mb4
 [mysqld]
 # 基本設定
 character_set_server=utf8mb4
+collation_server=utf8mb4_general_ci
 datadir=/var/lib/mysql
 
 # 古い認証方式を使う MySQL 用
@@ -19,9 +20,9 @@ long_query_time=5
 log_queries_not_using_indexes=1
 
 # log のパス
-slow_query_log_file=/var/log/slow.log
-log_error=/var/log/error.log
-general_log_file=/var/log/general.log
+slow_query_log_file=/var/log/mysql/slow.log
+log_error=/var/log/mysql/error.log
+general_log_file=/var/log/mysql/general.log
 
 # 普遍的なログは出力しない
 general_log=0
@@ -31,5 +32,5 @@ general_log=0
 pid_file=/var/run/mysqld/mysqld.pid
 
 # ソケットファイル
-socket=/var/lib/mysql/mysql.sock
+socket=/run/mysqld/mysql.sock
 
