@@ -11,8 +11,10 @@
 	ui = true
 [status]
 	diff = auto
+[init]
+	defaultBranch = main
 [push]
-	defaul = simple
+	default = simple
 [url "ssh://git@github.com/"]
 	insteadOf = https://github.com/
 [alias]
