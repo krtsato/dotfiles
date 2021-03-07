@@ -4,6 +4,9 @@
 # Zsh
 # ------------------------------------------------------------ #
 
+# avoid path duplication
+typeset -U path PATH
+
 # zsh $PROMPT | default : PROMPT=%m%#
 autoload -Uz colors && colors
 PROMPT="%{$fg[green]%}%1~ %# %{$reset_color%}"
@@ -48,6 +51,13 @@ export PATH=/usr/local/opt/openssl/bin:$PATH
 export PATH=$HOME/shells:$PATH
 
 # ------------------------------------------------------------ #
+# Java
+# ------------------------------------------------------------ #
+
+# version
+export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
+
+# ------------------------------------------------------------ #
 # Golang
 # ------------------------------------------------------------ #
 
@@ -84,3 +94,9 @@ export CPPFLAGS=-I/usr/local/opt/node@14/include
 
 # tabtab source for packages. uninstall by removing these lines
 [[ -f ~/.config/tabtab/__tabtab.zsh ]] && . ~/.config/tabtab/__tabtab.zsh || true
+
+# ------------------------------------------------------------ #
+# Job Tools
+# ------------------------------------------------------------ #
+
+export PATH=/usr/local/opt/swig@3/bin:$PATH
