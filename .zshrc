@@ -57,6 +57,10 @@ export PATH=$HOME/shells:$PATH
 # version
 export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
 
+# OpenJDK
+export PATH=/usr/local/opt/openjdk/bin:$PATH
+export CPPFLAGS=-I/usr/local/opt/openjdk/include
+
 # ------------------------------------------------------------ #
 # Golang
 # ------------------------------------------------------------ #
