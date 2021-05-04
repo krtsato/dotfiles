@@ -35,6 +35,7 @@
     "--config=${workspaceFolder}/configs/.golangci.yml",
     "--fast" // golangci-lint の中でも高速な Linter を VSCode 上で実行
   ],
+  "go.toolsManagement.autoUpdate": true, // IDE 拡張が使用するツールを最新状態に保つ
   "go.useLanguageServer": true, // 言語サーバに gopls を採用
   "gopls": {
     "usePlaceholders": true, // 関数の引数や構造体のフィールドも補完対象

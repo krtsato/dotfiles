@@ -51,17 +51,6 @@ export PATH=/usr/local/opt/openssl/bin:$PATH
 export PATH=$HOME/shells:$PATH
 
 # ------------------------------------------------------------ #
-# Java
-# ------------------------------------------------------------ #
-
-# version
-export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
-
-# OpenJDK
-export PATH=/usr/local/opt/openjdk/bin:$PATH
-export CPPFLAGS=-I/usr/local/opt/openjdk/include
-
-# ------------------------------------------------------------ #
 # Golang
 # ------------------------------------------------------------ #
 
@@ -78,29 +67,3 @@ export GOSUMDB=off
 # for modules
 export GO111MODULE=on
 
-# ------------------------------------------------------------ #
-# Ruby
-# ------------------------------------------------------------ #
-
-export PATH=/usr/local/opt/ruby/bin:$PATH
-
-# ------------------------------------------------------------ #
-# Node
-# ------------------------------------------------------------ #
-
-export PATH=/usr/local/opt/node@14/bin:$PATH
-export LDFLAGS=-L/usr/local/opt/node@14/lib
-export CPPFLAGS=-I/usr/local/opt/node@14/include
-
-# ------------------------------------------------------------ #
-# Serverless Framework
-# ------------------------------------------------------------ #
-
-# tabtab source for packages. uninstall by removing these lines
-[[ -f ~/.config/tabtab/__tabtab.zsh ]] && . ~/.config/tabtab/__tabtab.zsh || true
-
-# ------------------------------------------------------------ #
-# Job Tools
-# ------------------------------------------------------------ #
-
-export PATH=/usr/local/opt/swig@3/bin:$PATH
