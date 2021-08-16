@@ -1,28 +1,52 @@
 {
   "editor.cursorBlinking": "smooth", // カーソルが滑らかに点滅
   "editor.cursorStyle": "block", // カーソルはブロック型
-  "editor.fontFamily": "'Ricty Diminished', Menlo, Monaco, 'Courier New', monospace", // デフォルトフォントに Ricty Diminished を追加
-  "editor.fontSize": 12, // フォントサイズは 15 で統一
-  "editor.formatOnPaste": true, // コードのコピペ時にフォーマット
+  "editor.fontFamily": "FiraCodeNerdFontCompleteM-Retina, 'Ricty Diminished', Menlo, Monaco, 'Courier New', monospace", // フォントに Ricty Diminished を追加
+  "editor.fontSize": 12, // フォントサイズは 12
+  "editor.formatOnPaste": true, // ペースト時にフォーマット
   "editor.renderIndentGuides": true, // ガイドラインを可視化
-  "editor.tabCompletion": "on", // 文字入力後の tab キーで候補を表示
   "editor.tabSize": 2, // tab キー は 2 スペースで統一
   "editor.snippetSuggestions": "none", // スニペットは Dash を使うため非表示
-  "editor.suggestSelection": "first", // 入力候補の初期項目
-  "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue", // 入力候補が recentlyUsed のとき入力結果を反映
+  "editor.suggestSelection": "first", // 入力候補の最上項目が初期選択される
+  "files.autoSave": "afterDelay", // 時間経過で自動保存する
+  "files.autoSaveDelay": 1500, // 1.5 秒後に自動保存
+  "security.workspace.trust.untrustedFiles": "open", // 初回展開するファイルを信用
   "telemetry.enableTelemetry": false, // Microsoft へのデータ送信を停止
-  "terminal.integrated.fontFamily": "Ricty Diminished", // 統合ターミナルのフォントを変更
-  "terminal.integrated.fontSize": 15, // 統合ターミナルのフォントサイズを変更
-  "terminal.integrated.shell.osx": "/usr/local/bin/zsh", // 統合ターミナルのシェルを変更
+  "terminal.integrated.fontFamily": "FiraCodeNerdFontCompleteM-Retina", // 統合ターミナルのフォントを変更
+  "terminal.integrated.fontSize": 12, // 統合ターミナルのフォントサイズを変更
+  "terminal.integrated.defaultProfile.osx": "zsh", // VSCode のデフォルトシェルは zsh
+  "terminal.integrated.profiles.osx": {
+    "zsh": {
+      "path": "/usr/local/bin/zsh",
+      "args": [
+        "-l"
+      ]
+    }
+  },
   "workbench.editor.enablePreview": false, // 新規ファイルを開くときプレビュー不要
   "workbench.editor.enablePreviewFromQuickOpen": false, // ショートカットキーでも同様
   "workbench.editor.highlightModifiedTabs": true, // 未保存のタブにハイライン付加
   "workbench.iconTheme": "material-icon-theme", // 拡張機能 Material Icon Theme
-  "workbench.startupEditor": "newUntitledFile", // VSCode 起動時に Welcome ページを非表示
+  "workbench.startupEditor": "none", // VSCode 起動時にコンテンツ非表示
+  /* Visual Studio IntelliCode */
+  "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue", // suggestSelection の提示を IntelliCode で上書き
+  /* GitHub */
+  "githubIssues.queries": [
+    {
+      "label": "My Issues",
+      "query": "default"
+    },
+    {
+      "label": "Created Issues",
+      "query": "author:${user} state:open repo:${owner}/${repository} sort:created-desc"
+    }
+  ],
   /* Docker*/
   "[dockerfile]": {
     "editor.defaultFormatter": "ms-azuretools.vscode-docker" // VSCode の拡張機能 Docker で整形
   },
+  /* ESLint */
+  "eslint.format.enable": true,
   /* Golang */
   "[go]": {
     "editor.codeActionsOnSave": {
@@ -30,9 +54,9 @@
     }
   },
   "go.lintTool": "golangci-lint", // Linter 厳格化のため golangci-lint を採用
-  "go.lintOnSave": "file", // ファイル保存時に Lint を実行
+  "go.lintOnSave": "package", // ファイル保存時に package スコープで Lint を実行
   "go.lintFlags": [
-    "--config=${workspaceFolder}/configs/.golangci.yml",
+    "--config=~/myrepo/dotfiles/.golangci.yml", // ワークスペースに linter 設定がないときユーザの設定を使用
     "--fast" // golangci-lint の中でも高速な Linter を VSCode 上で実行
   ],
   "go.toolsManagement.autoUpdate": true, // IDE 拡張が使用するツールを最新状態に保つ
@@ -41,13 +65,17 @@
     "usePlaceholders": true, // 関数の引数や構造体のフィールドも補完対象
     "completeUnimported": true, // パッケージ不使用時に import 文を削除
     "buildFlags": [
-      "-tags=wireinject"
+      "-tags=wireinject", // google/wire で DI を実行
+      "-tags=unit", // unit テストに付与
+      "-tags=integration" // integration テストに付与
     ]
   },
+  "go.coverMode": "atomic", // 並列処理中でもコードの通過回数をカウント
   "go.testFlags": [
-    "-v",
-    "-race",
-    "-count=1"
+    "-v", // テスト詳細を表示
+    "-race", // 複数スレッドによるデータ競合を確認
+    "-count=1", // テストでキャッシュを使わない
+    "-coverprofile=coverage.out" // カバレッジを出力
   ],
   /* Markdown */
   "[markdown]": {
@@ -58,11 +86,9 @@
   "markdown.preview.fontSize": 11, // Markdown プレビュー画面でのフォントサイズ
   "markdown.preview.lineHeight": 1.5, // Markdown の行間は 1.5 行
   "markdown.extension.list.indentationSize": "inherit", // 画面右に Markdown のプレビュー表示
-  "markdown.extension.toc.githubCompatibility": true, // 目次に GitHub 仕様を適用
-  "markdown.extension.toc.updateOnSave": false, // 保存時に目次を非更新
   "markdown-pdf.breaks": true, // PDF出力に改行を反映
   "markdown-pdf.styles": [
-    "~/myrepo/dotfiles/markdown-pdf.css" // PDF 出力に CSS を適用
+    "~/myrepo/dotfiles/markdown-pdf.css" // ワークスペースに CSS がないときユーザの設定を使用
   ],
   /* Yaml */
   "[yaml]": {
@@ -142,12 +168,13 @@
     "editor.defaultFormatter": "vscode.json-language-features",
     "editor.formatOnSave": true
   },
-  /* gRPC */
-  "clang-format.style": "file",
+  /* Protocol Buffers */
+  "clang-format.style": "Google",
   "[proto3]": {
     "editor.defaultFormatter": "xaver.clang-format",
     "editor.formatOnSave": true
   },
   /* draw.io */
-  "hediet.vscode-drawio.local-storage": "eyIuZHJhd2lvLWNvbmZpZyI6IntcImxhbmd1YWdlXCI6XCJcIixcImN1c3RvbUZvbnRzXCI6W10sXCJsaWJyYXJpZXNcIjpcImdlbmVyYWw7YXdzNFwiLFwiY3VzdG9tTGlicmFyaWVzXCI6W1wiTC5zY3JhdGNocGFkXCJdLFwicGx1Z2luc1wiOltdLFwicmVjZW50Q29sb3JzXCI6W1wiODA4MDgwXCIsXCJGRkZGRkZcIl0sXCJmb3JtYXRXaWR0aFwiOjI0MCxcImNyZWF0ZVRhcmdldFwiOmZhbHNlLFwicGFnZUZvcm1hdFwiOntcInhcIjowLFwieVwiOjAsXCJ3aWR0aFwiOjE2MDAsXCJoZWlnaHRcIjo5MDB9LFwic2VhcmNoXCI6dHJ1ZSxcInNob3dTdGFydFNjcmVlblwiOnRydWUsXCJncmlkQ29sb3JcIjpcIiNkMGQwZDBcIixcImRhcmtHcmlkQ29sb3JcIjpcIiM2ZTZlNmVcIixcImF1dG9zYXZlXCI6dHJ1ZSxcInJlc2l6ZUltYWdlc1wiOm51bGwsXCJvcGVuQ291bnRlclwiOjAsXCJ2ZXJzaW9uXCI6MTgsXCJ1bml0XCI6MSxcImlzUnVsZXJPblwiOmZhbHNlLFwidWlcIjpcIlwifSJ9"
+  "hediet.vscode-drawio.local-storage": "eyIuZHJhd2lvLWNvbmZpZyI6IntcImxhbmd1YWdlXCI6XCJcIixcImN1c3RvbUZvbnRzXCI6W10sXCJsaWJyYXJpZXNcIjpcImdlbmVyYWw7YXdzNFwiLFwiY3VzdG9tTGlicmFyaWVzXCI6W1wiTC5zY3JhdGNocGFkXCJdLFwicGx1Z2luc1wiOltdLFwicmVjZW50Q29sb3JzXCI6W1wiODA4MDgwXCIsXCJGRkZGRkZcIl0sXCJmb3JtYXRXaWR0aFwiOjI0MCxcImNyZWF0ZVRhcmdldFwiOmZhbHNlLFwicGFnZUZvcm1hdFwiOntcInhcIjowLFwieVwiOjAsXCJ3aWR0aFwiOjE2MDAsXCJoZWlnaHRcIjo5MDB9LFwic2VhcmNoXCI6dHJ1ZSxcInNob3dTdGFydFNjcmVlblwiOnRydWUsXCJncmlkQ29sb3JcIjpcIiNkMGQwZDBcIixcImRhcmtHcmlkQ29sb3JcIjpcIiM2ZTZlNmVcIixcImF1dG9zYXZlXCI6dHJ1ZSxcInJlc2l6ZUltYWdlc1wiOm51bGwsXCJvcGVuQ291bnRlclwiOjAsXCJ2ZXJzaW9uXCI6MTgsXCJ1bml0XCI6MSxcImlzUnVsZXJPblwiOmZhbHNlLFwidWlcIjpcIlwifSJ9",
+  "window.zoomLevel": -1
 }
