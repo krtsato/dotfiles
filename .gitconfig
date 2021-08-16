@@ -1,9 +1,9 @@
 [user]
 	name = krtsato
-	email = ev60596@meiji.ac.jp
+	email = kuratasatoc@gmail.com
 [core]
 	editor = vim -c \"set fenc= utf-8\"
-	excludesfile = /Users/s11639/.gitignore_global # PC 交換時に編集
+	excludesfile = ~/.gitignore_global
 [color]
 	diff = auto
 	status = auto
@@ -13,27 +13,43 @@
 	diff = auto
 [init]
 	defaultBranch = main
+[fetch]
+	prune = true
 [push]
 	default = simple
 [url "ssh://git@github.com/"]
 	insteadOf = https://github.com/
 [alias]
-  # Rewrite and add to default alias.
 	# To check them, command "git alias".
+	alias = !git config --list | grep alias
   a = !git add . && git status
 	acm = !git add . && git commit -m
 	b = branch
-	bd = branch -d
+	bd = branch -D
+	bm = branch -m
+	bv = branch -vv
   ca = commit --amend
 	cl = clone
   cm = commit -m
 	co = checkout
 	cob = checkout -b
-	copo = !git checkout master && git pull origin master
+	copo = !git checkout main&& git pull origin main
   d = diff
+	fork = !git pull origin main && !git push myorigin main && git fetch --all -p
 	l = log --graph --date=short --decorate=short --pretty=format:'%C(auto)%h %C(auto, dim)%cd %C(auto, dim)%cn %C(auto)%s%C(auto)%d\n'
 	pl = pull
 	ps = push
 	pso = push origin
+	psod = push origin --delete
 	psou = push origin -u
+	ramo = remote add myorigin
 	ssb = status -sb
+[includeIf "gitdir:~/go/src/github.com/awa/"]
+  path = ~/.gitconfig.awa
+[includeIf "gitdir:~/go/src/ghe.ca-tools.org/"]
+	path = ~/.gitconfig.catools
+[includeIf "gitdir:~/jobrepo/ISE/"]
+  path = ~/.gitconfig.catools
+[includeIf "gitdir:~/jobrepo/dokusho/"]
+  path = ~/.gitconfig.catools
+
