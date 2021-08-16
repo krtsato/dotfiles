@@ -1,21 +1,26 @@
 run:
   modules-download-mode: readonly
   tests: true
-  skip-dirs:
-    - node_modules
+
+skip-dirs:
+  - build
+  - deployments
+  - docs
+  - scripts
 
 linters:
   enable:
     - gofmt
-    - golint
     - goimports
-# golangci-lintのデフォルトで不必要だと判断されているlintのエラーoffにしている
-# https://cyberz-adagency.slack.com/archives/C010S91FFAP/p1589764921003600
-# lintのfuncコメントのエラーをONにしたいという要望から個別でincludeに追加
-# デフォルトでOFFになっているルール、includeで使っているIDはこちらを参照
-# https://github.com/golangci/golangci-lint/blob/master/pkg/config/config.go#L39-L102
-# なお、includeはgolangci-lint 1.27.0では有効だが1.24.0では効かないためバージョンに注意
+    - gosec
+    - noctx
+    - nolintlint
+    - misspell
+    - prealloc
 
+# デフォルトで OFF のルール
+# include で使う ID は下記を参照
+# https://github.com/golangci/golangci-lint/blob/ffe80615b079a2cfe9b28e2d8323d58061b795d6/pkg/config/issues.go
 issues:
   include:
-    - EXC0002
+    - EXC0002 # export する func のコメントを lint 対象にする
