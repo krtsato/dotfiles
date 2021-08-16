@@ -1,0 +1,48 @@
+scan_timeout = 10
+
+[directory]
+truncation_length = 1
+
+[git_branch]
+format = "[$symbol$branch]($style) "
+
+[git_commit]
+disabled = true
+
+[git_status]
+conflicted = "💥"
+ahead = "🏎💨"
+behind = "😰"
+diverged = "😵"
+untracked = "🤷‍"
+stashed = "📦"
+modified = "🔨"
+staged = "📍"
+renamed = "📝"
+deleted = "🗑"
+style = "bold purple"
+
+[golang]
+format = "[$symbol($version )]($style)"
+
+[nodejs]
+format = "[$symbol($version )]($style)"
+detect_files = ["package.json", ".nvmrc"]
+
+[java]
+style = "#FF8300"
+
+[aws]
+disabled = true
+
+[gcloud]
+disabled = true
+
+[hostname]
+disabled = true
+
+[username]
+disabled = true
+
+[docker_context]
+disabled = true

@@ -23,6 +23,13 @@ export LSCOLORS=cxgxxxxxfxxxxxxxxxxxxx
 zstyle ':completion:*' list-colors di=32 ln=36 ex=35$ source ~/.zshrc
 
 # ------------------------------------------------------------ #
+# Starship
+# ------------------------------------------------------------ #
+
+eval "$(starship init zsh)"
+export STARSHIP_CONFIG=~/myrepo/dotfiles/.starship.toml
+
+# ------------------------------------------------------------ #
 # Hyper
 # ------------------------------------------------------------ #
 
@@ -82,5 +89,7 @@ if [ -f '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion
 # ------------------------------------------------------------ #
 
 export NVM_DIR="$HOME/.nvm"
+export NVM_SYMLINK_CURRENT=true
 [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"
 [ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && . "/usr/local/opt/nvm/etc/bash_completion.d/nvm"
+if [ -a ".nvmrc" ]; then nvm use; fi
