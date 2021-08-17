@@ -20,7 +20,7 @@
 [url "ssh://git@github.com/"]
 	insteadOf = https://github.com/
 [alias]
-	# To check them, command "git alias".
+	# To check them, command "git alias". 
 	alias = !git config --list | grep alias
   a = !git add . && git status
 	acm = !git add . && git commit -m
@@ -52,4 +52,3 @@
   path = ~/.gitconfig.catools
 [includeIf "gitdir:~/jobrepo/dokusho/"]
   path = ~/.gitconfig.catools
-
