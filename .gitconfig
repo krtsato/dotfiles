@@ -27,7 +27,7 @@
 	b = branch
 	bd = branch -D
 	bm = branch -m
-	bv = branch -vv
+	bv = branch -vv 
   ca = commit --amend
 	cl = clone
   cm = commit -m
@@ -35,6 +35,8 @@
 	cob = checkout -b
 	copo = !git checkout main && git pull origin main
   d = diff
+	f = fetch
+	fr = !git fetch --all && git rebase origin/main
 	fork = !git pull origin main && !git push myorigin main && git fetch --all -p
 	l = log --graph --date=short --decorate=short --pretty=format:'%C(auto)%h %C(auto, dim)%cd %C(auto, dim)%cn %C(auto)%s%C(auto)%d\n'
 	pl = pull
@@ -42,8 +44,17 @@
 	pso = push origin
 	psod = push origin --delete
 	psou = push origin -u
+	r = rebase
+	ra = rebase --abort
+	rc = rebase --continue
+	rlri = !git rev-list -1 --merges HEAD | xargs git rebase -i
 	rao = remote add origin
-	ssb = status -sb
+	rom = rebase origin/main
+	s = status -sb
+	st = stash
+	stc = stash clear
+	stl = stash list
+	stp = stash pop
 [includeIf "gitdir:~/go/src/github.com/awa/"]
   path = ~/.gitconfig.awa
 [includeIf "gitdir:~/go/src/ghe.ca-tools.org/"]
