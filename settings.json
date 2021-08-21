@@ -23,8 +23,6 @@
       ]
     }
   },
-  "workbench.editor.enablePreview": false, // 新規ファイルを開くときプレビュー不要
-  "workbench.editor.enablePreviewFromQuickOpen": false, // ショートカットキーでも同様
   "workbench.editor.highlightModifiedTabs": true, // 未保存のタブにハイライン付加
   "workbench.iconTheme": "material-icon-theme", // 拡張機能 Material Icon Theme
   "workbench.startupEditor": "none", // VSCode 起動時にコンテンツ非表示
@@ -35,11 +33,11 @@
   "githubIssues.queries": [
     {
       "label": "My Issues",
-      "query": "state:open assignee:${user} repo:${owner}/${repository} sort:created-desc"
+      "query": "state:open author:${user} repo:${owner}/${repository} sort:created-desc"
     },
     {
       "label": "Created Issues",
-      "query": "author:${user} state:open repo:${owner}/${repository} sort:created-desc"
+      "query": "state:open repo:${owner}/${repository} sort:created-desc"
     }
   ],
   "githubPullRequests.remotes": [
@@ -106,6 +104,7 @@
     "editor.formatOnSave": true,
     "editor.autoIndent": "full"
   },
+  "redhat.telemetry.enabled": false,
   "yaml.format.printWidth": 120,
   "yaml.customTags": [
     "!And scalar",
