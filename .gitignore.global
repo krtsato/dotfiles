@@ -1,1 +1,3 @@
-/Users/s11639/myrepo/dotfiles/.gitignore_global
+.DS_Store
+.idea
+node_modules
