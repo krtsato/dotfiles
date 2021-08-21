@@ -33,7 +33,7 @@
   cm = commit -m
 	co = checkout
 	cob = checkout -b
-	copo = !git checkout main&& git pull origin main
+	copo = !git checkout main && git pull origin main
   d = diff
 	fork = !git pull origin main && !git push myorigin main && git fetch --all -p
 	l = log --graph --date=short --decorate=short --pretty=format:'%C(auto)%h %C(auto, dim)%cd %C(auto, dim)%cn %C(auto)%s%C(auto)%d\n'
@@ -42,7 +42,7 @@
 	pso = push origin
 	psod = push origin --delete
 	psou = push origin -u
-	ramo = remote add myorigin
+	rao = remote add origin
 	ssb = status -sb
 [includeIf "gitdir:~/go/src/github.com/awa/"]
   path = ~/.gitconfig.awa
