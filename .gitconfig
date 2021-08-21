@@ -40,9 +40,10 @@
 	fork = !git pull origin main && !git push myorigin main && git fetch --all -p
 	l = log --graph --date=short --decorate=short --pretty=format:'%C(auto)%h %C(auto, dim)%cd %C(auto, dim)%cn %C(auto)%s%C(auto)%d\n'
 	pl = pull
-	ps = push
+	ps = !git rev-parse --abbrev-ref HEAD | xargs -I@ git push origin @
 	pso = push origin
-	psod = push origin --delete
+	psod = !git rev-parse --abbrev-ref HEAD | xargs -I@ git push --delete origin @
+	psom = push origin main
 	psou = push origin -u
 	r = rebase
 	ra = rebase --abort
