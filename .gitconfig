@@ -17,6 +17,9 @@
 	prune = true
 [push]
 	default = simple
+[rebase]
+	abbreviateCommands = true
+  autostash = true
 [url "ssh://git@github.com/"]
 	insteadOf = https://github.com/
 [alias]
@@ -44,6 +47,7 @@
 	pso = push origin
 	psod = !git rev-parse --abbrev-ref HEAD | xargs -I@ git push --delete origin @
 	psom = push origin main
+	psomf = push origin main --force-with-lease
 	psou = push origin -u
 	r = rebase
 	ra = rebase --abort
