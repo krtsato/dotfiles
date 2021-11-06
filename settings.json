@@ -1,10 +1,10 @@
 {
+  "editor.bracketPairColorization.enabled": true, // 標準の bracket color を使う
   "editor.cursorBlinking": "smooth", // カーソルが滑らかに点滅
   "editor.cursorStyle": "block", // カーソルはブロック型
   "editor.fontFamily": "'Ricty Diminished', Menlo, Monaco, 'Courier New', monospace", // フォントに Ricty Diminished を追加
   "editor.fontSize": 12, // フォントサイズは 12
   "editor.formatOnPaste": true, // ペースト時にフォーマット
-  "editor.renderIndentGuides": true, // ガイドラインを可視化
   "editor.tabSize": 2, // tab キー は 2 スペースで統一
   "editor.snippetSuggestions": "none", // スニペットは Dash を使うため非表示
   "editor.suggestSelection": "first", // 入力候補の最上項目が初期選択される
@@ -14,6 +14,7 @@
   "telemetry.enableTelemetry": false, // Microsoft へのデータ送信を停止
   "terminal.integrated.fontFamily": "FiraCodeNerdFontCompleteM-Retina", // 統合ターミナルのフォントを変更
   "terminal.integrated.fontSize": 12, // 統合ターミナルのフォントサイズを変更
+  "terminal.integrated.defaultLocation": "editor", // 統合ターミナルを editor タブとして表示
   "terminal.integrated.defaultProfile.osx": "zsh", // VSCode のデフォルトシェルは zsh
   "terminal.integrated.profiles.osx": {
     "zsh": {
@@ -26,6 +27,7 @@
   "workbench.editor.highlightModifiedTabs": true, // 未保存のタブにハイライン付加
   "workbench.iconTheme": "material-icon-theme", // 拡張機能 Material Icon Theme
   "workbench.startupEditor": "none", // VSCode 起動時にコンテンツ非表示
+  "workbench.panel.defaultLocation": "right", // ワークベンチパネルを画面右に配置
   /* Visual Studio IntelliCode */
   "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue", // suggestSelection の提示を IntelliCode で上書き
   /* GitHub */
@@ -54,6 +56,12 @@
   "[typescript]": {
     "editor.formatOnSave": true
   },
+  "typescript.inlayHints.enumMemberValues.enabled": true, // enable inlay hints for member values in enum declarations
+  "typescript.inlayHints.functionLikeReturnTypes.enabled": true, // enable inlay hints for implicit return types on function signature
+  "typescript.inlayHints.parameterNames.enabled": "all", // show inlay hints for parameter names
+  "typescript.inlayHints.parameterTypes.enabled": true, // enable inlay hints for implicit parameter types
+  "typescript.inlayHints.propertyDeclarationTypes.enabled": true, // enable inlay hints for implicit types on property declaration
+  "typescript.inlayHints.variableTypes.enabled": true, // enable inlay hints for implicit variable types
   /* Golang */
   "[go]": {
     "editor.formatOnSave": true,
@@ -184,5 +192,5 @@
     "editor.formatOnSave": true
   },
   /* draw.io */
-  "hediet.vscode-drawio.local-storage": "eyIuZHJhd2lvLWNvbmZpZyI6IntcImxhbmd1YWdlXCI6XCJcIixcImN1c3RvbUZvbnRzXCI6W10sXCJsaWJyYXJpZXNcIjpcImdlbmVyYWw7YXdzNFwiLFwiY3VzdG9tTGlicmFyaWVzXCI6W1wiTC5zY3JhdGNocGFkXCJdLFwicGx1Z2luc1wiOltdLFwicmVjZW50Q29sb3JzXCI6W1wiODA4MDgwXCIsXCJGRkZGRkZcIl0sXCJmb3JtYXRXaWR0aFwiOjI0MCxcImNyZWF0ZVRhcmdldFwiOmZhbHNlLFwicGFnZUZvcm1hdFwiOntcInhcIjowLFwieVwiOjAsXCJ3aWR0aFwiOjE2MDAsXCJoZWlnaHRcIjo5MDB9LFwic2VhcmNoXCI6dHJ1ZSxcInNob3dTdGFydFNjcmVlblwiOnRydWUsXCJncmlkQ29sb3JcIjpcIiNkMGQwZDBcIixcImRhcmtHcmlkQ29sb3JcIjpcIiM2ZTZlNmVcIixcImF1dG9zYXZlXCI6dHJ1ZSxcInJlc2l6ZUltYWdlc1wiOm51bGwsXCJvcGVuQ291bnRlclwiOjAsXCJ2ZXJzaW9uXCI6MTgsXCJ1bml0XCI6MSxcImlzUnVsZXJPblwiOmZhbHNlLFwidWlcIjpcIlwifSJ9"
+  "hediet.vscode-drawio.local-storage": "eyIuZHJhd2lvLWNvbmZpZyI6IntcImxhbmd1YWdlXCI6XCJcIixcImN1c3RvbUZvbnRzXCI6W10sXCJsaWJyYXJpZXNcIjpcImdlbmVyYWw7YXdzNFwiLFwiY3VzdG9tTGlicmFyaWVzXCI6W1wiTC5zY3JhdGNocGFkXCJdLFwicGx1Z2luc1wiOltdLFwicmVjZW50Q29sb3JzXCI6W1wiODA4MDgwXCIsXCJGRkZGRkZcIl0sXCJmb3JtYXRXaWR0aFwiOjI0MCxcImNyZWF0ZVRhcmdldFwiOmZhbHNlLFwicGFnZUZvcm1hdFwiOntcInhcIjowLFwieVwiOjAsXCJ3aWR0aFwiOjE2MDAsXCJoZWlnaHRcIjo5MDB9LFwic2VhcmNoXCI6dHJ1ZSxcInNob3dTdGFydFNjcmVlblwiOnRydWUsXCJncmlkQ29sb3JcIjpcIiNkMGQwZDBcIixcImRhcmtHcmlkQ29sb3JcIjpcIiM2ZTZlNmVcIixcImF1dG9zYXZlXCI6dHJ1ZSxcInJlc2l6ZUltYWdlc1wiOm51bGwsXCJvcGVuQ291bnRlclwiOjAsXCJ2ZXJzaW9uXCI6MTgsXCJ1bml0XCI6MSxcImlzUnVsZXJPblwiOmZhbHNlLFwidWlcIjpcIlwifSJ9",
 }

@@ -17,5 +17,16 @@
     "key": "ctrl+-",
     "command": "markdown.extension.onOutdentLines",
     "when": "editorTextFocus && !suggestWidgetVisible && editorLangId == 'markdown'"
-  }
+  },
+  {
+    "key": "ctrl+shift+`",
+    "command": "workbench.action.createTerminalEditorSide"
+  },
+  {
+    "key": "cmd+,",
+    "command": "workbench.action.openSettingsJson",
+    "args": {
+      "openToSide": true
+    }
+  },
 ]
