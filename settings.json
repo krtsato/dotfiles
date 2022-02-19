@@ -42,6 +42,7 @@
       "query": "state:open repo:${owner}/${repository} sort:created-desc"
     }
   ],
+  "githubPullRequests.fileListLayout": "flat",
   "githubPullRequests.remotes": [
     "origin",
     "myorigin"
