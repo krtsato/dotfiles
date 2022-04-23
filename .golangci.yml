@@ -10,6 +10,7 @@ skip-dirs:
 
 linters:
   enable:
+    - gocritic
     - gofmt
     - goimports
     - gosec
