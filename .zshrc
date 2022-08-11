@@ -1,4 +1,15 @@
+# Fig pre block. Keep at the top of this file.
+[[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && . "$HOME/.fig/shell/zshrc.pre.zsh"
+#!/opt/homebrew/bin/zsh
+
+# old shebang
 #!/usr/local/bin/zsh
+
+# ------------------------------------------------------------ #
+# Brew
+# ------------------------------------------------------------ #
+
+export PATH=/opt/homebrew/bin:$PATH
 
 # ------------------------------------------------------------ #
 # Zsh
@@ -13,7 +24,10 @@ PROMPT="%{$fg[green]%}%1~ %# %{$reset_color%}"
 
 # zsh-completions
 autoload -Uz compinit && compinit -u
-fpath=(/usr/local/share/zsh-completions $fpath)
+# old path
+# fpath=(/usr/local/share/zsh-completions $fpath)
+fpath=(/opt/homebrew/share/zsh-completions $fpath)
+
 # match dotfiles without '.' in a completion
 setopt GLOB_DOTS
 
@@ -27,35 +41,24 @@ zstyle ':completion:*' list-colors di=32 ln=36 ex=35$ source ~/.zshrc
 # ------------------------------------------------------------ #
 
 eval "$(starship init zsh)"
-export STARSHIP_CONFIG=~/myrepo/dotfiles/.starship.toml
-
-# ------------------------------------------------------------ #
-# Hyper
-# ------------------------------------------------------------ #
-
-# hyper-tab-icons-plus
-precmd() {
-   pwd=$(pwd)
-   cwd=${pwd##*/}
-   print -Pn "\e]0;$cwd\a"
-}
-preexec() {
-   printf "\033]0;%s\a" "${1%% *} | $cwd"
-}
+export STARSHIP_CONFIG=~/engr/myrepo/dotfiles/.starship.toml
 
 # ------------------------------------------------------------ #
 # OpenSSL
 # ------------------------------------------------------------ #
 
 # openssl installed by homebrew, not default version
-export PATH=/usr/local/opt/openssl/bin:$PATH
+
+# old path
+# export PATH=/usr/local/opt/openssl/bin:$PATH
+export PATH=/opt/homebrew/bin/openssl/bin:$PATH
 
 # ------------------------------------------------------------ #
 # Shell
 # ------------------------------------------------------------ #
 
 # my shell scripts
-export PATH=$HOME/shells:$PATH
+export PATH=~/engr/myrepo/shells:$PATH
 
 # ------------------------------------------------------------ #
 # Golang
@@ -79,16 +82,33 @@ export GO111MODULE=on
 # ------------------------------------------------------------ #
 
 # The next line updates PATH for the Google Cloud SDK.
-[ -f '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc' ] && . '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc'
+# old path
+# [ -f '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc' ] && . '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc'
+[ -f '/opt/homebrew/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc' ] && . '/opt/homebrew/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc'
+
 # The next line enables shell command completion for gcloud.
-[ -f '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc' ] && . '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc'
+# old path
+# [ -f '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc' ] && . '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc'
+[ -f '/opt/homebrew/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc' ] && . '/opt/homebrew/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc'
 
 # ------------------------------------------------------------ #
 # Node
 # ------------------------------------------------------------ #
 
-export NVM_DIR="$HOME/.nvm"
+export NVM_DIR=~/.nvm
 export NVM_SYMLINK_CURRENT=true
-[ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"
-[ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && . "/usr/local/opt/nvm/etc/bash_completion.d/nvm"
+# old path
+# [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"
+# [ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && . "/usr/local/opt/nvm/etc/bash_completion.d/nvm"
+[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && . "/opt/homebrew/opt/nvm/nvm.sh"
+[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && . "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
 [ -e ".nvmrc" ] && nvm use
+
+# ------------------------------------------------------------ #
+# Xcode
+# ------------------------------------------------------------ #
+
+export PATH=/usr/bin/xcrun:$PATH
+
+# Fig post block. Keep at the bottom of this file.
+[[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && . "$HOME/.fig/shell/zshrc.post.zsh"
