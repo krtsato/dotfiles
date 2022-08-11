@@ -13,13 +13,16 @@
   "files.autoSaveDelay": 1500, // 1.5 秒後に自動保存
   "security.workspace.trust.untrustedFiles": "open", // 初回展開するファイルを信用
   "telemetry.enableTelemetry": false, // Microsoft へのデータ送信を停止
+  "terminal.integrated.env.osx": {
+    "FIG_NEW_SESSION": "1"
+  },
   "terminal.integrated.fontFamily": "FiraCodeNerdFontCompleteM-Retina", // 統合ターミナルのフォントを変更
   "terminal.integrated.fontSize": 12, // 統合ターミナルのフォントサイズを変更
   "terminal.integrated.defaultLocation": "editor", // 統合ターミナルを editor タブとして表示
   "terminal.integrated.defaultProfile.osx": "zsh", // VSCode のデフォルトシェルは zsh
   "terminal.integrated.profiles.osx": {
     "zsh": {
-      "path": "/usr/local/bin/zsh",
+      "path": "/opt/homebrew/bin/zsh",
       "args": [
         "-l"
       ]
@@ -44,6 +47,7 @@
     }
   ],
   "githubPullRequests.fileListLayout": "flat",
+  "githubPullRequests.pullBranch": "never",
   "githubPullRequests.remotes": [
     "origin",
     "myorigin"
@@ -71,10 +75,11 @@
       "source.organizeImports": true // Go の標準機能を使用
     }
   },
+  "go.goroot": "/opt/homebrew/Cellar/go/1.19/libexec",
   "go.lintTool": "golangci-lint", // Linter 厳格化のため golangci-lint を採用
   "go.lintOnSave": "package", // ファイル保存時に package スコープで Lint を実行
   "go.lintFlags": [
-    "--config=~/myrepo/dotfiles/.golangci.yml", // ワークスペースに linter 設定がないときユーザの設定を使用
+    "--config=~/engr/myrepo/dotfiles/.golangci.yml", // ワークスペースに linter 設定がないときユーザの設定を使用
     "--fast" // golangci-lint の中でも高速な Linter を VSCode 上で実行
   ],
   "go.toolsManagement.autoUpdate": true, // IDE 拡張が使用するツールを最新状態に保つ
@@ -106,7 +111,7 @@
   "markdown.extension.list.indentationSize": "inherit", // 画面右に Markdown のプレビュー表示
   "markdown-pdf.breaks": true, // PDF出力に改行を反映
   "markdown-pdf.styles": [
-    "~/myrepo/dotfiles/markdown-pdf.css" // ワークスペースに CSS がないときユーザの設定を使用
+    "~/engr/myrepo/dotfiles/markdown-pdf.css" // ワークスペースに CSS がないときユーザの設定を使用
   ],
   /* Yaml */
   "[yaml]": {
