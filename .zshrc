@@ -110,5 +110,11 @@ export NVM_SYMLINK_CURRENT=true
 
 export PATH=/usr/bin/xcrun:$PATH
 
+# ------------------------------------------------------------ #
+# MongoDB
+# ------------------------------------------------------------ #
+
+export PATH=/opt/homebrew/opt/mongodb-community@5.0/bin:$PATH
+
 # Fig post block. Keep at the bottom of this file.
 [[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && . "$HOME/.fig/shell/zshrc.post.zsh"
