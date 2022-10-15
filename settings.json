@@ -1,14 +1,16 @@
 {
   "audioCues.lineHasError": "off",
   "diffEditor.ignoreTrimWhitespace": false, // 行頭行末のスペースを差分として表示する
+  "editor.accessibilitySupport": "off",
   "editor.bracketPairColorization.enabled": true, // 標準の bracket color を使う
   "editor.cursorBlinking": "smooth", // カーソルが滑らかに点滅
   "editor.cursorStyle": "block", // カーソルはブロック型
   "editor.fontFamily": "'Ricty Diminished', Menlo, Monaco, 'Courier New', monospace", // フォントに Ricty Diminished を追加
   "editor.fontSize": 12, // フォントサイズは 12
   "editor.formatOnPaste": true, // ペースト時にフォーマット
+  "editor.snippetSuggestions": "none", // スニペットは別ツールを使うため非表示
+  "editor.stickyScroll.enabled": true,
   "editor.tabSize": 2, // tab キー は 2 スペースで統一
-  "editor.snippetSuggestions": "none", // スニペットは Dash を使うため非表示
   "editor.suggestSelection": "first", // 入力候補の最上項目が初期選択される
   "files.autoSave": "afterDelay", // 時間経過で自動保存する
   "files.autoSaveDelay": 1500, // 1.5 秒後に自動保存
@@ -61,7 +63,8 @@
   "eslint.format.enable": true,
   /* TypeScript */
   "[typescript]": {
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "vscode.typescript-language-features"
   },
   "typescript.inlayHints.enumMemberValues.enabled": true, // enable inlay hints for member values in enum declarations
   "typescript.inlayHints.functionLikeReturnTypes.enabled": true, // enable inlay hints for implicit return types on function signature
@@ -201,5 +204,4 @@
   },
   /* draw.io */
   "hediet.vscode-drawio.local-storage": "eyIuZHJhd2lvLWNvbmZpZyI6IntcImxhbmd1YWdlXCI6XCJcIixcImN1c3RvbUZvbnRzXCI6W10sXCJsaWJyYXJpZXNcIjpcImdlbmVyYWw7YXdzNFwiLFwiY3VzdG9tTGlicmFyaWVzXCI6W1wiTC5zY3JhdGNocGFkXCJdLFwicGx1Z2luc1wiOltdLFwicmVjZW50Q29sb3JzXCI6W1wiODA4MDgwXCIsXCJGRkZGRkZcIl0sXCJmb3JtYXRXaWR0aFwiOjI0MCxcImNyZWF0ZVRhcmdldFwiOmZhbHNlLFwicGFnZUZvcm1hdFwiOntcInhcIjowLFwieVwiOjAsXCJ3aWR0aFwiOjE2MDAsXCJoZWlnaHRcIjo5MDB9LFwic2VhcmNoXCI6dHJ1ZSxcInNob3dTdGFydFNjcmVlblwiOnRydWUsXCJncmlkQ29sb3JcIjpcIiNkMGQwZDBcIixcImRhcmtHcmlkQ29sb3JcIjpcIiM2ZTZlNmVcIixcImF1dG9zYXZlXCI6dHJ1ZSxcInJlc2l6ZUltYWdlc1wiOm51bGwsXCJvcGVuQ291bnRlclwiOjAsXCJ2ZXJzaW9uXCI6MTgsXCJ1bml0XCI6MSxcImlzUnVsZXJPblwiOmZhbHNlLFwidWlcIjpcIlwifSJ9",
-  "editor.accessibilitySupport": "off"
 }
