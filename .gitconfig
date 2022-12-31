@@ -69,3 +69,5 @@
   path = ~/.gitconfig.catools
 [includeIf "gitdir:~/jobrepo/dokusho/"]
   path = ~/.gitconfig.catools
+[includeIf "gitdir:~/go/src/github.com/GincoInc/"]
+  path = ~/.gitconfig.gincoinc
