@@ -1,5 +1,5 @@
 # Fig pre block. Keep at the top of this file.
-[[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && . "$HOME/.fig/shell/zshrc.pre.zsh"
+[[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.pre.zsh"
 #!/opt/homebrew/bin/zsh
 
 # old shebang
@@ -114,7 +114,7 @@ export PATH=/usr/bin/xcrun:$PATH
 # MongoDB
 # ------------------------------------------------------------ #
 
-export PATH=/opt/homebrew/opt/mongodb-community@5.0/bin:$PATH
+export PATH=/opt/homebrew/opt/mongodb-community/bin:$PATH
 
 # Fig post block. Keep at the bottom of this file.
-[[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && . "$HOME/.fig/shell/zshrc.post.zsh"
+[[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.post.zsh"
