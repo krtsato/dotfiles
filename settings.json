@@ -76,7 +76,7 @@
       "source.organizeImports": true // Go の標準機能を使用
     }
   },
-  "go.goroot": "/opt/homebrew/Cellar/go/1.19/libexec",
+  "go.goroot": "/opt/homebrew/Cellar/go/1.19.4/libexec",
   "go.lintTool": "golangci-lint", // Linter 厳格化のため golangci-lint を採用
   "go.lintOnSave": "package", // ファイル保存時に package スコープで Lint を実行
   "go.lintFlags": [
