@@ -8,6 +8,7 @@ func {{.TestName}}(t *testing.T) {
 	{{- with .Receiver}}
 		{{- if .IsStruct}}
 			{{- if .Fields}}
+				{{ printf "\n" }}
 				type fields struct {
 				{{- range .Fields}}
 					{{Field .}} {{.Type}}
@@ -16,13 +17,17 @@ func {{.TestName}}(t *testing.T) {
 			{{- end}}
 		{{- end}}
 	{{- end}}
+
 	{{- if .TestParameters}}
-	type args struct {
-		{{- range .TestParameters}}
+		{{ printf "\n" }}
+		type args struct {
+			{{- range .TestParameters}}
 				{{Param .}} {{.Type}}
-		{{- end}}
-	}
+			{{- end}}
+		}
 	{{- end}}
+
+	{{ printf "\n" }}
 	tests := []struct {
 		name string
 		{{- with .Receiver}}
@@ -44,6 +49,8 @@ func {{.TestName}}(t *testing.T) {
 	}{
 		// TODO: Add test cases.
 	}
+
+	{{ printf "\n" }}
 	for {{if (or .Subtests (not .IsNaked))}} _, tt := {{end}} range tests {
         {{- if .Subtests }}t.Run(tt.name, func(t *testing.T) { {{- end -}}
 			{{- with .Receiver}}
@@ -70,6 +77,7 @@ func {{.TestName}}(t *testing.T) {
 						{{if .Subtests }}return{{else}}continue{{end}}
 					{{- end}}
 				}
+				{{ printf "\n" }}
 			{{- end}}
 			{{- range .TestResults}}
 				{{- if .IsWriter}}

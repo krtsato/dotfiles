@@ -6,7 +6,7 @@ package {{.Package}}
 import (
 {{range .Imports}}{{.Name}} {{.Path}}
 {{end}}
-
-"github.com/google/go-cmp/cmp"
+  "github.com/google/go-cmp/cmp"
+  "github.com/stretchr/testify/assert"
 )
 {{end}}
