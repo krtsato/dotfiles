@@ -5,11 +5,19 @@ func {{.TestName}}(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
+	{{ print "\n" }}
+	ctx, cancel := context.WithCancel(context.Background())
+
+	{{ print "\n" }}
+	t.Cleanup(func() {
+		cancel()
+	})
+
 	{{- with .Receiver}}
 		{{- if .IsStruct}}
 			{{- if .Fields}}
-				{{ printf "\n" }}
-				type fields struct {
+				{{ print "\n" }}
+				type receiver struct {
 				{{- range .Fields}}
 					{{Field .}} {{.Type}}
 				{{- end}}
@@ -19,7 +27,7 @@ func {{.TestName}}(t *testing.T) {
 	{{- end}}
 
 	{{- if .TestParameters}}
-		{{ printf "\n" }}
+		{{ print "\n" }}
 		type args struct {
 			{{- range .TestParameters}}
 				{{Param .}} {{.Type}}
@@ -27,12 +35,12 @@ func {{.TestName}}(t *testing.T) {
 		}
 	{{- end}}
 
-	{{ printf "\n" }}
+	{{ print "\n" }}
 	tests := []struct {
 		name string
 		{{- with .Receiver}}
 			{{- if and .IsStruct .Fields}}
-				fields fields
+				receiver receiver
 			{{- else}}
 				{{Receiver .}} {{.Type}}
 			{{- end}}
@@ -50,14 +58,14 @@ func {{.TestName}}(t *testing.T) {
 		// TODO: Add test cases.
 	}
 
-	{{ printf "\n" }}
+	{{ print "\n" }}
 	for {{if (or .Subtests (not .IsNaked))}} _, tt := {{end}} range tests {
         {{- if .Subtests }}t.Run(tt.name, func(t *testing.T) { {{- end -}}
 			{{- with .Receiver}}
 				{{- if .IsStruct}}
 					{{Receiver .}} := {{if .Type.IsStar}}&{{end}}{{.Type.Value}}{
 					{{- range .Fields}}
-						{{.Name}}: tt.fields.{{Field .}},
+						{{.Name}}: tt.receiver.{{Field .}},
 					{{- end}}
 					}
 				{{- end}}
@@ -71,21 +79,21 @@ func {{.TestName}}(t *testing.T) {
 				{{template "results" $f}} {{template "call" $f}}
 			{{- end}}
 			{{- if .ReturnsError}}
-				if {{if .OnlyReturnsError}} gotErr := {{template "call" $f}}; {{end}} a.Error(gotErr) != a.Error(tt.wantErr) {
-					a.Failf("{{template "message" $f}} has mismatched error", "wantErr = %s\ngotErr = %s\n", {{template "inputs" $f}} tt.wantErr, gotErr)
+				if {{if .OnlyReturnsError}} gotErr := {{template "call" $f}}; {{end}} tt.wantErr != nil {
+					a.Error(gotErr)
 					{{- if .TestResults}}
 						{{if .Subtests }}return{{else}}continue{{end}}
 					{{- end}}
 				}
-				{{ printf "\n" }}
+				{{ print "\n" }}
 			{{- end}}
 			{{- range .TestResults}}
 				{{- if .IsWriter}}
 					if {{Got .}} := {{Param .}}.String(); {{Got .}} != tt.{{Want .}} {				
-						a.Failf("{{template "message" $f}} has mismatched result", "want = %+v\n{{if $f.ReturnsMultiple}}{{Got .}} {{end}}= %+v\n",  {{template "inputs" $f}} tt.{{Want .}}, {{Got .}})
+						a.Failf("{{template "message" $f}} has mismatched result", "want = %+v\n{{if $f.ReturnsMultiple}}{{Got .}}{{else}}{{print "got"}} {{end}}= %+v\n",  {{template "inputs" $f}} tt.{{Want .}}, {{Got .}})
 				{{- else if .IsBasicType}}
 					if {{if $f.OnlyReturnsOneValue}}{{Got .}} := {{template "inline" $f}}; {{end}} {{Got .}} != tt.{{Want .}} {
-						a.Failf("{{template "message" $f}} has mismatched result", "want = %+v\n{{if $f.ReturnsMultiple}}{{Got .}} {{end}}= %+v\n", {{template "inputs" $f}} tt.{{Want .}}, {{Got .}})
+						a.Failf("{{template "message" $f}} has mismatched result", "want = %+v\n{{if $f.ReturnsMultiple}}{{Got .}}{{else}}{{print "got"}} {{end}}= %+v\n", {{template "inputs" $f}} tt.{{Want .}}, {{Got .}})
 				{{- else}}
 					if {{if $f.OnlyReturnsOneValue}}{{Got .}} := {{template "inline" $f}}; {{end}} diff := cmp.Diff( tt.{{Want .}}, {{Got .}}); diff != "" {
 						a.Failf("{{template "message" $f}} has mismatched result (-want +got)", "{{if $f.ReturnsMultiple}}{{Got .}} {{end}}diff = \n%s\n", {{template "inputs" $f}} diff)

@@ -64,7 +64,7 @@
 [includeIf "gitdir:~/go/src/github.com/awa/"]
   path = ~/.gitconfig.awa
 [includeIf "gitdir:~/go/src/ghe.ca-tools.org/"]
-	path = ~/.gitconfig.catools
+  path = ~/.gitconfig.catools
 [includeIf "gitdir:~/jobrepo/ISE/"]
   path = ~/.gitconfig.catools
 [includeIf "gitdir:~/jobrepo/dokusho/"]
