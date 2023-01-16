@@ -90,10 +90,10 @@ func {{.TestName}}(t *testing.T) {
 			{{- range .TestResults}}
 				{{- if .IsWriter}}
 					if {{Got .}} := {{Param .}}.String(); {{Got .}} != tt.{{Want .}} {				
-						a.Failf("{{template "message" $f}} has mismatched result", "want = %+v\n{{if $f.ReturnsMultiple}}{{Got .}}{{else}}{{print "got"}} {{end}}= %+v\n",  {{template "inputs" $f}} tt.{{Want .}}, {{Got .}})
+						a.Failf("{{template "message" $f}} has mismatched result", "want = %+v\n{{if $f.ReturnsMultiple}}{{Got .}}{{else}}{{print "got"}} {{end}} = %+v\n",  {{template "inputs" $f}} tt.{{Want .}}, {{Got .}})
 				{{- else if .IsBasicType}}
 					if {{if $f.OnlyReturnsOneValue}}{{Got .}} := {{template "inline" $f}}; {{end}} {{Got .}} != tt.{{Want .}} {
-						a.Failf("{{template "message" $f}} has mismatched result", "want = %+v\n{{if $f.ReturnsMultiple}}{{Got .}}{{else}}{{print "got"}} {{end}}= %+v\n", {{template "inputs" $f}} tt.{{Want .}}, {{Got .}})
+						a.Failf("{{template "message" $f}} has mismatched result", "want = %+v\n{{if $f.ReturnsMultiple}}{{Got .}}{{else}}{{print "got"}} {{end}} = %+v\n", {{template "inputs" $f}} tt.{{Want .}}, {{Got .}})
 				{{- else}}
 					if {{if $f.OnlyReturnsOneValue}}{{Got .}} := {{template "inline" $f}}; {{end}} diff := cmp.Diff( tt.{{Want .}}, {{Got .}}); diff != "" {
 						a.Failf("{{template "message" $f}} has mismatched result (-want +got)", "{{if $f.ReturnsMultiple}}{{Got .}} {{end}}diff = \n%s\n", {{template "inputs" $f}} diff)

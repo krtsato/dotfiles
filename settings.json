@@ -102,6 +102,7 @@
     "-v", // テスト詳細を表示
     "-race", // 複数スレッドによるデータ競合を確認
     "-count=1", // テストでキャッシュを使わない
+    "-timeout=1m",
     "-coverprofile=coverage.out" // カバレッジを出力
   ],
   "go.generateTestsFlags": [
