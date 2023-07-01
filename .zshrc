@@ -108,6 +108,13 @@ export NVM_SYMLINK_CURRENT=true
 [ -e ".nvmrc" ] && nvm use
 
 # ------------------------------------------------------------ #
+# Java
+# ------------------------------------------------------------ #
+
+export PATH=/opt/homebrew/opt/openjdk/bin:$PATH
+export CPPFLAGS=-I/opt/homebrew/opt/openjdk/include
+
+# ------------------------------------------------------------ #
 # Xcode
 # ------------------------------------------------------------ #
 
@@ -117,6 +124,7 @@ export PATH=/usr/bin/xcrun:$PATH
 # MongoDB
 # ------------------------------------------------------------ #
 
+export PATH=/opt/homebrew/opt/mongodb-community-shell@4.4/bin:$PATH
 export PATH=/opt/homebrew/opt/mongodb-community/bin:$PATH
 
 # ------------------------------------------------------------ #
