@@ -1,5 +1,5 @@
 {
-  "audioCues.lineHasError": "off",
+  "audioCues.lineHasError": "off", // 行頭行末のスペースを差分として表示する
   "diffEditor.ignoreTrimWhitespace": false, // 行頭行末のスペースを差分として表示する
   "editor.accessibilitySupport": "off",
   "editor.bracketPairColorization.enabled": true, // 標準の bracket color を使う
@@ -8,6 +8,7 @@
   "editor.fontFamily": "'Ricty Diminished', Menlo, Monaco, 'Courier New', monospace", // フォントに Ricty Diminished を追加
   "editor.fontSize": 12, // フォントサイズは 12
   "editor.formatOnPaste": true, // ペースト時にフォーマット
+  "editor.inlineSuggest.enabled": true, // 入力候補をインライン表示
   "editor.snippetSuggestions": "none", // スニペットは別ツールを使うため非表示
   "editor.stickyScroll.enabled": true,
   "editor.tabSize": 2, // tab キー は 2 スペースで統一
@@ -55,6 +56,13 @@
     "origin",
     "myorigin"
   ],
+  "github.copilot.enable": {
+    "*": true,
+    "plaintext": true,
+    "markdown": true,
+    "scminput": false,
+    "yaml": true
+  },
   /* Docker*/
   "[dockerfile]": {
     "editor.defaultFormatter": "ms-azuretools.vscode-docker" // VSCode の拡張機能 Docker で整形
@@ -79,7 +87,7 @@
       "source.organizeImports": true // Go の標準機能を使用
     }
   },
-  "go.goroot": "/opt/homebrew/Cellar/go/1.19.5/libexec",
+  "go.goroot": "/opt/homebrew/Cellar/go/1.20.4/libexec",
   "go.lintTool": "golangci-lint", // Linter 厳格化のため golangci-lint を採用
   "go.lintOnSave": "package", // ファイル保存時に package スコープで Lint を実行
   "go.lintFlags": [
@@ -209,5 +217,4 @@
   },
   /* draw.io */
   "hediet.vscode-drawio.local-storage": "eyIuZHJhd2lvLWNvbmZpZyI6IntcImxhbmd1YWdlXCI6XCJcIixcImN1c3RvbUZvbnRzXCI6W10sXCJsaWJyYXJpZXNcIjpcImdlbmVyYWw7YXdzNFwiLFwiY3VzdG9tTGlicmFyaWVzXCI6W1wiTC5zY3JhdGNocGFkXCJdLFwicGx1Z2luc1wiOltdLFwicmVjZW50Q29sb3JzXCI6W1wiODA4MDgwXCIsXCJGRkZGRkZcIl0sXCJmb3JtYXRXaWR0aFwiOjI0MCxcImNyZWF0ZVRhcmdldFwiOmZhbHNlLFwicGFnZUZvcm1hdFwiOntcInhcIjowLFwieVwiOjAsXCJ3aWR0aFwiOjE2MDAsXCJoZWlnaHRcIjo5MDB9LFwic2VhcmNoXCI6dHJ1ZSxcInNob3dTdGFydFNjcmVlblwiOnRydWUsXCJncmlkQ29sb3JcIjpcIiNkMGQwZDBcIixcImRhcmtHcmlkQ29sb3JcIjpcIiM2ZTZlNmVcIixcImF1dG9zYXZlXCI6dHJ1ZSxcInJlc2l6ZUltYWdlc1wiOm51bGwsXCJvcGVuQ291bnRlclwiOjAsXCJ2ZXJzaW9uXCI6MTgsXCJ1bml0XCI6MSxcImlzUnVsZXJPblwiOmZhbHNlLFwidWlcIjpcIlwifSJ9",
-  "window.zoomLevel": 1,
 }
