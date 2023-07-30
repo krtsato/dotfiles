@@ -1,0 +1,5 @@
+{
+  "autocomplete.keybindings.enter": "insertSelected",
+  "autocomplete.keybindings.tab": "insertCommonPrefixOrNavigateDown",
+  "autocomplete.theme": "github-dark"
+}
