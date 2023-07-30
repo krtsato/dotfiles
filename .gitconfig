@@ -25,36 +25,34 @@
 [alias]
 	# To check them, command "git alias". 
 	alias = !git config --list | grep alias
-  a = !git add . && git status
+	a = !git add . && git status
 	acm = !git add . && git commit -m
 	b = branch
 	bd = branch -D
 	bm = branch -m
-	bv = branch -vv 
-  ca = commit --amend
+	bv = branch -vv
+	ca = commit --amend
 	cl = clone
-  cm = commit -m
+	cm = commit -m
 	co = checkout
 	cob = checkout -b
 	copo = !git checkout main && git pull origin main
-  d = diff
+	d = diff
 	f = fetch
 	fr = !git fetch --all && git rebase origin/main
 	fork = !git pull origin main && git push myorigin main && git fetch --all -p
 	l = log --graph --date=short --decorate=short --pretty=format:'%C(auto)%h %C(auto, dim)%cd %C(auto, dim)%cn %C(auto)%s%C(auto)%d\n'
 	pl = pull
-	ps = !git rev-parse --abbrev-ref HEAD | xargs -I@ git push origin @
-	pso = push origin
-	psod = !git rev-parse --abbrev-ref HEAD | xargs -I@ git push --delete origin @
+	pso = !git rev-parse --abbrev-ref HEAD | xargs -I@ git push -u origin @
+	psdo = !git rev-parse --abbrev-ref HEAD | xargs -I@ git push -d origin @
 	psom = push origin main
-	psomf = push origin main --force-with-lease
-	psou = push origin -u
+	psfom = push --force-with-lease origin main
 	r = rebase
 	ra = rebase --abort
 	rc = rebase --continue
 	ri = rebase -i
 	rlri = !git rev-list -1 --merges HEAD | xargs git rebase -i
-	rao = remote add origin
+	rmao = remote add origin
 	rom = rebase origin/main
 	s = status -sb
 	st = stash
@@ -62,12 +60,14 @@
 	stl = stash list
 	stp = stash pop
 [includeIf "gitdir:~/go/src/github.com/awa/"]
-  path = ~/.gitconfig.awa
+	path = ~/.gitconfig.awa
 [includeIf "gitdir:~/go/src/ghe.ca-tools.org/"]
-  path = ~/.gitconfig.catools
-[includeIf "gitdir:~/jobrepo/ISE/"]
-  path = ~/.gitconfig.catools
-[includeIf "gitdir:~/jobrepo/dokusho/"]
-  path = ~/.gitconfig.catools
+	path = ~/.gitconfig.catools
+[includeIf "gitdir:~/job/ISE/"]
+	path = ~/.gitconfig.catools
+[includeIf "gitdir:~/job/dokusho/"]
+	path = ~/.gitconfig.catools
 [includeIf "gitdir:~/go/src/github.com/GincoInc/"]
-  path = ~/.gitconfig.gincoinc
+	path = ~/.gitconfig.gnc
+[includeIf "gitdir:~/go/src/github.com/red-frasco/"]
+	path = ~/.gitconfig.red

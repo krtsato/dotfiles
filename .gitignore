@@ -1,6 +1,8 @@
 .DS_Store
 .gitconfig.awa
 .gitconfig.catools
-.gitconfig.gincoinc
+.gitconfig.irvine
+.gitconfig.gnc
+.gitconfig.red
 Alfred/usage.data
 karabiner/automatic_backups
