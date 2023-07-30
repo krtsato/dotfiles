@@ -44,7 +44,7 @@ zstyle ':completion:*' list-colors di=32 ln=36 ex=35$ source ~/.zshrc
 # ------------------------------------------------------------ #
 
 eval "$(starship init zsh)"
-export STARSHIP_CONFIG=~/engr/myrepo/dotfiles/.starship.toml
+export STARSHIP_CONFIG=~/engr/me/dotfiles/.starship.toml
 
 # ------------------------------------------------------------ #
 # OpenSSL
@@ -61,7 +61,7 @@ export PATH=/opt/homebrew/bin/openssl/bin:$PATH
 # ------------------------------------------------------------ #
 
 # my shell scripts
-export PATH=~/engr/myrepo/shells:$PATH
+export PATH=~/engr/me/shells:$PATH
 
 # ------------------------------------------------------------ #
 # Golang
