@@ -18,7 +18,7 @@
   "security.workspace.trust.untrustedFiles": "open", // 初回展開するファイルを信用
   "telemetry.telemetryLevel": "off", // Microsoft へのデータ送信を停止
   "terminal.integrated.env.osx": {
-    "FIG_NEW_SESSION": "1"
+    "FIG_NEW_SESSION": "1" // Fig を VSCode で使う
   },
   "terminal.integrated.fontFamily": "FiraCodeNerdFontCompleteM-Retina", // 統合ターミナルのフォントを変更
   "terminal.integrated.fontSize": 12, // 統合ターミナルのフォントサイズを変更
@@ -28,7 +28,7 @@
     "zsh": {
       "path": "/opt/homebrew/bin/zsh",
       "args": [
-        "-l"
+        "-l" // ログインシェルとして使う
       ]
     }
   },
@@ -134,6 +134,11 @@
   "markdown-pdf.styles": [
     "~/engr/myrepo/dotfiles/markdown-pdf.css" // ワークスペースに CSS がないときユーザの設定を使用
   ],
+  /* Shell */
+  "shellcheck.exclude": [
+    "1071"
+  ],
+  "shellcheck.run": "onSave",
   /* Yaml */
   "[yaml]": {
     "editor.defaultFormatter": "redhat.vscode-yaml",
