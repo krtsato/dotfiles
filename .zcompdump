@@ -93,8 +93,7 @@ _comps=(
 'Mosaic' '_webbrowser'
 'SuSEconfig' '_SUSEconfig'
 '_arguments' '__arguments'
-'_gh' '_gh'
-'_kustomize' '_kustomize'
+'_k6' '_k6'
 'a2dismod' '_a2utils'
 'a2dissite' '_a2utils'
 'a2enmod' '_a2utils'
@@ -396,7 +395,6 @@ _comps=(
 'dnf-3' '_dnf'
 'doas' '_doas'
 'docker' '_docker'
-'docker-compose' '_docker_compose'
 'dockerd' '_docker'
 'domainname' '_yp'
 'dos2unix' '_dos2unix'
@@ -805,6 +803,7 @@ _comps=(
 'join' '_join'
 'jot' '_jot'
 'jq' '_jq'
+'k6' '_k6'
 'kdeconnect-cli' '_kdeconnect'
 'kdump' '_kdump'
 'keystone' '_openstack'
@@ -1847,7 +1846,7 @@ bindkey '^[/' _history-complete-older
 bindkey '^[~' _bash_complete-word
 
 autoload -Uz _aws _brew _brew_services _buf _circleci \
-            _docker _docker_compose _gh _git _kubectl \
+            _docker _gh _git _k6 _kubectl \
             _kustomize _starship _SUSEconfig __arguments _a2ps \
             _a2utils _aap _abcde _absolute_command_paths _ack \
             _acpi _acpitool _acroread _adb _add-zle-hook-widget \
