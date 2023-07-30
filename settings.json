@@ -16,7 +16,7 @@
   "files.autoSave": "afterDelay", // 時間経過で自動保存する
   "files.autoSaveDelay": 1500, // 1.5 秒後に自動保存
   "security.workspace.trust.untrustedFiles": "open", // 初回展開するファイルを信用
-  "telemetry.enableTelemetry": false, // Microsoft へのデータ送信を停止
+  "telemetry.telemetryLevel": "off", // Microsoft へのデータ送信を停止
   "terminal.integrated.env.osx": {
     "FIG_NEW_SESSION": "1"
   },
@@ -69,6 +69,10 @@
   },
   /* ESLint */
   "eslint.format.enable": true,
+  /* Javascript */
+  "[javascript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
   /* TypeScript */
   "[typescript]": {
     "editor.formatOnSave": true,
@@ -217,4 +221,6 @@
   },
   /* draw.io */
   "hediet.vscode-drawio.local-storage": "eyIuZHJhd2lvLWNvbmZpZyI6IntcImxhbmd1YWdlXCI6XCJcIixcImN1c3RvbUZvbnRzXCI6W10sXCJsaWJyYXJpZXNcIjpcImdlbmVyYWw7YXdzNFwiLFwiY3VzdG9tTGlicmFyaWVzXCI6W1wiTC5zY3JhdGNocGFkXCJdLFwicGx1Z2luc1wiOltdLFwicmVjZW50Q29sb3JzXCI6W1wiODA4MDgwXCIsXCJGRkZGRkZcIl0sXCJmb3JtYXRXaWR0aFwiOjI0MCxcImNyZWF0ZVRhcmdldFwiOmZhbHNlLFwicGFnZUZvcm1hdFwiOntcInhcIjowLFwieVwiOjAsXCJ3aWR0aFwiOjE2MDAsXCJoZWlnaHRcIjo5MDB9LFwic2VhcmNoXCI6dHJ1ZSxcInNob3dTdGFydFNjcmVlblwiOnRydWUsXCJncmlkQ29sb3JcIjpcIiNkMGQwZDBcIixcImRhcmtHcmlkQ29sb3JcIjpcIiM2ZTZlNmVcIixcImF1dG9zYXZlXCI6dHJ1ZSxcInJlc2l6ZUltYWdlc1wiOm51bGwsXCJvcGVuQ291bnRlclwiOjAsXCJ2ZXJzaW9uXCI6MTgsXCJ1bml0XCI6MSxcImlzUnVsZXJPblwiOmZhbHNlLFwidWlcIjpcIlwifSJ9",
+  /* Terraform */
+  "terraform.experimentalFeatures.validateOnSave": true,
 }
