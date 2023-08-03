@@ -18,7 +18,7 @@
   "security.workspace.trust.untrustedFiles": "open", // 初回展開するファイルを信用
   "telemetry.telemetryLevel": "off", // Microsoft へのデータ送信を停止
   "terminal.integrated.env.osx": {
-    "FIG_NEW_SESSION": "1" // Fig を VSCode で使う
+    "FIG_NEW_SESSION": "1"
   },
   "terminal.integrated.fontFamily": "FiraCodeNerdFontCompleteM-Retina", // 統合ターミナルのフォントを変更
   "terminal.integrated.fontSize": 12, // 統合ターミナルのフォントサイズを変更
@@ -91,7 +91,7 @@
       "source.organizeImports": true // Go の標準機能を使用
     }
   },
-  "go.goroot": "/opt/homebrew/Cellar/go/1.20.4/libexec",
+  "go.goroot": "/opt/homebrew/Cellar/go/1.20.6/libexec",
   "go.lintTool": "golangci-lint", // Linter 厳格化のため golangci-lint を採用
   "go.lintOnSave": "package", // ファイル保存時に package スコープで Lint を実行
   "go.lintFlags": [
