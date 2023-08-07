@@ -63,11 +63,11 @@
 	path = ~/.gitconfig.awa
 [includeIf "gitdir:~/go/src/ghe.ca-tools.org/"]
 	path = ~/.gitconfig.catools
-[includeIf "gitdir:~/job/ISE/"]
+[includeIf "gitdir:~/engr/job/ISE/"]
 	path = ~/.gitconfig.catools
-[includeIf "gitdir:~/job/dokusho/"]
+[includeIf "gitdir:~/engr/job/dokusho/"]
 	path = ~/.gitconfig.catools
 [includeIf "gitdir:~/go/src/github.com/GincoInc/"]
 	path = ~/.gitconfig.gnc
-[includeIf "gitdir:~/go/src/github.com/red-frasco/"]
+[includeIf "gitdir:~/engr/job/red-frasco/"]
 	path = ~/.gitconfig.red
