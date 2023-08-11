@@ -40,13 +40,13 @@
 	d = diff
 	f = fetch
 	fr = !git fetch --all && git rebase origin/main
-	fork = !git pull origin main && git push myorigin main && git fetch --all -p
+	fork = !git pull origin main && git push -u me main && git fetch --all -p
 	l = log --graph --date=short --decorate=short --pretty=format:'%C(auto)%h %C(auto, dim)%cd %C(auto, dim)%cn %C(auto)%s%C(auto)%d\n'
 	pl = pull
-	pso = !git rev-parse --abbrev-ref HEAD | xargs -I@ git push -u origin @
 	psdo = !git rev-parse --abbrev-ref HEAD | xargs -I@ git push -d origin @
-	psom = push origin main
-	psfom = push --force-with-lease origin main
+	psfom = push -u --force-with-lease origin main
+	pso = !git rev-parse --abbrev-ref HEAD | xargs -I@ git push -u origin @
+	psom = push -u origin main
 	r = rebase
 	ra = rebase --abort
 	rc = rebase --continue
