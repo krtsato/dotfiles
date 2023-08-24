@@ -95,7 +95,7 @@
   "go.lintTool": "golangci-lint", // Linter 厳格化のため golangci-lint を採用
   "go.lintOnSave": "package", // ファイル保存時に package スコープで Lint を実行
   "go.lintFlags": [
-    "--config=~/engr/myrepo/dotfiles/.golangci.yml", // ワークスペースに linter 設定がないときユーザの設定を使用
+    "--config=~/engr/me/dotfiles/.golangci.yml", // ワークスペースに linter 設定がないときユーザの設定を使用
     "--fast" // golangci-lint の中でも高速な Linter を VSCode 上で実行
   ],
   "go.toolsManagement.autoUpdate": true, // IDE 拡張が使用するツールを最新状態に保つ
@@ -119,7 +119,7 @@
   ],
   "go.generateTestsFlags": [
     "-template_dir",
-    "~/engr/myrepo/dotfiles/gotests-template"
+    "~/engr/me/dotfiles/gotests-template"
   ],
   /* Markdown */
   "[markdown]": {
@@ -132,7 +132,7 @@
   "markdown.extension.list.indentationSize": "inherit", // 画面右に Markdown のプレビュー表示
   "markdown-pdf.breaks": true, // PDF出力に改行を反映
   "markdown-pdf.styles": [
-    "~/engr/myrepo/dotfiles/markdown-pdf.css" // ワークスペースに CSS がないときユーザの設定を使用
+    "~/engr/me/dotfiles/markdown-pdf.css" // ワークスペースに CSS がないときユーザの設定を使用
   ],
   /* Shell */
   "shellcheck.exclude": [
