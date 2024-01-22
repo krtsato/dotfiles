@@ -40,6 +40,16 @@ export LSCOLORS=cxgxxxxxfxxxxxxxxxxxxx
 zstyle ':completion:*' list-colors di=32 ln=36 ex=35$ source ~/.zshrc
 
 # ------------------------------------------------------------ #
+# SSH
+# ------------------------------------------------------------ #
+
+eval "$(ssh-agent -s)"
+ssh-add --apple-use-keychain "$HOME/.ssh/id_ecdsa_github.com"
+ssh-add --apple-use-keychain "$HOME/.ssh/id_ed25519_github.com_red"
+ssh -T git@github.com
+ssh -T git@github.com.red
+
+# ------------------------------------------------------------ #
 # Starship
 # ------------------------------------------------------------ #
 
