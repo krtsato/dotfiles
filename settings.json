@@ -88,10 +88,10 @@
   "[go]": {
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
-      "source.organizeImports": true // Go の標準機能を使用
+      "source.organizeImports": "explicit"
     }
   },
-  "go.goroot": "/opt/homebrew/Cellar/go/1.20.7/libexec",
+  "go.goroot": "/opt/homebrew/Cellar/go/1.21.5/libexec",
   "go.lintTool": "golangci-lint", // Linter 厳格化のため golangci-lint を採用
   "go.lintOnSave": "package", // ファイル保存時に package スコープで Lint を実行
   "go.lintFlags": [
@@ -102,12 +102,12 @@
   "go.useLanguageServer": true, // 言語サーバに gopls を採用
   "gopls": {
     "usePlaceholders": true, // 関数の引数や構造体のフィールドも補完対象
-    "completeUnimported": true, // パッケージ不使用時に import 文を削除
-    "buildFlags": [
-      "-tags=wireinject", // google/wire で DI を実行
-      "-tags=unit", // unit テストに付与
-      "-tags=integration" // integration テストに付与
-    ]
+    "completeUnimported": true // パッケージ不使用時に import 文を削除
+    // "buildFlags": [
+    //   "-tags=wireinject", // google/wire で DI を実行
+    //   "-tags=unit", // unit テストに付与
+    //   "-tags=integration" // integration テストに付与
+    // ]
   },
   "go.coverMode": "atomic", // 並列処理中でもコードの通過回数をカウント
   "go.testFlags": [
@@ -221,12 +221,33 @@
   },
   /* Protocol Buffers */
   "clang-format.style": "Google",
+  "clang-format.executable": "/opt/homebrew/bin/clang-format",
   "[proto3]": {
-    "editor.defaultFormatter": "xaver.clang-format",
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "mjohns.clang-format"
   },
   /* draw.io */
   "hediet.vscode-drawio.local-storage": "eyIuZHJhd2lvLWNvbmZpZyI6IntcImxhbmd1YWdlXCI6XCJcIixcImN1c3RvbUZvbnRzXCI6W10sXCJsaWJyYXJpZXNcIjpcImdlbmVyYWw7YXdzNFwiLFwiY3VzdG9tTGlicmFyaWVzXCI6W1wiTC5zY3JhdGNocGFkXCJdLFwicGx1Z2luc1wiOltdLFwicmVjZW50Q29sb3JzXCI6W1wiODA4MDgwXCIsXCJGRkZGRkZcIl0sXCJmb3JtYXRXaWR0aFwiOjI0MCxcImNyZWF0ZVRhcmdldFwiOmZhbHNlLFwicGFnZUZvcm1hdFwiOntcInhcIjowLFwieVwiOjAsXCJ3aWR0aFwiOjE2MDAsXCJoZWlnaHRcIjo5MDB9LFwic2VhcmNoXCI6dHJ1ZSxcInNob3dTdGFydFNjcmVlblwiOnRydWUsXCJncmlkQ29sb3JcIjpcIiNkMGQwZDBcIixcImRhcmtHcmlkQ29sb3JcIjpcIiM2ZTZlNmVcIixcImF1dG9zYXZlXCI6dHJ1ZSxcInJlc2l6ZUltYWdlc1wiOm51bGwsXCJvcGVuQ291bnRlclwiOjAsXCJ2ZXJzaW9uXCI6MTgsXCJ1bml0XCI6MSxcImlzUnVsZXJPblwiOmZhbHNlLFwidWlcIjpcIlwifSJ9",
   /* Terraform */
-  "terraform.experimentalFeatures.validateOnSave": true
+  "terraform.experimentalFeatures.validateOnSave": true,
+  "[terraform]": {
+    "editor.defaultFormatter": "hashicorp.terraform",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.formatAll.terraform": true
+    }
+  },
+  "[terraform-vars]": {
+    "editor.defaultFormatter": "hashicorp.terraform",
+    "editor.formatOnSave": false,
+    "editor.codeActionsOnSave": {
+      "source.formatAll.terraform": true
+    }
+  },
+  "[terraform][terraform-vars]": {
+    "editor.codeActionsOnSave": {
+      "source.formatAll.terraform": "explicit"
+    }
+  },
+  "diffEditor.hideUnchangedRegions.enabled": true
 }
