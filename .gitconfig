@@ -67,7 +67,7 @@
 	path = ~/.gitconfig.catools
 [includeIf "gitdir:~/engr/job/dokusho/"]
 	path = ~/.gitconfig.catools
-[includeIf "gitdir:~/engr/job/GincoInc/"]
+[includeIf "gitdir:~/engr/job/ginco/"]
 	path = ~/.gitconfig.gnc
 [includeIf "gitdir:~/engr/job/red-frasco/"]
 	path = ~/.gitconfig.red
