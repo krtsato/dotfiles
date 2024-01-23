@@ -1,32 +1,61 @@
 run:
   modules-download-mode: readonly
+  timeout: 30m
   tests: true
-
-skip-dirs:
-  - build
-  - deployments
-  - docs
-  - scripts
-
+  skip-dirs:
+    - bin
+    - build
+    - configs
+    - mock
+    - scripts
+    # add skip-dirs as needed
 linters:
+  disable-all: true
   enable:
-    - gocritic
-    - gocognit
-    - gofmt
+    # auto fix linters with --fix option
     - goimports
-    - gosec
-    - noctx
-    - nolintlint
+    - gofmt
+    - gofumpt
     - misspell
+    - whitespace
+    # enabled by general purpose
+    - goconst
+    - gosec
+    - unconvert
+    - exhaustive
+    - unparam
+    # enabled by default: https://golangci-lint.run/usage/linters/#enabled-by-default
+    - errcheck
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - typecheck
+    # advanced linters
+    - gocognit
+    - gocritic
+    - nolintlint
     - prealloc
-
 linters-settings:
   gocognit:
     min-complexity: 20 # default is 30
-
-# デフォルトで OFF のルール
-# include で使う ID は下記を参照
-# https://github.com/golangci/golangci-lint/blob/ffe80615b079a2cfe9b28e2d8323d58061b795d6/pkg/config/issues.go
+  misspell:
+    locale: US
+    ignore-words:
+      - cancelled
+      - cancelling
+  exhaustive:
+    check-generated: false
+    default-signifies-exhaustive: true
+  unparam:
+    check-exported: true
 issues:
+  # デフォルトで OFF のルール
+  # include で使う ID は下記を参照
+  # https://github.com/golangci/golangci-lint/blob/ffe80615b079a2cfe9b28e2d8323d58061b795d6/pkg/config/issues.go
   include:
     - EXC0002 # export する func のコメントを lint 対象にする
+  max-same-issues: 0
+  max-issues-per-linter: 0
+  fix: true
+  new: true
