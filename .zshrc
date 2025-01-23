@@ -1,8 +1,8 @@
+# Amazon Q pre block. Keep at the top of this file.
+[[ -f "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh"
 # ------------------------------------------------------------ #
 # Fig pre block. Keep at the top of this file.
 # ------------------------------------------------------------ #
-
-[[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.pre.zsh"
 
 #!/opt/homebrew/bin/zsh
 # old shebang
@@ -84,7 +84,7 @@ export PATH=$GOROOT/bin:$PATH
 # external go packages
 GOPATH=$(go env GOPATH)
 export PATH=$GOPATH/bin:$PATH
-export GOPROXY=direct
+export GOPROXY="https://proxy.golang.org,direct"
 export GOSUMDB=off
 
 # for modules
@@ -143,10 +143,29 @@ export PATH=/opt/homebrew/opt/mongodb-community-shell@4.4/bin:$PATH
 export PATH=/opt/homebrew/opt/mongodb-community/bin:$PATH
 
 # ------------------------------------------------------------ #
+# Python
+# ------------------------------------------------------------ #
+# pyenv
+if command -v pyenv 1>/dev/null 2>&1; then
+    eval "$(pyenv init --path)"
+    eval "$(pyenv init -)"
+fi
+
+
+# ------------------------------------------------------------ #
+# ngrok
+# ------------------------------------------------------------ #
+
+if command -v ngrok &>/dev/null; then
+    eval "$(ngrok completion)"
+fi
+
+# ------------------------------------------------------------ #
 # Fig
 # ------------------------------------------------------------ #
 
 export PATH=~/.local/bin:$PATH
+[[ -f "$HOME/fig-export/dotfiles/dotfile.zsh" ]] && builtin source "$HOME/fig-export/dotfiles/dotfile.zsh"
 
-# Fig post block. Keep at the bottom of this file.
-[[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.post.zsh"
+# Amazon Q post block. Keep at the bottom of this file.
+[[ -f "${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh"

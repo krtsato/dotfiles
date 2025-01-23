@@ -51,6 +51,7 @@ cask "notion"
 cask "slack"
 cask "stoplight-studio"
 cask "visual-studio-code"
+cask "visual-studio-code@insider"
 cask "zoom"
 mas "iMovie", id: 408981434
 mas "Keynote", id: 409183694

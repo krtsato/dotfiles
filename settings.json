@@ -1,5 +1,4 @@
 {
-  "audioCues.lineHasError": "off", // 行頭行末のスペースを差分として表示する
   "diffEditor.ignoreTrimWhitespace": false, // 行頭行末のスペースを差分として表示する
   "editor.accessibilitySupport": "off",
   "editor.bracketPairColorization.enabled": true, // 標準の bracket color を使う
@@ -15,10 +14,14 @@
   "editor.suggestSelection": "first", // 入力候補の最上項目が初期選択される
   "files.autoSave": "afterDelay", // 時間経過で自動保存する
   "files.autoSaveDelay": 1500, // 1.5 秒後に自動保存
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
   "security.workspace.trust.untrustedFiles": "open", // 初回展開するファイルを信用
   "telemetry.telemetryLevel": "off", // Microsoft へのデータ送信を停止
   "terminal.integrated.env.osx": {
-    "FIG_NEW_SESSION": "1"
+    "FIG_NEW_SESSION": "1",
+    "Q_NEW_SESSION": "1"
   },
   "terminal.integrated.fontFamily": "FiraCodeNerdFontCompleteM-Retina", // 統合ターミナルのフォントを変更
   "terminal.integrated.fontSize": 12, // 統合ターミナルのフォントサイズを変更
@@ -69,6 +72,9 @@
   },
   /* ESLint */
   "eslint.format.enable": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
   /* Javascript */
   "[javascript]": {
     "editor.defaultFormatter": "vscode.typescript-language-features"
@@ -91,7 +97,7 @@
       "source.organizeImports": "explicit"
     }
   },
-  "go.goroot": "/opt/homebrew/Cellar/go/1.21.6/libexec",
+  "go.goroot": "/opt/homebrew/Cellar/go/1.23.4/libexec",
   "go.lintTool": "golangci-lint", // Linter 厳格化のため golangci-lint を採用
   "go.lintOnSave": "package", // ファイル保存時に package スコープで Lint を実行
   "go.lintFlags": [
@@ -121,6 +127,11 @@
     "-template_dir",
     "~/engr/me/dotfiles/gotests-template"
   ],
+  /* Python*/
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+  },
   /* Markdown */
   "[markdown]": {
     "editor.defaultFormatter": "yzhang.markdown-all-in-one",
@@ -234,14 +245,14 @@
     "editor.defaultFormatter": "hashicorp.terraform",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
-      "source.formatAll.terraform": true
+      "source.formatAll.terraform": "explicit"
     }
   },
   "[terraform-vars]": {
     "editor.defaultFormatter": "hashicorp.terraform",
     "editor.formatOnSave": false,
     "editor.codeActionsOnSave": {
-      "source.formatAll.terraform": true
+      "source.formatAll.terraform": "explicit"
     }
   },
   "[terraform][terraform-vars]": {
@@ -249,5 +260,13 @@
       "source.formatAll.terraform": "explicit"
     }
   },
-  "diffEditor.hideUnchangedRegions.enabled": true
+  "liveshare.accessibility.voice": "ja-JP-Nanami",
+  "accessibility.signals.lineHasError": {
+    "sound": "off"
+  },
+  "diffEditor.hideUnchangedRegions.enabled": true,
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "github.copilot.editor.enableAutoCompletions": true,
 }

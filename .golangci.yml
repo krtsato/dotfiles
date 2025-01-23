@@ -1,7 +1,7 @@
 run:
   modules-download-mode: readonly
   timeout: 30m
-  tests: true
+  tests: false
   skip-dirs:
     - bin
     - build
@@ -22,7 +22,7 @@ linters:
     - goconst
     - gosec
     - unconvert
-    - exhaustive
+    - exhaustive``
     - unparam
     # enabled by default: https://golangci-lint.run/usage/linters/#enabled-by-default
     - errcheck
