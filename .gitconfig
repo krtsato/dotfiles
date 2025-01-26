@@ -61,13 +61,3 @@
 	stp = stash pop
 [includeIf "gitdir:~/go/src/github.com/awa/"]
 	path = ~/.gitconfig.awa
-[includeIf "gitdir:~/go/src/ghe.ca-tools.org/"]
-	path = ~/.gitconfig.catools
-[includeIf "gitdir:~/engr/job/ISE/"]
-	path = ~/.gitconfig.catools
-[includeIf "gitdir:~/engr/job/dokusho/"]
-	path = ~/.gitconfig.catools
-[includeIf "gitdir:~/engr/job/ginco/"]
-	path = ~/.gitconfig.gnc
-[includeIf "gitdir:~/engr/job/red-frasco/"]
-	path = ~/.gitconfig.red

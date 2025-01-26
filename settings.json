@@ -97,11 +97,11 @@
       "source.organizeImports": "explicit"
     }
   },
-  "go.goroot": "/opt/homebrew/Cellar/go/1.23.4/libexec",
+  "go.goroot": "/opt/homebrew/Cellar/go/1.23.5/libexec",
   "go.lintTool": "golangci-lint", // Linter 厳格化のため golangci-lint を採用
   "go.lintOnSave": "package", // ファイル保存時に package スコープで Lint を実行
   "go.lintFlags": [
-    "--config=~/engr/me/dotfiles/.golangci.yml", // ワークスペースに linter 設定がないときユーザの設定を使用
+    "--config=~/engr/me/dotfiles/.golangci.yaml", // ワークスペースに linter 設定がないときユーザの設定を使用
     "--fast" // golangci-lint の中でも高速な Linter を VSCode 上で実行
   ],
   "go.toolsManagement.autoUpdate": true, // IDE 拡張が使用するツールを最新状態に保つ
@@ -235,7 +235,7 @@
   "clang-format.executable": "/opt/homebrew/bin/clang-format",
   "[proto3]": {
     "editor.formatOnSave": true,
-    "editor.defaultFormatter": "mjohns.clang-format"
+    "editor.defaultFormatter": "bufbuild.vscode-buf"
   },
   /* draw.io */
   "hediet.vscode-drawio.local-storage": "eyIuZHJhd2lvLWNvbmZpZyI6IntcImxhbmd1YWdlXCI6XCJcIixcImN1c3RvbUZvbnRzXCI6W10sXCJsaWJyYXJpZXNcIjpcImdlbmVyYWw7YXdzNFwiLFwiY3VzdG9tTGlicmFyaWVzXCI6W1wiTC5zY3JhdGNocGFkXCJdLFwicGx1Z2luc1wiOltdLFwicmVjZW50Q29sb3JzXCI6W1wiODA4MDgwXCIsXCJGRkZGRkZcIl0sXCJmb3JtYXRXaWR0aFwiOjI0MCxcImNyZWF0ZVRhcmdldFwiOmZhbHNlLFwicGFnZUZvcm1hdFwiOntcInhcIjowLFwieVwiOjAsXCJ3aWR0aFwiOjE2MDAsXCJoZWlnaHRcIjo5MDB9LFwic2VhcmNoXCI6dHJ1ZSxcInNob3dTdGFydFNjcmVlblwiOnRydWUsXCJncmlkQ29sb3JcIjpcIiNkMGQwZDBcIixcImRhcmtHcmlkQ29sb3JcIjpcIiM2ZTZlNmVcIixcImF1dG9zYXZlXCI6dHJ1ZSxcInJlc2l6ZUltYWdlc1wiOm51bGwsXCJvcGVuQ291bnRlclwiOjAsXCJ2ZXJzaW9uXCI6MTgsXCJ1bml0XCI6MSxcImlzUnVsZXJPblwiOmZhbHNlLFwidWlcIjpcIlwifSJ9",
