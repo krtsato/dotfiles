@@ -17,6 +17,7 @@
   "files.associations": {
     "*.css": "tailwindcss"
   },
+  "files.insertFinalNewline": true,
   "security.workspace.trust.untrustedFiles": "open", // 初回展開するファイルを信用
   "telemetry.telemetryLevel": "off", // Microsoft へのデータ送信を停止
   "terminal.integrated.env.osx": {
@@ -97,7 +98,7 @@
       "source.organizeImports": "explicit"
     }
   },
-  "go.goroot": "/opt/homebrew/Cellar/go/1.23.5/libexec",
+  "go.goroot": "/opt/homebrew/Cellar/go/1.25.1/libexec",
   "go.lintTool": "golangci-lint", // Linter 厳格化のため golangci-lint を採用
   "go.lintOnSave": "package", // ファイル保存時に package スコープで Lint を実行
   "go.lintFlags": [
@@ -260,7 +261,6 @@
       "source.formatAll.terraform": "explicit"
     }
   },
-  "liveshare.accessibility.voice": "ja-JP-Nanami",
   "accessibility.signals.lineHasError": {
     "sound": "off"
   },
@@ -268,5 +268,7 @@
   "[typescriptreact]": {
     "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   },
-  "github.copilot.editor.enableAutoCompletions": true
+  "docker.extension.enableComposeLanguageServer": false,
+  "markdown-pdf.mermaidServer": "https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js",
+  "markdown-pdf.executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
 }

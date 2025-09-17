@@ -91,7 +91,7 @@ export GO111MODULE=on
 # ------------------------------------------------------------ #
 # AWS
 # ------------------------------------------------------------ #
-export AWS_PROFILE=awa
+export AWS_PROFILE=default
 
 # ------------------------------------------------------------ #
 # Google Cloud SDK
@@ -159,6 +159,14 @@ if command -v ngrok &>/dev/null; then
 fi
 
 # ------------------------------------------------------------ #
+# Claude Code
+# ------------------------------------------------------------ #
+
+export CLAUDE_CODE_USE_BEDROCK=1
+export AWS_REGION="us-west-2"
+export ANTHROPIC_MODEL="us.anthropic.claude-sonnet-4-20250514-v1:0"
+
+# ------------------------------------------------------------ #
 # Fig
 # ------------------------------------------------------------ #
 
@@ -167,3 +175,9 @@ export PATH=~/.local/bin:$PATH
 
 # Amazon Q post block. Keep at the bottom of this file.
 [[ -f "${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh"
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/opt/homebrew/share/google-cloud-sdk/path.zsh.inc' ]; then . '/opt/homebrew/share/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc' ]; then . '/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc'; fi

@@ -46,6 +46,7 @@
 	psdo = !git rev-parse --abbrev-ref HEAD | xargs -I@ git push -d origin @
 	psfom = push -u --force-with-lease origin main
 	pso = !git rev-parse --abbrev-ref HEAD | xargs -I@ git push -u origin @
+	psfo = !git rev-parse --abbrev-ref HEAD | xargs -I@ git push -u -f origin @
 	psom = push -u origin main
 	r = rebase
 	ra = rebase --abort
