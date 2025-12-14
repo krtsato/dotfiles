@@ -1,0 +1,73 @@
+{
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "osascript -e 'display notification \"Claude Codeが許可を求めています\" with title \"Claude Code\" subtitle \"確認待ち\" sound name \"Glass\"'"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "osascript -e 'display notification \"タスクが完了しました\" with title \"Claude Code\" subtitle \"処理終了\" sound name \"Hero\"'"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Read",
+      "WebSearch",
+      "WebFetch",
+      "Bash(cat ~/Desktop/tmp/*:*)",
+      "Bash(cat /tmp/*:*)",
+      "Bash(wc:*)",
+      "Bash(echo:*)",
+      "Bash(ls:*)",
+      "Bash(mkdir ~/Desktop/tmp:*)",
+      "Bash(mkdir -p ~/Desktop/tmp:*)",
+      "Bash(pbcopy:*)",
+      "Bash(pbpaste:*)",
+      "Bash(basename:*)",
+      "Bash(dirname:*)",
+      "Bash(awk:*)",
+      "Bash(tr:*)",
+      "Bash(sort:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(touch ~/Desktop/tmp/*:*)",
+      "Bash(code ~/Desktop/tmp/*:*)",
+      "Bash(FILE=:*)",
+      "Bash(git diff:*)",
+      "Bash(git status:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git apply:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(diffstat:*)",
+      "Bash(test:*)",
+      "Bash([:*)"
+    ],
+    "ask": [
+      "Bash(cat:*)",
+      "Bash(mkdir:*)",
+      "Bash(touch:*)",
+      "Bash(code:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(sed:*)"
+    ]
+  },
+  "alwaysThinkingEnabled": true
+}
