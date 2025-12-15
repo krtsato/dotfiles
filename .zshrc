@@ -1,18 +1,27 @@
-# Amazon Q pre block. Keep at the top of this file.
-[[ -f "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh"
 # ------------------------------------------------------------ #
-# Fig pre block. Keep at the top of this file.
+# Kiro CLI pre block. Keep at the top of this file.
 # ------------------------------------------------------------ #
 
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh"
+
 #!/opt/homebrew/bin/zsh
-# old shebang
-#!/usr/local/bin/zsh
+
+# ------------------------------------------------------------ #
+# Variables
+# ------------------------------------------------------------ #
+DIR_DEV=$HOME/dev
 
 # ------------------------------------------------------------ #
 # Brew
 # ------------------------------------------------------------ #
 
 export PATH=/opt/homebrew/bin:$PATH
+
+# ------------------------------------------------------------ #
+# mise
+# ------------------------------------------------------------ #
+
+eval "$(mise activate zsh)"
 
 # ------------------------------------------------------------ #
 # Zsh
@@ -27,8 +36,6 @@ PROMPT="%{$fg[green]%}%1~ %# %{$reset_color%}"
 
 # zsh-completions
 autoload -Uz compinit && compinit -u
-# old path
-# fpath=(/usr/local/share/zsh-completions $fpath)
 fpath=(/opt/homebrew/share/zsh-completions $fpath)
 
 # match dotfiles without '.' in a completion
@@ -52,24 +59,14 @@ ssh -T git@github.com
 # ------------------------------------------------------------ #
 
 eval "$(starship init zsh)"
-export STARSHIP_CONFIG=~/engr/me/dotfiles/.starship.toml
-
-# ------------------------------------------------------------ #
-# OpenSSL
-# ------------------------------------------------------------ #
-
-# openssl installed by homebrew, not default version
-
-# old path
-# export PATH=/usr/local/opt/openssl/bin:$PATH
-export PATH=/opt/homebrew/bin/openssl/bin:$PATH
+export STARSHIP_CONFIG=$DIR_DEV/me/dotfiles/.starship.toml
 
 # ------------------------------------------------------------ #
 # Shell
 # ------------------------------------------------------------ #
 
 # my shell scripts
-export PATH=~/engr/me/shells:$PATH
+export PATH=$DIR_DEV/me/shells:$PATH
 
 # ------------------------------------------------------------ #
 # Golang
@@ -97,35 +94,25 @@ export AWS_PROFILE=default
 # Google Cloud SDK
 # ------------------------------------------------------------ #
 
-# The next line updates PATH for the Google Cloud SDK.
-# old path
-# [ -f '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc' ] && . '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc'
+# The next line updates PATH for the Google Cloud SDK and gcloud command
 [ -f '/opt/homebrew/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc' ] && . '/opt/homebrew/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc'
+[ -f '/opt/homebrew/share/google-cloud-sdk/path.zsh.inc' ] && . '/opt/homebrew/share/google-cloud-sdk/path.zsh.inc'
 
 # The next line enables shell command completion for gcloud.
-# old path
-# [ -f '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc' ] && . '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc'
 [ -f '/opt/homebrew/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc' ] && . '/opt/homebrew/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc'
+[ -f '/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc' ] && . '/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc'
 
 # ------------------------------------------------------------ #
 # Node
 # ------------------------------------------------------------ #
 
-export NVM_DIR=~/.nvm
-export NVM_SYMLINK_CURRENT=true
-# old path
-# [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"
-# [ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && . "/usr/local/opt/nvm/etc/bash_completion.d/nvm"
-[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && . "/opt/homebrew/opt/nvm/nvm.sh"
-[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && . "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
-[ -e ".nvmrc" ] && nvm use
+# TODO
 
 # ------------------------------------------------------------ #
 # Java
 # ------------------------------------------------------------ #
 
-export PATH=/opt/homebrew/opt/openjdk/bin:$PATH
-export CPPFLAGS=-I/opt/homebrew/opt/openjdk/include
+# TODO
 
 # ------------------------------------------------------------ #
 # Xcode
@@ -137,18 +124,13 @@ export PATH=/usr/bin/xcrun:$PATH
 # MongoDB
 # ------------------------------------------------------------ #
 
-export PATH=/opt/homebrew/opt/mongodb-community-shell@4.4/bin:$PATH
-export PATH=/opt/homebrew/opt/mongodb-community/bin:$PATH
+# TODO
 
 # ------------------------------------------------------------ #
 # Python
 # ------------------------------------------------------------ #
-# pyenv
-if command -v pyenv 1>/dev/null 2>&1; then
-    eval "$(pyenv init --path)"
-    eval "$(pyenv init -)"
-fi
 
+# TODO
 
 # ------------------------------------------------------------ #
 # ngrok
@@ -159,25 +141,7 @@ if command -v ngrok &>/dev/null; then
 fi
 
 # ------------------------------------------------------------ #
-# Claude Code
+# Kiro CLI post block. Keep at the bottom of this file.
 # ------------------------------------------------------------ #
 
-export CLAUDE_CODE_USE_BEDROCK=1
-export AWS_REGION="us-west-2"
-export ANTHROPIC_MODEL="us.anthropic.claude-sonnet-4-20250514-v1:0"
-
-# ------------------------------------------------------------ #
-# Fig
-# ------------------------------------------------------------ #
-
-export PATH=~/.local/bin:$PATH
-[[ -f "$HOME/fig-export/dotfiles/dotfile.zsh" ]] && builtin source "$HOME/fig-export/dotfiles/dotfile.zsh"
-
-# Amazon Q post block. Keep at the bottom of this file.
-[[ -f "${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh"
-
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/opt/homebrew/share/google-cloud-sdk/path.zsh.inc' ]; then . '/opt/homebrew/share/google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f '/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc' ]; then . '/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc'; fi
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh"
