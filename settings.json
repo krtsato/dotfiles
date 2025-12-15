@@ -1,6 +1,9 @@
 {
   "diffEditor.ignoreTrimWhitespace": false, // 行頭行末のスペースを差分として表示する
   "editor.accessibilitySupport": "off",
+  "accessibility.signals.lineHasError": {
+    "sound": "off"
+  },
   "editor.bracketPairColorization.enabled": true, // 標準の bracket color を使う
   "editor.cursorBlinking": "smooth", // カーソルが滑らかに点滅
   "editor.cursorStyle": "block", // カーソルはブロック型
@@ -67,9 +70,27 @@
     "scminput": false,
     "yaml": true
   },
+  "chat.tools.terminal.autoApprove": {
+    "gofmt": true
+  },
+  "[github-actions-workflow]": {
+    "editor.defaultFormatter": "redhat.vscode-yaml"
+  },
   /* Docker*/
+  "docker.extension.enableComposeLanguageServer": false,
   "[dockerfile]": {
     "editor.defaultFormatter": "ms-azuretools.vscode-docker" // VSCode の拡張機能 Docker で整形
+  },
+  "[dockercompose]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.autoIndent": "advanced",
+    "editor.quickSuggestions": {
+      "other": true,
+      "comments": false,
+      "strings": true
+    },
+    "editor.defaultFormatter": "redhat.vscode-yaml"
   },
   /* ESLint */
   "eslint.format.enable": true,
@@ -98,11 +119,11 @@
       "source.organizeImports": "explicit"
     }
   },
-  "go.goroot": "/opt/homebrew/Cellar/go/1.25.1/libexec",
+  "go.goroot": "/opt/homebrew/Cellar/go/1.25.5/libexec",
   "go.lintTool": "golangci-lint", // Linter 厳格化のため golangci-lint を採用
   "go.lintOnSave": "package", // ファイル保存時に package スコープで Lint を実行
   "go.lintFlags": [
-    "--config=~/engr/me/dotfiles/.golangci.yaml", // ワークスペースに linter 設定がないときユーザの設定を使用
+    "--config=~/dev/me/dotfiles/.golangci.yaml", // ワークスペースに linter 設定がないときユーザの設定を使用
     "--fast" // golangci-lint の中でも高速な Linter を VSCode 上で実行
   ],
   "go.toolsManagement.autoUpdate": true, // IDE 拡張が使用するツールを最新状態に保つ
@@ -126,12 +147,12 @@
   ],
   "go.generateTestsFlags": [
     "-template_dir",
-    "~/engr/me/dotfiles/gotests-template"
+    "~/dev/me/dotfiles/gotests-template"
   ],
   /* Python*/
   "[python]": {
     "editor.defaultFormatter": "charliermarsh.ruff",
-    "editor.formatOnSave": true,
+    "editor.formatOnSave": true
   },
   /* Markdown */
   "[markdown]": {
@@ -143,8 +164,10 @@
   "markdown.preview.lineHeight": 1.5, // Markdown の行間は 1.5 行
   "markdown.extension.list.indentationSize": "inherit", // 画面右に Markdown のプレビュー表示
   "markdown-pdf.breaks": true, // PDF出力に改行を反映
+  "markdown-pdf.executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "markdown-pdf.mermaidServer": "https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js",
   "markdown-pdf.styles": [
-    "~/engr/me/dotfiles/markdown-pdf.css" // ワークスペースに CSS がないときユーザの設定を使用
+    "~/dev/me/dotfiles/markdown-pdf.css" // ワークスペースに CSS がないときユーザの設定を使用
   ],
   /* Shell */
   "shellcheck.exclude": [
@@ -261,14 +284,6 @@
       "source.formatAll.terraform": "explicit"
     }
   },
-  "accessibility.signals.lineHasError": {
-    "sound": "off"
-  },
-  "diffEditor.hideUnchangedRegions.enabled": true,
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
-  },
-  "docker.extension.enableComposeLanguageServer": false,
-  "markdown-pdf.mermaidServer": "https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js",
-  "markdown-pdf.executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  /* MongoDB */
+  "mdb.mcp.server": "autoStartEnabled"
 }
