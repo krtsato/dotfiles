@@ -285,5 +285,7 @@
     }
   },
   /* MongoDB */
-  "mdb.mcp.server": "autoStartEnabled"
+  "mdb.mcp.server": "autoStartEnabled",
+  /* Claude Code */
+  "claudeCode.preferredLocation": "sidebar"
 }
