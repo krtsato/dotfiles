@@ -70,6 +70,7 @@
     "scminput": false,
     "yaml": true
   },
+  "github.copilot.nextEditSuggestions.enabled": true,
   "chat.tools.terminal.autoApprove": {
     "gofmt": true
   },
