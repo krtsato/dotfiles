@@ -39,6 +39,20 @@
       "disabled": false,
       "autoApprove": []
     },
+    "cloudflare-docs": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://docs.mcp.cloudflare.com/mcp"
+      ]
+    },
+    "cloudflare-dns": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://dns-analytics.mcp.cloudflare.com/mcp"
+      ]
+    },
     "github": {
       "type": "stdio",
       "command": "docker",
