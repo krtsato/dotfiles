@@ -288,5 +288,6 @@
   /* MongoDB */
   "mdb.mcp.server": "autoStartEnabled",
   /* Claude Code */
-  "claudeCode.preferredLocation": "sidebar"
+  "claudeCode.preferredLocation": "sidebar",
+  "claudeCode.selectedModel": "opus"
 }
