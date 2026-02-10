@@ -1,11 +1,4 @@
-debug
-file-history
-ide
-projects
-plans
-shell-snapshots
-session-env
-stats-cache.json
-statsig
-todos
-.credentials.json
+*
+!commands
+!CLAUDE.md
+!settings.json
