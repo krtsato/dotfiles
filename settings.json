@@ -120,7 +120,7 @@
       "source.organizeImports": "explicit"
     }
   },
-  "go.goroot": "/opt/homebrew/Cellar/go/1.25.5/libexec",
+  "go.goroot": "/Users/s11639/.local/share/mise/installs/go/1.25.5",
   "go.lintTool": "golangci-lint", // Linter 厳格化のため golangci-lint を採用
   "go.lintOnSave": "package", // ファイル保存時に package スコープで Lint を実行
   "go.lintFlags": [
@@ -287,7 +287,11 @@
   },
   /* MongoDB */
   "mdb.mcp.server": "autoStartEnabled",
+  /* CSV */
+  "[csv]": {
+    "editor.inlayHints.maximumLength": 0
+  },
   /* Claude Code */
-  "claudeCode.preferredLocation": "sidebar",
+  "claudeCode.preferredLocation": "panel",
   "claudeCode.selectedModel": "opus"
 }
