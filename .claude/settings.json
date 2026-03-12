@@ -1,53 +1,104 @@
 {
   "env": {
-    "ENABLE_TOOL_SEARCH": "true"
+    "ENABLE_TOOL_SEARCH": "true",
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
   "permissions": {
     "allow": [
       "Read",
+      "Edit",
+      "Write",
       "WebSearch",
       "WebFetch",
-      "Bash(cat ~/Desktop/tmp/*:*)",
-      "Bash(cat /tmp/*:*)",
-      "Bash(wc:*)",
-      "Bash(echo:*)",
-      "Bash(ls:*)",
-      "Bash(mkdir ~/Desktop/tmp:*)",
-      "Bash(mkdir -p ~/Desktop/tmp:*)",
-      "Bash(pbcopy:*)",
-      "Bash(pbpaste:*)",
-      "Bash(basename:*)",
-      "Bash(dirname:*)",
-      "Bash(awk:*)",
-      "Bash(tr:*)",
-      "Bash(sort:*)",
-      "Bash(head:*)",
-      "Bash(tail:*)",
-      "Bash(touch ~/Desktop/tmp/*:*)",
-      "Bash(code ~/Desktop/tmp/*:*)",
-      "Bash(FILE=:*)",
-      "Bash(git diff:*)",
-      "Bash(git status:*)",
-      "Bash(git rev-parse:*)",
-      "Bash(git apply:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(git log:*)",
-      "Bash(git branch:*)",
-      "Bash(diffstat:*)",
-      "Bash(test:*)",
-      "Bash([:*)",
-      "Bash(ruff check:*)",
-      "Bash(git -C /Users/s11639/dev/job/ysys/case-20260123-bak-ai-cabinet log --all --format=\"%ai %h %s\")"
+      "Bash(cat *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(less *)",
+      "Bash(wc *)",
+      "Bash(echo *)",
+      "Bash(printf *)",
+      "Bash(ls *)",
+      "Bash(tree *)",
+      "Bash(find *)",
+      "Bash(grep *)",
+      "Bash(rg *)",
+      "Bash(awk *)",
+      "Bash(sed *)",
+      "Bash(tr *)",
+      "Bash(sort *)",
+      "Bash(uniq *)",
+      "Bash(cut *)",
+      "Bash(xargs *)",
+      "Bash(tee *)",
+      "Bash(diff *)",
+      "Bash(diffstat *)",
+      "Bash(comm *)",
+      "Bash(basename *)",
+      "Bash(dirname *)",
+      "Bash(realpath *)",
+      "Bash(readlink *)",
+      "Bash(pwd *)",
+      "Bash(which *)",
+      "Bash(type *)",
+      "Bash(file *)",
+      "Bash(stat *)",
+      "Bash(du *)",
+      "Bash(df *)",
+      "Bash(mkdir *)",
+      "Bash(touch *)",
+      "Bash(cp *)",
+      "Bash(mv *)",
+      "Bash(ln *)",
+      "Bash(tar *)",
+      "Bash(unzip *)",
+      "Bash(gzip *)",
+      "Bash(gunzip *)",
+      "Bash(curl *)",
+      "Bash(wget *)",
+      "Bash(jq *)",
+      "Bash(yq *)",
+      "Bash(envsubst *)",
+      "Bash(date *)",
+      "Bash(sleep *)",
+      "Bash(true *)",
+      "Bash(false *)",
+      "Bash(test *)",
+      "Bash([ *)",
+      "Bash(pbcopy *)",
+      "Bash(pbpaste *)",
+      "Bash(code *)",
+      "Bash(open *)",
+      "Bash(git *)",
+      "Bash(gh *)",
+      "Bash(go *)",
+      "Bash(make *)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(node *)",
+      "Bash(python *)",
+      "Bash(python3 *)",
+      "Bash(pip *)",
+      "Bash(pip3 *)",
+      "Bash(docker *)",
+      "Bash(docker-compose *)",
+      "Bash(terraform *)",
+      "Bash(aws *)",
+      "Bash(mongosh *)",
+      "Bash(redis-cli *)",
+      "Bash(ruff *)",
+      "Bash(golangci-lint *)",
+      "Bash(protoc *)",
+      "Bash(buf *)",
+      "Bash(FILE=*)",
+      "Bash(LIVERPOOL_ENV=*)",
+      "Bash(GOFLAGS=*)",
+      "Bash(CGO_ENABLED=*)",
+      "Bash(PATH=*)",
+      "Bash(cd *)"
     ],
-    "ask": [
-      "Bash(cat:*)",
-      "Bash(mkdir:*)",
-      "Bash(touch:*)",
-      "Bash(code:*)",
-      "Bash(find:*)",
-      "Bash(grep:*)",
-      "Bash(sed:*)"
+    "deny": [
+      "Bash(sudo *)",
+      "Bash(rm -rf /*)"
     ]
   },
   "model": "opus",
@@ -96,5 +147,145 @@
     "admintool-dev@awa-plugins": true,
     "server-dev@awa-plugins": true
   },
-  "alwaysThinkingEnabled": true
+  "alwaysThinkingEnabled": true,
+  "mcpServers": {
+    "awa-doc": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "ghcr.io/awa/doc-mcp-server:latest"
+      ]
+    },
+    "awa-slack": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "AWS_SSM_SLACK_TOKEN_NAME",
+        "-e",
+        "AWS_REGION",
+        "-v",
+        "${HOME}/.aws:/root/.aws:ro",
+        "ghcr.io/awa/mcp-slack:latest"
+      ],
+      "env": {
+        "AWS_SSM_SLACK_TOKEN_NAME": "/mcp-slack/bot-token",
+        "AWS_REGION": "ap-northeast-1"
+      }
+    },
+    "awslabs.aws-api-mcp-server": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "--interactive",
+        "--env",
+        "AWS_API_MCP_PROFILE_NAME=default",
+        "--volume",
+        "/Users/s11639/.aws:/app/.aws",
+        "public.ecr.aws/awslabs-mcp/awslabs/aws-api-mcp-server:latest"
+      ]
+    },
+    "awslabs.aws-documentation-mcp-server": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "--interactive",
+        "--env",
+        "FASTMCP_LOG_LEVEL=ERROR",
+        "--env",
+        "AWS_DOCUMENTATION_PARTITION=aws",
+        "mcp/aws-documentation:latest"
+      ]
+    },
+    "cloudflare-docs": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://docs.mcp.cloudflare.com/mcp"
+      ]
+    },
+    "github": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "ghcr.io/github/github-mcp-server"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": ""
+      }
+    },
+    "stripe": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@stripe/mcp",
+        "--tools=all"
+      ],
+      "env": {
+        "STRIPE_SECRET_KEY": "to be added"
+      }
+    },
+    "terraform": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "hashicorp/terraform-mcp-server:latest"
+      ]
+    },
+    "mise": {
+      "command": "mise",
+      "args": [
+        "mcp"
+      ],
+      "env": {
+        "MISE_EXPERIMENTAL": "1"
+      }
+    },
+    "codex": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "codex-mcp-server"
+      ]
+    },
+    "drawio": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@drawio/mcp"
+      ]
+    },
+    "canva": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote@latest",
+        "https://mcp.canva.com/mcp"
+      ]
+    },
+    "dxe-atlassian": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote@latest",
+        "https://mcp.atlassian.com/v1/sse"
+      ],
+      "env": {
+        "CONFLUENCE_USERNAME": "",
+        "CONFLUENCE_API_TOKEN": ""
+      }
+    }
+  }
 }
