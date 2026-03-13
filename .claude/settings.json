@@ -286,6 +286,14 @@
         "CONFLUENCE_USERNAME": "",
         "CONFLUENCE_API_TOKEN": ""
       }
+    },
+    "docbase-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote@latest",
+        "https://mcp.docbase.io/mcp"
+      ]
     }
   }
 }
