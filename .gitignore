@@ -1,4 +1,5 @@
 .DS_Store
 .gitconfig.*
+.worktrees/
 Alfred/usage.data
 karabiner/automatic_backups
