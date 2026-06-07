@@ -120,7 +120,7 @@
       "source.organizeImports": "explicit"
     }
   },
-  "go.goroot": "/Users/s11639/.local/share/mise/installs/go/1.26.0",
+  "go.goroot": "/Users/s11639/.local/share/mise/installs/go/1.26.4",
   "go.lintTool": "golangci-lint", // Linter 厳格化のため golangci-lint を採用
   "go.lintOnSave": "package", // ファイル保存時に package スコープで Lint を実行
   "go.lintFlags": [

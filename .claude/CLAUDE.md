@@ -122,6 +122,27 @@
 
 ### Go 言語
 
+ロガー規約：
+
+- 特に指定がない限り、Go 言語標準の `log/slog` の JSON 形式を使用
+
+エラー規約：
+
+- `fmt.Errorf("context: hoge = %s: %w", hoge, err)` でラップして呼び出し元に伝播
+
+モック規約：
+
+- モック生成には ` go.uber.org/mock/mockgen` を使用
+- 生成されたモックは同じディレクトリ内に `mock/{interface名}.go` というパスで配置する
+
+テスト規約：
+
+- `t.Parallel()` を積極的に使用
+- アサーションは `github.com/matryer/is` を使用
+- structレシーバー関数のテストは `Test{Struct}_Xxx` 形式
+- 全テストケースで `t.Run` を使用
+- `defer ctrl.Finish()` は不要
+
 #### ~/go/src/github.com/awa/ 配下のリポジトリ
 
 - 可能な限り外部ライブラリを使用しない
@@ -131,10 +152,6 @@
   - `go get` や `go.mod` を直接編集せず、 importに追加後、 `go mod tidy & go mod vendor` を使用してください
   - 多くのリポジトリで `make tidy` で `go mod tidy & go mod vendor` が実行されます
 
-#### エラー処理
-
-- `fmt.Errorf("context: hoge = %s: %w", hoge, err)` でラップして呼び出し元に伝播
-
-## Markdown Lint
+### Markdown
 
 - マークダウンファイルの編集後は必ず `npx markdownlint-cli2 --config ~/dev/me/dotfiles/.markdownlint.yaml <file>` を実行し、警告があれば修正する

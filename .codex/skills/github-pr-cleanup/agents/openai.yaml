@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitHub PR Cleanup"
+  short_description: "PR作成、マージ、local cleanupを安全に実行"
+  default_prompt: "$github-pr-cleanup を使って、変更を commit し、PR を作成して、マージ後に local cleanup してください。"

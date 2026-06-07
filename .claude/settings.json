@@ -10,6 +10,10 @@
       "Write",
       "WebSearch",
       "WebFetch",
+      "mcp__codex__codex",
+      "mcp__codex__review",
+      "mcp__codex__websearch",
+      "mcp__codex__help",
       "Bash(cat *)",
       "Bash(head *)",
       "Bash(tail *)",
@@ -101,7 +105,7 @@
       "Bash(rm -rf /*)"
     ]
   },
-  "model": "opus",
+  "model": "opus[1m]",
   "hooks": {
     "Notification": [
       {
@@ -145,9 +149,22 @@
     "github@claude-plugins-official": true,
     "infra-dev@awa-plugins": true,
     "admintool-dev@awa-plugins": true,
-    "server-dev@awa-plugins": true
+    "server-dev@awa-plugins": true,
+    "write-postmortem@awa-plugins": true,
+    "document-dev@awa-plugins": true,
+    "discord@claude-plugins-official": true
   },
+  "extraKnownMarketplaces": {
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      }
+    }
+  },
+  "outputStyle": "Explanatory",
   "alwaysThinkingEnabled": true,
+  "voiceEnabled": true,
   "mcpServers": {
     "awa-doc": {
       "command": "docker",
@@ -176,6 +193,15 @@
         "AWS_SSM_SLACK_TOKEN_NAME": "/mcp-slack/bot-token",
         "AWS_REGION": "ap-northeast-1"
       }
+    },
+    "aws-mcp": {
+      "command": "uvx",
+      "args": [
+        "mcp-proxy-for-aws@latest",
+        "https://aws-mcp.us-east-1.api.aws/mcp",
+        "--metadata",
+        "AWS_REGION=ap-northeast-1"
+      ]
     },
     "awslabs.aws-api-mcp-server": {
       "command": "docker",
@@ -228,8 +254,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@stripe/mcp",
-        "--tools=all"
+        "@stripe/mcp"
       ],
       "env": {
         "STRIPE_SECRET_KEY": "to be added"
@@ -254,10 +279,9 @@
       }
     },
     "codex": {
-      "command": "npx",
+      "command": "codex",
       "args": [
-        "-y",
-        "codex-mcp-server"
+        "mcp-server"
       ]
     },
     "drawio": {
@@ -293,6 +317,54 @@
         "-y",
         "mcp-remote@latest",
         "https://mcp.docbase.io/mcp"
+      ]
+    },
+    "note": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "NOTE_COOKIES",
+        "-e",
+        "MAGAZINES_DIR=/magazines",
+        "-v",
+        "/Users/s11639/dev/me/mcp-note/magazines:/magazines",
+        "mcp-note"
+      ],
+      "env": {
+        "NOTE_COOKIES": "to_be_added..."
+      }
+    },
+    "figma": {
+      "command": "node",
+      "args": [
+        "/Users/s11639/go/src/github.com/awa/figjam_mcp/dist/index.js"
+      ],
+      "env": {
+        "BRIDGE_PORT": "3000"
+      }
+    },
+    "ga4-analytics": {
+      "command": "ga4-mcp-server",
+      "env": {
+        "GOOGLE_APPLICATION_CREDENTIALS": "/Users/s11639/.config/gcloud/ga4-reader-key.json",
+        "GA4_PROPERTY_ID": "531043911"
+      }
+    },
+    "astro-docs": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://mcp.docs.astro.build/mcp"
+      ]
+    },
+    "hono-docs": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://hono-docs-mcp.yusukebe.workers.dev/mcp"
       ]
     }
   }

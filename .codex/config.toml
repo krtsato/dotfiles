@@ -1,3 +1,149 @@
-model = "gpt-5.4"
-model_reasoning_effort = "high"
+model = "gpt-5.5"
+model_reasoning_effort = "xhigh"
 personality = "pragmatic"
+approval_policy = "on-request"
+approvals_reviewer = "auto_review"
+service_tier = "default"
+
+[features]
+multi_agent = true
+terminal_resize_reflow = true
+
+[projects]
+"/Users/s11639/dev/me".trust_level = "trusted"
+"/Users/s11639/dev/job/dxe".trust_level = "trusted"
+"/Users/s11639/dev/job/ysys".trust_level = "trusted"
+"/Users/s11639/dev/job/ysys/case-20260427-bak-ai-cabinet-ipad".trust_level = "trusted"
+"/Users/s11639/go/src/github.com/awa".trust_level = "trusted"
+
+[plugins]
+"browser@openai-bundled".enabled = true
+"documents@openai-primary-runtime".enabled = true
+"github@openai-curated".enabled = true
+"gmail@openai-curated".enabled = true
+"google-calendar@openai-curated".enabled = true
+"google-drive@openai-curated".enabled = true
+"presentations@openai-primary-runtime".enabled = true
+"slack@openai-curated".enabled = true
+"spreadsheets@openai-primary-runtime".enabled = true
+"stripe@openai-curated".enabled = true
+
+[apps.connector_76869538009648d5b282a4bb21c3d157.tools]
+github_create_pull_request.approval_mode = "approve"
+github_update_issue_comment.approval_mode = "approve"
+
+[marketplaces]
+"openai-bundled".last_updated = "2026-05-29T01:39:07Z"
+"openai-bundled".source_type = "local"
+"openai-bundled".source = "/Users/s11639/dev/me/dotfiles/.codex/.tmp/bundled-marketplaces/openai-bundled"
+"openai-primary-runtime".last_updated = "2026-05-29T02:30:21Z"
+"openai-primary-runtime".source_type = "local"
+"openai-primary-runtime".source = "/Users/s11639/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
+
+[mcp_servers]
+# Token hardcoded - migrate to OAuth or external secret storage
+# dxe-atlassian
+"dxe-atlassian".enabled = true
+"dxe-atlassian".command = "npx"
+"dxe-atlassian".args = ["-y", "mcp-remote@latest", "https://mcp.atlassian.com/v1/sse"]
+"dxe-atlassian".env = { CONFLUENCE_USERNAME = "kuratasatoc@gmail.com", CONFLUENCE_API_TOKEN = "to_be_added..." }
+
+# github
+github.enabled = true
+github.command = "docker"
+github.args = ["run", "-i", "--rm", "-e", "GITHUB_PERSONAL_ACCESS_TOKEN", "ghcr.io/github/github-mcp-server"]
+github.env = { GITHUB_PERSONAL_ACCESS_TOKEN = "to_be_added..." }
+
+# note
+note.enabled = true
+note.command = "docker"
+note.args = ["run", "-i", "--rm", "-e", "NOTE_COOKIES", "-e", "MAGAZINES_DIR=/magazines", "-v", "/Users/s11639/dev/me/mcp-note/magazines:/magazines", "mcp-note"]
+note.env = { NOTE_COOKIES = "to_be_added..." }
+
+# stripe
+stripe.enabled = true
+stripe.command = "npx"
+stripe.args = ["-y", "@stripe/mcp"]
+stripe.env = { STRIPE_SECRET_KEY = "to_be_added..." }
+
+# Codex
+codex.enabled = true
+codex.command = "codex"
+codex.args = ["mcp-server"]
+
+# AWA
+"awa-doc".enabled = true
+"awa-doc".command = "docker"
+"awa-doc".args = ["run", "--rm", "-i", "ghcr.io/awa/doc-mcp-server:latest"]
+"awa-slack".enabled = true
+"awa-slack".command = "docker"
+"awa-slack".args = ["run", "-i", "--rm", "-e", "AWS_SSM_SLACK_TOKEN_NAME", "-e", "AWS_REGION", "-v", "/Users/s11639/.aws:/root/.aws:ro", "ghcr.io/awa/mcp-slack:latest"]
+"awa-slack".env = { AWS_SSM_SLACK_TOKEN_NAME = "/mcp-slack/bot-token", AWS_REGION = "ap-northeast-1" }
+
+# AWS
+"aws-mcp".enabled = true
+"aws-mcp".command = "uvx"
+"aws-mcp".args = ["mcp-proxy-for-aws@latest", "https://aws-mcp.us-east-1.api.aws/mcp", "--metadata", "AWS_REGION=ap-northeast-1"]
+"awslabs.aws-api-mcp-server".enabled = true
+"awslabs.aws-api-mcp-server".command = "docker"
+"awslabs.aws-api-mcp-server".args = ["run", "--rm", "--interactive", "--env", "AWS_API_MCP_PROFILE_NAME=default", "--volume", "/Users/s11639/.aws:/app/.aws", "public.ecr.aws/awslabs-mcp/awslabs/aws-api-mcp-server:latest"]
+"awslabs.aws-documentation-mcp-server".enabled = true
+"awslabs.aws-documentation-mcp-server".command = "docker"
+"awslabs.aws-documentation-mcp-server".args = ["run", "--rm", "--interactive", "--env", "FASTMCP_LOG_LEVEL=ERROR", "--env", "AWS_DOCUMENTATION_PARTITION=aws", "mcp/aws-documentation:latest"]
+
+# Astro
+"astro-docs".enabled = true
+"astro-docs".command = "npx"
+"astro-docs".args = ["mcp-remote", "https://mcp.docs.astro.build/mcp"]
+
+# Cloudflare
+"cloudflare-docs".enabled = true
+"cloudflare-docs".command = "npx"
+"cloudflare-docs".args = ["mcp-remote", "https://docs.mcp.cloudflare.com/mcp"]
+
+# Hono
+"hono-docs".enabled = true
+"hono-docs".command = "npx"
+"hono-docs".args = ["mcp-remote", "https://hono-docs-mcp.yusukebe.workers.dev/mcp"]
+
+# Canva
+canva.enabled = true
+canva.command = "npx"
+canva.args = ["-y", "mcp-remote@latest", "https://mcp.canva.com/mcp"]
+
+# draw.io
+drawio.enabled = true
+drawio.command = "npx"
+drawio.args = ["-y", "@drawio/mcp"]
+
+# Figma
+figma.enabled = true
+figma.command = "node"
+figma.args = ["/Users/s11639/go/src/github.com/awa/figjam_mcp/dist/index.js"]
+figma.env = { BRIDGE_PORT = "3000" }
+
+# Docbase
+docbase.enabled = true
+docbase.url = "https://mcp.docbase.io/mcp"
+"docbase-mcp".enabled = true
+"docbase-mcp".command = "npx"
+"docbase-mcp".args = ["-y", "mcp-remote@latest", "https://mcp.docbase.io/mcp"]
+
+# Analytics
+"ga4-analytics".enabled = true
+"ga4-analytics".command = "ga4-mcp-server"
+"ga4-analytics".env = { GOOGLE_APPLICATION_CREDENTIALS = "/Users/s11639/.config/gcloud/ga4-reader-key.json", GA4_PROPERTY_ID = "531043911" }
+
+# mise
+mise.enabled = true
+mise.command = "mise"
+mise.args = ["mcp"]
+mise.env = { MISE_EXPERIMENTAL = "1" }
+
+# Terraform
+terraform.enabled = true
+terraform.command = "docker"
+terraform.args = ["run", "-i", "--rm", "hashicorp/terraform-mcp-server:latest"]
+
+[tui.model_availability_nux]
+"gpt-5.5" = 4
