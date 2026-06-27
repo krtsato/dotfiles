@@ -164,8 +164,17 @@
   },
   "outputStyle": "Explanatory",
   "alwaysThinkingEnabled": true,
+  "tui": "fullscreen",
   "voiceEnabled": true,
   "mcpServers": {
+    "admintool-dev": {
+      "type": "http",
+      "url": "http://dev-admintool-mcp.in.awa.io/mcp"
+    },
+    "admintool-prd": {
+      "type": "http",
+      "url": "http://prd-admintool-mcp.in.awa.io/mcp"
+    },
     "awa-doc": {
       "command": "docker",
       "args": [

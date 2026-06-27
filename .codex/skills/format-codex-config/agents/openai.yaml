@@ -1,0 +1,4 @@
+interface:
+  display_name: "Format Codex Config"
+  short_description: "Normalize Codex config.toml to dotted keys"
+  default_prompt: "Use $format-codex-config to normalize my Codex config.toml to dotted keys."
