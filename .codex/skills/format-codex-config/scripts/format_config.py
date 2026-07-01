@@ -13,7 +13,7 @@ import tomllib
 
 
 DEFAULT_ROOTS = ("plugins", "marketplaces", "mcp_servers", "desktop", "tui", "apps")
-BARE_KEY_RE = re.compile(r"^[A-Za-z0-9_-]+$")
+BARE_KEY_RE = re.compile(r"^[A-Za-z0-9_]+$")
 TABLE_HEADER_RE = re.compile(r"^(\s*)\[([^\[\]\n]+)\](\s*(?:#.*)?)$")
 
 
@@ -74,14 +74,33 @@ def split_dotted_key(text: str) -> list[str]:
     return parts
 
 
-def quote_key_component(component: str) -> str:
+def key_component_name(component: str) -> str:
     component = component.strip()
-    if component.startswith(("'", '"')):
+    if not component:
+        raise FormatError("empty TOML key component")
+    if not component.startswith(("'", '"')):
         return component
-    if BARE_KEY_RE.match(component):
-        return component
-    escaped = component.replace("\\", "\\\\").replace('"', '\\"')
+
+    try:
+        parsed = tomllib.loads(f"key = {component}")
+    except tomllib.TOMLDecodeError as exc:
+        raise FormatError(f"invalid TOML key component {component!r}: {exc}") from exc
+    value = parsed["key"]
+    if not isinstance(value, str):
+        raise FormatError(f"invalid TOML key component {component!r}")
+    return value
+
+
+def quote_key_component(component: str) -> str:
+    name = key_component_name(component)
+    if BARE_KEY_RE.match(name):
+        return name
+    escaped = name.replace("\\", "\\\\").replace('"', '\\"')
     return f'"{escaped}"'
+
+
+def format_dotted_key(text: str) -> str:
+    return ".".join(quote_key_component(part) for part in split_dotted_key(text))
 
 
 def table_header_parts(line: str) -> list[str] | None:
@@ -128,9 +147,29 @@ def flatten_body_lines(prefix_parts: list[str], body_lines: list[str]) -> list[s
         if not key:
             flattened.append(line)
             continue
-        flattened.append(f"{indent}{prefix}.{key} = {value}")
+        flattened.append(f"{indent}{prefix}.{format_dotted_key(key)} = {value}")
 
     return flattened
+
+
+def normalize_body_lines(body_lines: list[str]) -> list[str]:
+    normalized: list[str] = []
+
+    for line in body_lines:
+        equal_index = find_assignment_equal(line)
+        if equal_index is None:
+            normalized.append(line)
+            continue
+
+        indent = line[: len(line) - len(line.lstrip())]
+        key = line[:equal_index].strip()
+        value = line[equal_index + 1 :].lstrip()
+        if not key:
+            normalized.append(line)
+            continue
+        normalized.append(f"{indent}{format_dotted_key(key)} = {value}")
+
+    return normalized
 
 
 def split_blocks(lines: list[str]) -> list[tuple[list[str] | None, list[str], list[str]]]:
@@ -163,7 +202,7 @@ def normalize(text: str, roots: set[str]) -> str:
     for index, (header, _header_lines, body_lines) in enumerate(blocks):
         if not header:
             continue
-        root = header[0].strip("'\"")
+        root = key_component_name(header[0])
         if root in roots and len(header) == 1:
             has_parent[root] = True
         elif root in roots and len(header) > 1:
@@ -178,7 +217,7 @@ def normalize(text: str, roots: set[str]) -> str:
             output.extend(body_lines)
             continue
 
-        root = header[0].strip("'\"")
+        root = key_component_name(header[0])
         should_flatten = root in roots and len(header) > 1
 
         if should_flatten:
@@ -189,7 +228,8 @@ def normalize(text: str, roots: set[str]) -> str:
             continue
 
         output.extend(header_lines)
-        output.extend(body_lines)
+        body = normalize_body_lines(body_lines) if root in roots and len(header) == 1 else body_lines
+        output.extend(body)
 
         if root in roots and len(header) == 1 and not inserted[root] and insertions[root]:
             if output and output[-1].strip():

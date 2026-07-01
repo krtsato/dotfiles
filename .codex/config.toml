@@ -17,6 +17,7 @@ js_repl = false
 "/Users/s11639/dev/job/ysys".trust_level = "trusted"
 "/Users/s11639/dev/job/ysys/case-20260427-bak-ai-cabinet-ipad".trust_level = "trusted"
 "/Users/s11639/go/src/github.com/awa".trust_level = "trusted"
+"/Users/s11639/Documents/New project".trust_level = "trusted"
 
 [plugins]
 "browser@openai-bundled".enabled = true
@@ -41,7 +42,8 @@ connector_76869538009648d5b282a4bb21c3d157.tools.github_update_issue_comment.app
 "openai-primary-runtime".last_updated = "2026-06-25T04:30:36Z"
 "openai-primary-runtime".source_type = "local"
 "openai-primary-runtime".source = "/Users/s11639/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
-"openai-bundled".last_updated = "2026-06-25T04:03:28Z"
+
+"openai-bundled".last_updated = "2026-06-30T06:06:53Z"
 "openai-bundled".source_type = "local"
 "openai-bundled".source = "/Users/s11639/dev/me/dotfiles/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
@@ -111,6 +113,11 @@ codex.args = ["mcp-server"]
 "hono-docs".command = "npx"
 "hono-docs".args = ["mcp-remote", "https://hono-docs-mcp.yusukebe.workers.dev/mcp"]
 
+# simply-rag
+"simply-rag".enabled = true
+"simply-rag".url = "https://rag.simply.dev/search"
+"simply-rag".http_headers = { "x-api-key" = "to be added..." }
+
 # Canva
 canva.enabled = true
 canva.command = "npx"
@@ -154,23 +161,25 @@ terraform.args = ["run", "-i", "--rm", "hashicorp/terraform-mcp-server:latest"]
 node_repl.args = []
 node_repl.command = "/Applications/Codex.app/Contents/Resources/cua_node/bin/node_repl"
 node_repl.startup_timeout_sec = 120
+
 node_repl.env.NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
 node_repl.env.NODE_REPL_NODE_MODULE_DIRS = "/Applications/Codex.app/Contents/Resources/cua_node/lib/node_modules"
 node_repl.env.NODE_REPL_NODE_PATH = "/Applications/Codex.app/Contents/Resources/cua_node/bin/node"
 node_repl.env.NODE_REPL_TRUSTED_CODE_PATHS = "/Users/s11639/.codex"
 node_repl.env.CODEX_HOME = "/Users/s11639/.codex"
-node_repl.env.NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "2c20141b13bec5a64cd2874d8e2df011430d5b1a70e4f5425aa10d01743311a8"
+node_repl.env.NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "to be added..."
 node_repl.env.BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
 node_repl.env.NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
 node_repl.env.NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
 node_repl.env.BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-node_repl.env.BROWSER_USE_CODEX_APP_VERSION = "26.616.51431"
+node_repl.env.BROWSER_USE_CODEX_APP_VERSION = "26.623.42026"
 node_repl.env.CODEX_CLI_PATH = "/Applications/Codex.app/Contents/Resources/codex"
 
 [tui]
 model_availability_nux."gpt-5.5" = 4
 
 [desktop]
-default-service-tier = "fast"
-open-in-target-preferences.global = "vscode"
-open-in-target-preferences.perPath."/Users/s11639/Documents/New project" = "fileManager"
+"default-service-tier" = "fast"
+"open-in-target-preferences".global = "vscode"
+"open-in-target-preferences".perPath."/Users/s11639/Documents/New project" = "fileManager"
+followUpQueueMode = "queue"

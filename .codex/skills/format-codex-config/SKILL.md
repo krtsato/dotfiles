@@ -36,3 +36,4 @@ The script parses the TOML before and after formatting and refuses to write if t
 - Preserve user changes and secrets; do not print full config diffs unless the user asks.
 - Treat this as formatting only. Do not change config values.
 - The default roots intentionally match sections that Codex CLI/App commonly appends as nested tables.
+- Dotted key components are canonicalized as bare keys only for `A-Z`, `a-z`, `0-9`, and `_`; components containing `-` or other characters are emitted as quoted keys.

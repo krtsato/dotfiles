@@ -375,6 +375,13 @@
         "mcp-remote",
         "https://hono-docs-mcp.yusukebe.workers.dev/mcp"
       ]
+    },
+    "simply-rag": {
+      "type": "http",
+      "url": "https://rag.simply.dev/search",
+      "headers": {
+        "x-api-key": "to be added"
+      }
     }
   }
 }
