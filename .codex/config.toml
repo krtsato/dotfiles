@@ -3,7 +3,7 @@ model_reasoning_effort = "xhigh"
 personality = "pragmatic"
 approval_policy = "on-request"
 approvals_reviewer = "auto_review"
-service_tier = "default"
+service_tier = "fast"
 notify = ["/Users/s11639/dev/me/dotfiles/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
 
 [features]
@@ -39,21 +39,18 @@ connector_76869538009648d5b282a4bb21c3d157.tools.github_create_pull_request.appr
 connector_76869538009648d5b282a4bb21c3d157.tools.github_update_issue_comment.approval_mode = "approve"
 
 [marketplaces]
-"openai-primary-runtime".last_updated = "2026-06-25T04:30:36Z"
-"openai-primary-runtime".source_type = "local"
-"openai-primary-runtime".source = "/Users/s11639/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
 
-"openai-bundled".last_updated = "2026-06-30T06:06:53Z"
-"openai-bundled".source_type = "local"
-"openai-bundled".source = "/Users/s11639/dev/me/dotfiles/.codex/.tmp/bundled-marketplaces/openai-bundled"
+[marketplaces.openai-primary-runtime]
+last_updated = "2026-07-02T09:30:40Z"
+source_type = "local"
+source = "/Users/s11639/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
+
+[marketplaces.openai-bundled]
+last_updated = "2026-07-02T08:35:06Z"
+source_type = "local"
+source = "/Users/s11639/dev/me/dotfiles/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
 [mcp_servers]
-# Token hardcoded - migrate to OAuth or external secret storage
-# dxe-atlassian
-"dxe-atlassian".enabled = true
-"dxe-atlassian".command = "npx"
-"dxe-atlassian".args = ["-y", "mcp-remote@latest", "https://mcp.atlassian.com/v1/sse"]
-"dxe-atlassian".env = { CONFLUENCE_USERNAME = "kuratasatoc@gmail.com", CONFLUENCE_API_TOKEN = "to_be_added..." }
 
 # github
 github.enabled = true
@@ -157,23 +154,32 @@ terraform.enabled = true
 terraform.command = "docker"
 terraform.args = ["run", "-i", "--rm", "hashicorp/terraform-mcp-server:latest"]
 
-# node_repl
-node_repl.args = []
-node_repl.command = "/Applications/Codex.app/Contents/Resources/cua_node/bin/node_repl"
-node_repl.startup_timeout_sec = 120
+# TradingView
+tradingview.enabled = true
+tradingview.command = "docker"
+tradingview.args = ["run", "-i", "--rm", "mcp-tradingview"]
 
-node_repl.env.NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
-node_repl.env.NODE_REPL_NODE_MODULE_DIRS = "/Applications/Codex.app/Contents/Resources/cua_node/lib/node_modules"
-node_repl.env.NODE_REPL_NODE_PATH = "/Applications/Codex.app/Contents/Resources/cua_node/bin/node"
-node_repl.env.NODE_REPL_TRUSTED_CODE_PATHS = "/Users/s11639/.codex"
-node_repl.env.CODEX_HOME = "/Users/s11639/.codex"
-node_repl.env.NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "to be added..."
-node_repl.env.BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
-node_repl.env.NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
-node_repl.env.NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
-node_repl.env.BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-node_repl.env.BROWSER_USE_CODEX_APP_VERSION = "26.623.42026"
-node_repl.env.CODEX_CLI_PATH = "/Applications/Codex.app/Contents/Resources/codex"
+[mcp_servers.node_repl]
+
+# node_repl
+args = []
+command = "/Applications/Codex.app/Contents/Resources/cua_node/bin/node_repl"
+startup_timeout_sec = 120
+
+[mcp_servers.node_repl.env]
+
+NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
+NODE_REPL_NODE_MODULE_DIRS = "/Applications/Codex.app/Contents/Resources/cua_node/lib/node_modules"
+NODE_REPL_NODE_PATH = "/Applications/Codex.app/Contents/Resources/cua_node/bin/node"
+NODE_REPL_TRUSTED_CODE_PATHS = "/Users/s11639/.codex"
+CODEX_HOME = "/Users/s11639/.codex"
+NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "to be added..."
+BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
+NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
+NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
+BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
+BROWSER_USE_CODEX_APP_VERSION = "26.623.70822"
+CODEX_CLI_PATH = "/Applications/Codex.app/Contents/Resources/codex"
 
 [tui]
 model_availability_nux."gpt-5.5" = 4

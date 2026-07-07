@@ -308,18 +308,6 @@
         "https://mcp.canva.com/mcp"
       ]
     },
-    "dxe-atlassian": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote@latest",
-        "https://mcp.atlassian.com/v1/sse"
-      ],
-      "env": {
-        "CONFLUENCE_USERNAME": "",
-        "CONFLUENCE_API_TOKEN": ""
-      }
-    },
     "docbase-mcp": {
       "command": "npx",
       "args": [
