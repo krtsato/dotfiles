@@ -3,3 +3,5 @@
 !channels/discord/access.json
 !CLAUDE.md
 !settings.json
+!skills
+!skills/**/*
