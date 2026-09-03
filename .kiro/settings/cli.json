@@ -1,4 +1,9 @@
 {
+  "app.disableAutoupdates": true,
+  "app.hideMenubarIcon": true,
+  "app.launchOnStartup": false,
+  "codeWhisperer.shareCodeWhispererContentWithAWS": false,
   "integrations.hyper.disabled": true,
-  "integrations.iterm.disabled": true
+  "integrations.iterm.disabled": true,
+  "telemetry.enabled": false
 }

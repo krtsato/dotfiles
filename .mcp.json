@@ -118,12 +118,8 @@
       ]
     },
     "canva": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote@latest",
-        "https://mcp.canva.com/mcp"
-      ]
+      "type": "http",
+      "url": "https://mcp.canva.com/mcp"
     }
   }
 }

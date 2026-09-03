@@ -1,5 +1,7 @@
 *
 !commands
+!hooks
+!hooks/**
 !channels/discord/access.json
 !CLAUDE.md
 !settings.json

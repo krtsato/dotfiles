@@ -120,7 +120,7 @@
       "source.organizeImports": "explicit"
     }
   },
-  "go.goroot": "/Users/s11639/.local/share/mise/installs/go/1.26.4",
+  "go.goroot": "/Users/s11639/.local/share/mise/installs/go/1.27.0",
   "go.lintTool": "golangci-lint", // Linter 厳格化のため golangci-lint を採用
   "go.lintOnSave": "package", // ファイル保存時に package スコープで Lint を実行
   "go.lintFlags": [
@@ -248,6 +248,14 @@
     "!ImportValue",
     "!Select",
     "!Split"
+  ],
+  "yaml.disableSchemaDetection": [
+    "**/.github/workflows/*.yml",
+    "**/.github/workflows/*.yaml",
+    "**/.gitea/workflows/*.yml",
+    "**/.gitea/workflows/*.yaml",
+    "**/.forgejo/workflows/*.yml",
+    "**/.forgejo/workflows/*.yaml"
   ],
   /* JSON */
   "json.schemaDownload.enable": true,

@@ -105,8 +105,19 @@
       "Bash(rm -rf /*)"
     ]
   },
-  "model": "opus[1m]",
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "EnterPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"[上流から考える] 着手前に順に問う: (1) これは何のためにあるか (2) いま誰のどの判断に使われるか (3) その判断は未決か。未決でなければ手を出さない — 説明は平易な言葉を既定にし、専門用語は詳細を詰める段になってから出す。詳細: ~/.claude/projects/-Users-s11639-dev-me/memory/think-and-speak-top-down.md\"}}'",
+            "statusMessage": "上流から考える"
+          }
+        ]
+      }
+    ],
     "Notification": [
       {
         "matcher": "",
@@ -125,6 +136,30 @@
           {
             "type": "command",
             "command": "osascript -e 'display notification \"タスクが完了しました\" with title \"Claude Code\" subtitle \"処理終了\" sound name \"Hero\"'"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "printf '%s' '{\"hookSpecificOutput\": {\"hookEventName\": \"SessionStart\", \"additionalContext\": \"[チャットは平易な言葉で] ファイル（コード/doc/plan/PR/コミット）は詳細で専門的に書いてよい。チャットに書く文章は平易にする — ファイルは必要な箇所だけ読まれるが、チャットは全文が読まれるため。(1) 内部の名前（状態名/フィールド名/関数名/仕組みの名前）をそのまま出さず「それが何を意味するか」に言い換える (2) 数値は必ず比較対象と一緒に出す (3) 判断を求めるときは「やらない場合どうなるか」を必ず添える (4) 書いた後に読み返し、専門用語を含む文を数える。1つでもあれば言い換える。詳細: ~/.claude/projects/-Users-s11639-dev-me/memory/explain-in-plain-language.md\"}}'",
+            "statusMessage": "平易な言葉で説明する"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$HOME/.claude/hooks/textlint-ai-writing.sh\"",
+            "timeout": 30,
+            "statusMessage": "AI っぽい文章をチェック"
           }
         ]
       }
@@ -238,6 +273,24 @@
         "mcp/aws-documentation:latest"
       ]
     },
+    "bigquery": {
+      "command": "npx",
+      "args": [
+        "--registry",
+        "https://mcp-repository.ai-ope.com",
+        "@ca-ai-ope/mcp-bigquery-server",
+        "--project-id",
+        "warm-calculus-736",
+        "--location",
+        "US",
+        "--max-bytes-threshold",
+        "10GB"
+      ],
+      "env": {
+        "npm_config_prefer_online": "true",
+        "npm_config_force": "true"
+      }
+    },
     "cloudflare-docs": {
       "command": "npx",
       "args": [
@@ -301,20 +354,8 @@
       ]
     },
     "canva": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote@latest",
-        "https://mcp.canva.com/mcp"
-      ]
-    },
-    "docbase-mcp": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote@latest",
-        "https://mcp.docbase.io/mcp"
-      ]
+      "type": "http",
+      "url": "https://mcp.canva.com/mcp"
     },
     "note": {
       "command": "docker",

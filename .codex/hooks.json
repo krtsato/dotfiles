@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "^apply_patch$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/textlint-ai-writing.sh",
+            "timeout": 30,
+            "statusMessage": "AI っぽい文章をチェック"
+          }
+        ]
+      }
+    ]
+  }
+}

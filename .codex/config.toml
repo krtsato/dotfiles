@@ -1,9 +1,9 @@
-model = "gpt-5.5"
-model_reasoning_effort = "xhigh"
+model = "gpt-5.6-sol"
+model_reasoning_effort = "high"
 personality = "pragmatic"
 approval_policy = "on-request"
 approvals_reviewer = "auto_review"
-service_tier = "fast"
+service_tier = "default"
 notify = ["/Users/s11639/dev/me/dotfiles/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
 
 [features]
@@ -33,6 +33,7 @@ js_repl = false
 "sites@openai-bundled".enabled = true
 "pdf@openai-primary-runtime".enabled = true
 "template-creator@openai-primary-runtime".enabled = true
+"visualize@openai-bundled".enabled = true
 
 [apps]
 connector_76869538009648d5b282a4bb21c3d157.tools.github_create_pull_request.approval_mode = "approve"
@@ -41,12 +42,12 @@ connector_76869538009648d5b282a4bb21c3d157.tools.github_update_issue_comment.app
 [marketplaces]
 
 [marketplaces.openai-primary-runtime]
-last_updated = "2026-07-02T09:30:40Z"
+last_updated = "2026-08-19T23:30:51Z"
 source_type = "local"
 source = "/Users/s11639/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
 
 [marketplaces.openai-bundled]
-last_updated = "2026-07-02T08:35:06Z"
+last_updated = "2026-08-17T02:28:54Z"
 source_type = "local"
 source = "/Users/s11639/dev/me/dotfiles/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
@@ -117,8 +118,7 @@ codex.args = ["mcp-server"]
 
 # Canva
 canva.enabled = true
-canva.command = "npx"
-canva.args = ["-y", "mcp-remote@latest", "https://mcp.canva.com/mcp"]
+canva.url = "https://mcp.canva.com/mcp"
 
 # draw.io
 drawio.enabled = true
@@ -134,14 +134,17 @@ figma.env = { BRIDGE_PORT = "3000" }
 # Docbase
 docbase.enabled = true
 docbase.url = "https://mcp.docbase.io/mcp"
-"docbase-mcp".enabled = true
-"docbase-mcp".command = "npx"
-"docbase-mcp".args = ["-y", "mcp-remote@latest", "https://mcp.docbase.io/mcp"]
 
 # Analytics
 "ga4-analytics".enabled = true
 "ga4-analytics".command = "ga4-mcp-server"
 "ga4-analytics".env = { GOOGLE_APPLICATION_CREDENTIALS = "/Users/s11639/.config/gcloud/ga4-reader-key.json", GA4_PROPERTY_ID = "531043911" }
+
+# BigQuery
+bigquery.enabled = true
+bigquery.command = "npx"
+bigquery.args = ["--registry", "https://mcp-repository.ai-ope.com", "@ca-ai-ope/mcp-bigquery-server", "--project-id", "warm-calculus-736", "--location", "US", "--max-bytes-threshold", "10GB"]
+bigquery.env = { npm_config_prefer_online = "true", npm_config_force = "true" }
 
 # mise
 mise.enabled = true
@@ -159,33 +162,49 @@ tradingview.enabled = true
 tradingview.command = "docker"
 tradingview.args = ["run", "-i", "--rm", "mcp-tradingview"]
 
-[mcp_servers.node_repl]
+"computer-use".command = "./Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient"
+"computer-use".args = ["mcp"]
+"computer-use".cwd = "."
+"computer-use".enabled = false
 
-# node_repl
+[mcp_servers.node_repl]
 args = []
-command = "/Applications/Codex.app/Contents/Resources/cua_node/bin/node_repl"
+command = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl"
 startup_timeout_sec = 120
 
 [mcp_servers.node_repl.env]
-
 NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
-NODE_REPL_NODE_MODULE_DIRS = "/Applications/Codex.app/Contents/Resources/cua_node/lib/node_modules"
-NODE_REPL_NODE_PATH = "/Applications/Codex.app/Contents/Resources/cua_node/bin/node"
-NODE_REPL_TRUSTED_CODE_PATHS = "/Users/s11639/.codex"
+NODE_REPL_NODE_MODULE_DIRS = "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
+NODE_REPL_NODE_PATH = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node"
+NODE_REPL_TRUSTED_CODE_PATHS = "/Users/s11639/.codex:/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
 CODEX_HOME = "/Users/s11639/.codex"
 NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "to be added..."
 BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
 NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
 NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
+NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = "Control desktop apps on macOS through Computer Use."
 BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-BROWSER_USE_CODEX_APP_VERSION = "26.623.70822"
-CODEX_CLI_PATH = "/Applications/Codex.app/Contents/Resources/codex"
+BROWSER_USE_CODEX_APP_VERSION = "26.803.41515"
+CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex"
 
 [tui]
-model_availability_nux."gpt-5.5" = 4
+model_availability_nux."gpt-5.6-sol" = 4
 
 [desktop]
 "default-service-tier" = "fast"
 "open-in-target-preferences".global = "vscode"
 "open-in-target-preferences".perPath."/Users/s11639/Documents/New project" = "fileManager"
 followUpQueueMode = "queue"
+"dock-icon-preference" = "codex-system"
+"enabled-reasoning-efforts" = ["low", "medium", "high", "xhigh", "ultra", "max"]
+
+[notice.model_migrations]
+"gpt-5.5" = "gpt-5.6-sol"
+
+[shell_environment_policy.set]
+BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
+NODE_REPL_TRUSTED_CODE_PATHS = "/Users/s11639/.codex:/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
+
+
+[hooks.state."/Users/s11639/.codex/hooks.json:post_tool_use:0:0"]
+trusted_hash = "sha256:92363b3455a74f8ce61983233fc8f1cbb85cac0c8f1e4a687fc6cc9c9110074e"
