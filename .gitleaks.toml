@@ -1,0 +1,44 @@
+# Keep every built-in rule and add one broader rule on top.
+[extend]
+useDefault = true
+
+# The built-in generic rule only fires when a hint word such as "secret",
+# "token" or "api-key" sits next to the value, and it cannot find the end of a
+# value that has JSON nested inside it. That misses credentials named after the
+# service instead of after the credential type (NOTE_COOKIES, SESSION_ID, ...).
+# This rule widens the hint words and understands escaped quotes, so a new
+# credential is caught the first time it is staged rather than the first time
+# it leaks.
+[[rules]]
+id = "credential-like-assignment"
+description = "Credential-looking key assigned a value that is not a placeholder"
+regex = '''(?i)"?[a-z0-9_.\-]*(cookies?|sessions?|passwd|password|credentials?|secrets?|tokens?|api[_\-]?keys?|access[_\-]?keys?|private[_\-]?keys?|bearer|authorization)[a-z0-9_.\-]*"?\s*[:=]\s*"((?:[^"\\]|\\.){12,})"'''
+secretGroup = 2
+keywords = [
+  "cookie",
+  "session",
+  "passwd",
+  "password",
+  "credential",
+  "secret",
+  "token",
+  "apikey",
+  "api_key",
+  "api-key",
+  "accesskey",
+  "access_key",
+  "privatekey",
+  "private_key",
+  "bearer",
+  "authorization",
+]
+
+  # Values that are obviously not real credentials.
+  [rules.allowlist]
+  regexTarget = "secret"
+  regexes = [
+    '''(?i)^(to[ _\-]?be[ _\-]?added\.*|to_be_added\.*|placeholder|change[ _\-]?me|dummy|sample|example|unset|none|null|false|true|xxx+|\*+|\.+)$''',
+    '''^\$\{[^}]+\}$''',
+    '''^<[^>]+>$''',
+    '''^\$\([^)]+\)$''',
+  ]

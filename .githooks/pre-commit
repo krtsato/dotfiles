@@ -1,0 +1,39 @@
+#!/bin/sh
+# Block commits whose staged content contains credentials.
+#
+# Scans staged content only. Files that intentionally differ between HEAD and
+# the worktree (placeholder values committed, real values on disk) therefore do
+# not trip this hook unless those real values are actually staged.
+#
+# Escape hatch: git commit --no-verify
+
+set -eu
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+	cat >&2 <<'MSG'
+pre-commit: gitleaks not found, refusing to commit without a credential check.
+
+  brew install gitleaks
+
+To commit without the check: git commit --no-verify
+MSG
+	exit 1
+fi
+
+if gitleaks git --staged --redact --no-banner --log-level warn; then
+	exit 0
+fi
+
+cat >&2 <<'MSG'
+
+pre-commit: credentials detected in staged content. Commit aborted.
+
+What to do:
+  - Unstage the offending file:   git restore --staged <file>
+  - Real finding? Rotate the credential before doing anything else.
+  - False positive? Append a "gitleaks:allow" comment on the line, or add the
+    finding fingerprint to .gitleaksignore.
+
+To commit anyway: git commit --no-verify
+MSG
+exit 1
