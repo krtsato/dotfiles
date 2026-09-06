@@ -112,7 +112,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"[上流から考える] 着手前に順に問う: (1) これは何のためにあるか (2) いま誰のどの判断に使われるか (3) その判断は未決か。未決でなければ手を出さない — 説明は平易な言葉を既定にし、専門用語は詳細を詰める段になってから出す。詳細: ~/.claude/projects/-Users-s11639-dev-me/memory/think-and-speak-top-down.md\"}}'",
+            "command": "printf '%s' '{\"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\", \"additionalContext\": \"[上流から考える] 着手前に順に問う: (1) これは何のためにあるか (2) いま誰のどの判断に使われるか (3) その判断は未決か。未決でなければ手を出さない — 説明は平易な言葉を既定にし、専門用語は詳細を詰める段になってから出す。詳細: ~/.claude/projects/-Users-s11639-dev-me/memory/think-and-speak-top-down.md / [plan の書式] 見出しの直後に要約、その後に <details> で詳細。最初からこの形で書く（後から要約を足さない）。要約は 150 字以上・表や箇条書きや太字で見て分かる形にし、詳細を開かなくても中身が分かる水準にする。英単語をそのまま置かず日本語に言い換える（全大文字の略語とコード表記は可）。見出しに （） を使わず、修飾は ` — ` で繋ぐ。\"}}'",
             "statusMessage": "上流から考える"
           }
         ]
@@ -160,6 +160,10 @@
             "command": "\"$HOME/.claude/hooks/textlint-ai-writing.sh\"",
             "timeout": 30,
             "statusMessage": "AI っぽい文章をチェック"
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/plan-format.sh"
           }
         ]
       }
@@ -256,7 +260,7 @@
         "--env",
         "AWS_API_MCP_PROFILE_NAME=default",
         "--volume",
-        "/Users/s11639/.aws:/app/.aws",
+        "$HOME/.aws:/app/.aws",
         "public.ecr.aws/awslabs-mcp/awslabs/aws-api-mcp-server:latest"
       ]
     },
@@ -368,7 +372,7 @@
         "-e",
         "MAGAZINES_DIR=/magazines",
         "-v",
-        "/Users/s11639/dev/me/mcp-note/magazines:/magazines",
+        "$HOME/dev/me/mcp-note/magazines:/magazines",
         "mcp-note"
       ],
       "env": {
@@ -378,7 +382,7 @@
     "figma": {
       "command": "node",
       "args": [
-        "/Users/s11639/go/src/github.com/awa/figjam_mcp/dist/index.js"
+        "$HOME/go/src/github.com/awa/figjam_mcp/dist/index.js"
       ],
       "env": {
         "BRIDGE_PORT": "3000"
@@ -387,7 +391,7 @@
     "ga4-analytics": {
       "command": "ga4-mcp-server",
       "env": {
-        "GOOGLE_APPLICATION_CREDENTIALS": "/Users/s11639/.config/gcloud/ga4-reader-key.json",
+        "GOOGLE_APPLICATION_CREDENTIALS": "$HOME/.config/gcloud/ga4-reader-key.json",
         "GA4_PROPERTY_ID": "531043911"
       }
     },

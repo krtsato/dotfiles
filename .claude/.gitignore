@@ -1,5 +1,7 @@
 *
 !commands
+!agents
+!agents/**
 !hooks
 !hooks/**
 !channels/discord/access.json

@@ -1,23 +1,28 @@
 model = "gpt-5.6-sol"
-model_reasoning_effort = "high"
+model_reasoning_effort = "medium"
 personality = "pragmatic"
 approval_policy = "on-request"
 approvals_reviewer = "auto_review"
 service_tier = "default"
-notify = ["/Users/s11639/dev/me/dotfiles/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
+notify = ["$HOME/dev/me/dotfiles/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
 
 [features]
 multi_agent = true
 terminal_resize_reflow = true
 js_repl = false
 
+[agents]
+max_concurrent_threads_per_session = 2
+default_subagent_model = "gpt-5.6-terra"
+default_subagent_reasoning_effort = "medium"
+
 [projects]
-"/Users/s11639/dev/me".trust_level = "trusted"
-"/Users/s11639/dev/job/dxe".trust_level = "trusted"
-"/Users/s11639/dev/job/ysys".trust_level = "trusted"
-"/Users/s11639/dev/job/ysys/case-20260427-bak-ai-cabinet-ipad".trust_level = "trusted"
-"/Users/s11639/go/src/github.com/awa".trust_level = "trusted"
-"/Users/s11639/Documents/New project".trust_level = "trusted"
+"$HOME/dev/me".trust_level = "trusted"
+"$HOME/dev/job/dxe".trust_level = "trusted"
+"$HOME/dev/job/ysys".trust_level = "trusted"
+"$HOME/dev/job/ysys/case-20260427-bak-ai-cabinet-ipad".trust_level = "trusted"
+"$HOME/go/src/github.com/awa".trust_level = "trusted"
+"$HOME/Documents/New project".trust_level = "trusted"
 
 [plugins]
 "browser@openai-bundled".enabled = true
@@ -41,15 +46,13 @@ connector_76869538009648d5b282a4bb21c3d157.tools.github_update_issue_comment.app
 
 [marketplaces]
 
-[marketplaces.openai-primary-runtime]
-last_updated = "2026-08-19T23:30:51Z"
-source_type = "local"
-source = "/Users/s11639/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
+"openai-primary-runtime".last_updated = "2026-08-19T23:30:51Z"
+"openai-primary-runtime".source_type = "local"
+"openai-primary-runtime".source = "$HOME/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
 
-[marketplaces.openai-bundled]
-last_updated = "2026-08-17T02:28:54Z"
-source_type = "local"
-source = "/Users/s11639/dev/me/dotfiles/.codex/.tmp/bundled-marketplaces/openai-bundled"
+"openai-bundled".last_updated = "2026-08-17T02:28:54Z"
+"openai-bundled".source_type = "local"
+"openai-bundled".source = "$HOME/dev/me/dotfiles/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
 [mcp_servers]
 
@@ -82,7 +85,7 @@ codex.args = ["mcp-server"]
 "awa-doc".args = ["run", "--rm", "-i", "ghcr.io/awa/doc-mcp-server:latest"]
 "awa-slack".enabled = true
 "awa-slack".command = "docker"
-"awa-slack".args = ["run", "-i", "--rm", "-e", "AWS_SSM_SLACK_TOKEN_NAME", "-e", "AWS_REGION", "-v", "/Users/s11639/.aws:/root/.aws:ro", "ghcr.io/awa/mcp-slack:latest"]
+"awa-slack".args = ["run", "-i", "--rm", "-e", "AWS_SSM_SLACK_TOKEN_NAME", "-e", "AWS_REGION", "-v", "$HOME/.aws:/root/.aws:ro", "ghcr.io/awa/mcp-slack:latest"]
 "awa-slack".env = { AWS_SSM_SLACK_TOKEN_NAME = "/mcp-slack/bot-token", AWS_REGION = "ap-northeast-1" }
 
 # AWS
@@ -91,7 +94,7 @@ codex.args = ["mcp-server"]
 "aws-mcp".args = ["mcp-proxy-for-aws@latest", "https://aws-mcp.us-east-1.api.aws/mcp", "--metadata", "AWS_REGION=ap-northeast-1"]
 "awslabs.aws-api-mcp-server".enabled = true
 "awslabs.aws-api-mcp-server".command = "docker"
-"awslabs.aws-api-mcp-server".args = ["run", "--rm", "--interactive", "--env", "AWS_API_MCP_PROFILE_NAME=default", "--volume", "/Users/s11639/.aws:/app/.aws", "public.ecr.aws/awslabs-mcp/awslabs/aws-api-mcp-server:latest"]
+"awslabs.aws-api-mcp-server".args = ["run", "--rm", "--interactive", "--env", "AWS_API_MCP_PROFILE_NAME=default", "--volume", "$HOME/.aws:/app/.aws", "public.ecr.aws/awslabs-mcp/awslabs/aws-api-mcp-server:latest"]
 "awslabs.aws-documentation-mcp-server".enabled = true
 "awslabs.aws-documentation-mcp-server".command = "docker"
 "awslabs.aws-documentation-mcp-server".args = ["run", "--rm", "--interactive", "--env", "FASTMCP_LOG_LEVEL=ERROR", "--env", "AWS_DOCUMENTATION_PARTITION=aws", "mcp/aws-documentation:latest"]
@@ -128,7 +131,7 @@ drawio.args = ["-y", "@drawio/mcp"]
 # Figma
 figma.enabled = true
 figma.command = "node"
-figma.args = ["/Users/s11639/go/src/github.com/awa/figjam_mcp/dist/index.js"]
+figma.args = ["$HOME/go/src/github.com/awa/figjam_mcp/dist/index.js"]
 figma.env = { BRIDGE_PORT = "3000" }
 
 # Docbase
@@ -167,33 +170,38 @@ tradingview.args = ["run", "-i", "--rm", "mcp-tradingview"]
 "computer-use".cwd = "."
 "computer-use".enabled = false
 
-[mcp_servers.node_repl]
-args = []
-command = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl"
-startup_timeout_sec = 120
+node_repl.args = []
+node_repl.command = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl"
+node_repl.startup_timeout_sec = 120
 
-[mcp_servers.node_repl.env]
-NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
-NODE_REPL_NODE_MODULE_DIRS = "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
-NODE_REPL_NODE_PATH = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node"
-NODE_REPL_TRUSTED_CODE_PATHS = "/Users/s11639/.codex:/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
-CODEX_HOME = "/Users/s11639/.codex"
-NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "to be added..."
-BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
-NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
-NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
-NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = "Control desktop apps on macOS through Computer Use."
-BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-BROWSER_USE_CODEX_APP_VERSION = "26.803.41515"
-CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex"
+node_repl.env.NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
+node_repl.env.NODE_REPL_NODE_MODULE_DIRS = "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
+node_repl.env.NODE_REPL_NODE_PATH = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node"
+node_repl.env.NODE_REPL_TRUSTED_CODE_PATHS = "$HOME/.codex:/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
+node_repl.env.CODEX_HOME = "$HOME/.codex"
+node_repl.env.BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
+node_repl.env.BROWSER_USE_TINYSKY_ENABLED = "0"
+node_repl.env.NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
+node_repl.env.NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
+node_repl.env.NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = "Control desktop apps on macOS through Computer Use."
+node_repl.env.BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
+node_repl.env.BROWSER_USE_CODEX_APP_VERSION = "26.831.11858"
+node_repl.env.NODE_REPL_TRUSTED_SERVICES = '{"browser":"$HOME/.codex/plugins/cache/openai-bundled/browser/26.831.11858/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
+node_repl.env.CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex"
+
+cua_repl.command = "/Applications/ChatGPT.app/Contents/MacOS/ChatGPT"
+cua_repl.enabled = false
 
 [tui]
 model_availability_nux."gpt-5.6-sol" = 4
+resume_cwd = "current"
+status_line = ["model-with-reasoning", "context-remaining", "five-hour-limit", "weekly-limit", "total-tokens"]
+status_line_use_colors = true
 
 [desktop]
 "default-service-tier" = "fast"
 "open-in-target-preferences".global = "vscode"
-"open-in-target-preferences".perPath."/Users/s11639/Documents/New project" = "fileManager"
+"open-in-target-preferences".perPath."$HOME/Documents/New project" = "fileManager"
 followUpQueueMode = "queue"
 "dock-icon-preference" = "codex-system"
 "enabled-reasoning-efforts" = ["low", "medium", "high", "xhigh", "ultra", "max"]
@@ -202,9 +210,7 @@ followUpQueueMode = "queue"
 "gpt-5.5" = "gpt-5.6-sol"
 
 [shell_environment_policy.set]
-BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
-NODE_REPL_TRUSTED_CODE_PATHS = "/Users/s11639/.codex:/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
+NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "323bc3e687e17d7e377238d9f4c69111c4d0e6219103b6316d8c52082489533b"
 
-
-[hooks.state."/Users/s11639/.codex/hooks.json:post_tool_use:0:0"]
+[hooks.state."$HOME/.codex/hooks.json:post_tool_use:0:0"]
 trusted_hash = "sha256:92363b3455a74f8ce61983233fc8f1cbb85cac0c8f1e4a687fc6cc9c9110074e"

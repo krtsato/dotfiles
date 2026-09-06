@@ -31,6 +31,7 @@ description: GitHub の変更反映ワークフローを最後まで実行する
    - `git push -u origin <branch>` で branch を push する。
    - PR title は主な変更に対応する conventional 形式にする。
    - PR body は最低限、次の見出しをこの順番で含める:
+
      ```markdown
      ## Summary
      - ...
@@ -42,6 +43,7 @@ description: GitHub の変更反映ワークフローを最後まで実行する
 
      - https://github.com/*/*/issues/*
      ```
+
    - `## Summary` と `## Test` の本文は、ユーザーの言語に合わせて書く。日本語の依頼では日本語で書く。
    - `## Reference` の下には関連 Issue を記載する。Issue が明示されていない場合は、会話履歴、ブランチ名、PR 文脈、ローカル差分、GitHub の関連情報から探す。それでも見つからない場合は、`## Reference` 見出しだけ置き、項目は書かない。
    - Issue をまだ閉じる段階でない場合は `Closes ...` を使わず、必ず `## Reference` 配下のリンクにする。
@@ -78,11 +80,14 @@ description: GitHub の変更反映ワークフローを最後まで実行する
    - local feature branch を削除する。squash merge の場合は `git branch -d` が失敗することがある。PR がマージ済みで、`main` に反映済みであることを確認してから `git branch -D <branch>` を使う。
    - `git remote prune origin` を実行する。
    - `git worktree list` を確認する。この作業用に作った worktree、またはユーザーが明示した worktree だけを削除する。
+   - `scripts/cleanup_claude_worktree_sessions.sh <worktreeの絶対パス>` で削除対象を dry-run 確認し、main worktree でないことと対象が完全一致することを確認してから、`scripts/cleanup_claude_worktree_sessions.sh --delete <worktreeの絶対パス>` を実行する。実行中セッションが検出された場合は worktree 削除を中止する。
+   - 対象 worktree の Claude セッション削除後に `git worktree remove <worktreeの絶対パス>` を実行する。
    - 最後に `git status --short --branch`、`git branch --format='%(refname:short) %(upstream:short)'`、`git log --oneline --decorate -3` で clean な状態を確認する。
 
 ## 安全ルール
 
 - `git reset --hard`、広範囲の `rm -rf`、任意の worktree 削除などの破壊的操作は、ユーザーが明示し、対象を確認できた場合だけ行う。
+- Claude セッションの cleanup は削除対象 worktree の絶対パスと `cwd` が完全一致するものに限定する。main worktree、他の worktree、`memory` ディレクトリは削除しない。実行中を示す PID lock がある場合は削除しない。
 - CI failure を迂回してマージしない。ユーザーが明示的にリスクを受け入れた場合だけ例外とする。
 - 未トリアージ・未 resolve のレビューコメントが残っている状態で auto-merge を設定しない。
 - PR body の見出しは `## Summary`、`## Test`、`## Reference` を使う。`## Tests` や `## 概要` にはしない。
