@@ -9,3 +9,6 @@
 !settings.json
 !skills
 !skills/**/*
+# Symlink created by `mdreview setup`; it points outside this repo, so
+# committing it would leave a broken link on every other machine.
+skills/mdreview
