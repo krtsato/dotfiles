@@ -89,7 +89,23 @@ tr ':' '\n' < "$d/.path" | awk -v s=~/.local/share/mise/shims 'BEGIN{print s} $0
 | --- | --- |
 | youtube のビルド用イメージが `bookworm`（他は `alpine`） | **どちらでも出力は同じ**（`CGO_ENABLED=0` の静的バイナリ）。揃えても壊れないが、得るものも無い |
 | Python イメージの固定（trade-moomoo は digest 付き・他はタグのみ） | digest 付きは**同じ物が確実に手に入る**。代わりに版上げのたび digest も張り替える必要がある |
-| `.golangci.yml` が 1 リポだけ | 他 5 リポへ配ると **`modernize` が新たに効いて指摘が出る**。CI が一時的に赤くなるので、直す時間とセットで判断する |
+
+## 揃え終わったもの
+
+| いつ | 何を | 実測 |
+| --- | --- | --- |
+| 2026-09-07 | **`.golangci.yml` を 6 リポ全部に**（以前は tradingview だけ） | 指摘は 5 リポ合計 **50 件**、すべて `--fix` で直る定型置換。他の linter からの新規指摘は 0 件 |
+
+`modernize` の指摘は挙動を変えない書き換えだけだった（`errors.As` → `errors.AsType`、
+`strings.Split` → `strings.SplitSeq`、`if` の大小比較 → `min` / `max` など）。
+
+**「揃える」と「厳しくする」は別物**である点に注意する。設定を配るのは後者で、
+配った先で新たな指摘が出る。着手前に必ず件数を測る:
+
+```bash
+GL=~/.local/share/mise/installs/golangci-lint/2.13.2/golangci-lint-2.13.2-darwin-arm64/golangci-lint
+for r in <repos>; do (cd ~/dev/me/$r && echo "$r: $($GL run --config ~/dev/me/mcp-tradingview/.golangci.yml   --output.text.path stdout 2>/dev/null | grep -cE '\.go:[0-9]+')"); done
+```
 
 ## 版上げの順番
 
