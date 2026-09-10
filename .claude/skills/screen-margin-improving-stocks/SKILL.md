@@ -40,7 +40,7 @@ allowed-tools: Bash(sh *), Bash(docker *), Bash(ls *), Read, Glob, Grep, Agent
 ### 2. 件数を変えた再実行
 
 - **Trigger**: 「さっきの条件で 10 個だけ」「50 個出して」
-- **Steps**: `--count` を変えて再実行（取得済みの応答を使い回す）
+- **Steps**: 件数を変えて再実行（`screen.sh 10` のように**位置引数**で渡す）
 - **Result**: 同じ条件・同じ順序の上位 N 件
 
 ### 3. 該当が少ないことの確認
@@ -57,7 +57,7 @@ allowed-tools: Bash(sh *), Bash(docker *), Bash(ls *), Read, Glob, Grep, Agent
 | mcp-invest-knowledge のクローン | `ls ~/dev/me/mcp-invest-knowledge/sources/technique-notes` |
 | Docker | 判定はコンテナの中で動く。**Go も Python も jq もホストに要らない** |
 | 外部接続 | `scanner.tradingview.com` へ **1 回だけ**問い合わせる。認証不要 |
-| image | 初回だけ自動で作られる（数十秒）。2 回目以降は数秒 |
+| image | **毎回作り直す**。変更が無ければ 10 秒ほど（layer が再利用される） |
 
 ## 手順
 
@@ -73,7 +73,7 @@ ls ~/dev/me/mcp-tradingview/data/seido-margin
 ### ステップ 2: 絞り込みを実行する
 
 引数は件数だけ。市場データの取得も 3 条件の判定も、**コンテナの中で**行う。
-image が無ければ自動で作られる（初回のみ数十秒）。
+image は毎回作り直される（変更が無ければ 10 秒ほど。**tag の有無だけで済ませると古いコードで判定してしまう**）。
 
 ```bash
 sh ~/.claude/skills/screen-margin-improving-stocks/scripts/screen.sh 30
@@ -127,6 +127,7 @@ Go の版も証明書の中身も image に固定してあるので、**同じ�
 
 - [ ] 週次データが 4 週以上あることを確認した
 - [ ] **コンテナ経由**で実行した（ホスト直実行に切り替えていない）
+- [ ] 件数は**位置引数**で渡した（`screen.sh 30`）
 - [ ] 標準エラーの**絞り込み各段階の件数**を読んだ
 - [ ] 要求件数に届かない場合、**条件を緩めずそのまま報告**した
 - [ ] 表にコード・銘柄名・**セクター**・**日本語の技法名**を含めた

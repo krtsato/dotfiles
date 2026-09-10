@@ -32,7 +32,7 @@ if ! command -v docker >/dev/null 2>&1; then
   exit 1
 fi
 if [ ! -d "$REPO/data/seido-margin" ]; then
-  echo "信用残高のデータがありません: $REPO/data/seido-margin" >&2
+  echo "信用残高のファイルが見つかりません: $REPO/data/seido-margin" >&2
   echo "週次の取り込みが止まっている可能性があります。先にそちらを確認してください。" >&2
   exit 1
 fi
@@ -41,12 +41,11 @@ if [ ! -d "$NOTES" ]; then
   exit 1
 fi
 
-# image が無ければ作る。layer は再利用されるので、2 回目以降は数秒で終わる。
-if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
-  echo "image を作ります（初回のみ）: $IMAGE" >&2
-  cd "$REPO"
-  docker build -f Dockerfile.screen -t "$IMAGE" . >&2
-fi
+# 毎回ビルドする。tag の有無だけを見て済ませると、ソースや Dockerfile が変わった後も
+# 古い image が黙って使われ、いまのデータを古いコードで判定してしまう。
+# layer は再利用されるので、変更が無ければ 10 秒ほどで終わる（実測 9.5 秒）。
+cd "$REPO"
+docker build -q -f Dockerfile.screen -t "$IMAGE" . >/dev/null
 
 # data と notes は読み取り専用で渡す。コンテナは何も書かない。
 exec docker run --rm \
