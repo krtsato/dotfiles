@@ -1,7 +1,7 @@
 ---
 name: screen-margin-improving-stocks
 description: Screen Japanese stocks that satisfy three conditions at once — margin ratio improving week over week, trading volume rising, and a lecture-derived technique firing in the forward ledger — then report code, name, sector and the Japanese technique names in a table. Triggers on requests like "売買代金が上がっていて信用倍率が改善している銘柄を教えて", "買い推奨できそうな銘柄を30個", "信用需給が改善している銘柄のスクリーニング". Reads mcp-tradingview JSONL data (data/seido-margin, data/paper-ledger.jsonl) and one TradingView scanner response. Do NOT use for US stocks, for backtesting a single technique, for placing or sizing orders, or for evaluating the seido study itself (that is tradingview-seido-study).
-compatibility: Requires local clones of mcp-tradingview and mcp-invest-knowledge, Docker, and outbound access to scanner.tradingview.com. The screen runs inside a container so the host's Go version and TLS roots cannot change the result; the image builds itself on first use. No API key, no Python, no jq. Read-only; the data and notes are mounted read-only and nothing is written.
+compatibility: Requires local clones of mcp-tradingview and mcp-invest-knowledge, Docker, and outbound access to scanner.tradingview.com. The screen runs inside a container so the host's Go version and TLS roots cannot change the result; the image is rebuilt on every run so a source change cannot be judged with stale code. No API key, no Python, no jq. Read-only; the data and notes are mounted read-only and nothing is written.
 allowed-tools: Bash(sh *), Bash(docker *), Bash(ls *), Read, Glob, Grep, Agent
 ---
 
