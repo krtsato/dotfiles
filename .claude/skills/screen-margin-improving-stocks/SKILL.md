@@ -210,6 +210,13 @@ Go の版も証明書の中身も image に固定してあるので、**同じ�
 - **Solution**: `grep -L "^title:" ~/dev/me/mcp-invest-knowledge/sources/technique-notes/*.md` で
   題名の無いノートを特定する。**知識層側の欠落なので、そちらを直す。**
 
+### 症状: 技法名の前後に `"` が付く
+
+- **Cause**: 引用符を外す前のコードで判定している（image が古い）。技法ノートは 56 本中
+  9 本が題名を引用符で囲んでいる（題名に `:` を含むため）。
+- **Solution**: image を作り直す。`screen.sh` は毎回作り直すので、`"` が出たら
+  **古い image を使い回している合図**。並び順や該当判定そのものには影響しない。
+
 ## 参照
 
 - 判定の根拠と各条件の意味: [references/conditions.md](references/conditions.md)
