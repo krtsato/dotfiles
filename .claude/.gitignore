@@ -6,6 +6,11 @@
 !hooks/**
 !channels/discord/access.json
 !CLAUDE.md
+# AGENTS.md は CLAUDE.md への symlink。二重管理を避けるため実体を持たない。
+!AGENTS.md
+# 詳細は docs/ に置き、CLAUDE.md から参照する。
+!docs
+!docs/**
 !settings.json
 !skills
 !skills/**/*
