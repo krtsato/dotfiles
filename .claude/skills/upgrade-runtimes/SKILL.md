@@ -1,8 +1,8 @@
 ---
 name: upgrade-runtimes
 description: >-
-  `~/dev/me` 配下の 7 リポ（mcp-tradingview / mcp-invest-knowledge / mcp-mediable /
-  mcp-note / mcp-seeking-alpha / mcp-youtube / trade-moomoo）で、Go・Python・
+  `~/dev/me` 配下の 8 リポ（mcp-tradingview / mcp-invest-knowledge / mcp-mediable /
+  mcp-note / mcp-seeking-alpha / mcp-youtube / trade-moomoo / watcher）で、Go・Python・
   GitHub Actions のステップ・Docker イメージなど**固定された版を上げる**。あわせて
   自宅 Mac の self-hosted runner の PATH を点検する。「Go を上げて」「Python を上げて」
   「actions の版を上げて」「runner が古い」「定期実行が版のせいで落ちた」のような
@@ -40,16 +40,22 @@ compatibility: >-
 
 ```bash
 cd ~/dev/me
-for r in mcp-tradingview mcp-invest-knowledge mcp-mediable mcp-note mcp-seeking-alpha mcp-youtube trade-moomoo; do
+for r in mcp-tradingview mcp-invest-knowledge mcp-mediable mcp-note \
+         mcp-seeking-alpha mcp-youtube trade-moomoo watcher; do
   echo "== $r"
-  grep -rnE "^go |go-version:|python-version:|uses: .*@|version: v?[0-9]|^FROM " \
-    "$r/go.mod" "$r/.github/workflows/" "$r/Dockerfile"* "$r/mise.toml" "$r/.golangci.yml" 2>/dev/null \
+  grep -rnE "^go |go-version:|python-version:|uses: .*@|version: v?[0-9]|^FROM " "$r" \
+    --include='go.mod' --include='*.yaml' --include='*.yml' \
+    --include='mise.toml' --include='Dockerfile*' --include='.golangci.yml' 2>/dev/null \
     | grep -vE "actions-runners|\.worktrees"
 done
 ```
 
 `actions-runners/` と `.worktrees/` は**作業コピーであって正本ではない**ので必ず除外する
 （含めて数えると件数が倍になる）。
+
+**ファイル名の `*` を展開させない。** zsh は一致しない `*` を見つけるとその行を丸ごと中断するので、
+`Dockerfile` を持たないリポ（seeking-alpha・watcher）が**黙って 1 件も出ない**。
+ファイルの絞り込みは `--include` に任せる。
 
 ### 2. `runs-on` で仕分ける
 
@@ -65,6 +71,10 @@ grep -rn "runs-on" ~/dev/me/*/.github/workflows/*.y*ml | grep -v actions-runners
 | `[self-hosted, macOS, *]` | **`actions/setup-python` を足さない**。Python の版は mise が決める |
 
 `actions/setup-go` は**両方で使える**。同じ `setup-*` でも挙動が違うので、まとめて扱わない。
+
+**`watcher` は GitHub の機械だけで動く。** 自宅 Mac の runner を持たないので手順 4 は要らない。
+`Dockerfile` も `mise.toml` も `.golangci.yml` も無く、版が書かれているのは
+`go.mod` の `go` 行と `go-version` の 2 か所だけ。
 
 ### 3. 版を書き換える
 
