@@ -1,6 +1,6 @@
 # 定型保守 — 版上げと runner の手入れ
 
-`~/dev/me` 配下の 7 リポと、それらを動かす自宅 Mac（self-hosted runner）の保守手順。
+`~/dev/me` 配下の 8 リポと、それらを動かす自宅 Mac（self-hosted runner）の保守手順。
 **版を上げるときに壊れやすい所**と、**揃っていないが揃えてはいけない所**を書く。
 
 実行手順は skill `upgrade-runtimes` にある。この文書は**なぜそうするのか**を持つ。
@@ -15,6 +15,7 @@
 | `[self-hosted, macOS, *]` | **自宅の Mac** | **`actions/setup-python` は使えない**（後述） |
 
 自宅 Mac で動くワークフローは **15 本**（tradingview 4 / invest-knowledge 7 / mediable 2 / note 1 / seeking-alpha 1）。
+`watcher` の 2 本は GitHub の機械だけで動くので、この数に入らない。
 
 ### `actions/setup-python` を self-hosted に足してはいけない
 
@@ -64,14 +65,14 @@ tr ':' '\n' < "$d/.path" | awk -v s=~/.local/share/mise/shims 'BEGIN{print s} $0
 
 | 場所 | どのリポ | 備考 |
 | --- | --- | --- |
-| `go.mod` の `go` | Go 6 リポ | trade-moomoo は Python なので無い |
-| `.github/workflows/*.yaml` の `go-version` | Go 6 リポ | self-hosted でも `actions/setup-go` を使う |
+| `go.mod` の `go` | Go 7 リポ | trade-moomoo は Python なので無い |
+| `.github/workflows/*.yaml` の `go-version` | Go 7 リポ | self-hosted でも `actions/setup-go` を使う |
 | `.github/workflows/*.yaml` の `python-version` | **GitHub の機械のみ** | self-hosted に足さない |
 | `.github/workflows/*.yaml` の `uses: <action>@<版>` | 全リポ | `checkout@v4` 等 |
-| `golangci-lint-action` の `version` | Go 6 リポ | action の版（`v7`）と lint 本体の版（`v2.13.2`）は別 |
-| `Dockerfile*` の `FROM` | 6 リポ | **固定の仕方が 2 通り**（下記） |
+| `golangci-lint-action` の `version` | Go 6 リポ | action の版（`v7`）と lint 本体の版（`v2.13.2`）は別。**watcher には無い** |
+| `Dockerfile*` の `FROM` | 6 リポ | **固定の仕方が 2 通り**（下記）。watcher は配布物を作らないので無い |
 | `mise.toml` の `[tools]` | invest-knowledge のみ | 自宅 Mac の版を決める |
-| `.golangci.yml` | tradingview のみ | 他 5 リポは既定設定 |
+| `.golangci.yml` | Go 7 リポ中 6 | watcher だけ持たない（下記） |
 
 ## 揃っていないが、揃えてはいけないもの
 
@@ -88,6 +89,7 @@ tr ':' '\n' < "$d/.path" | awk -v s=~/.local/share/mise/shims 'BEGIN{print s} $0
 | 分かれている所 | 揃えるとどうなるか |
 | --- | --- |
 | youtube のビルド用イメージが `bookworm`（他は `alpine`） | **どちらでも出力は同じ**（`CGO_ENABLED=0` の静的バイナリ）。揃えても壊れないが、得るものも無い |
+| watcher の CI に lint が無い（`go vet` / `go test` / `go build` だけ） | 他の Go リポと同じ `.golangci.yml` と手順を置けば揃う。**2026-09-20 時点で未着手**。理由があって外しているのではない |
 | Python イメージの固定（trade-moomoo は digest 付き・他はタグのみ） | digest 付きは**同じ物が確実に手に入る**。代わりに版上げのたび digest も張り替える必要がある |
 
 ## 揃え終わったもの
