@@ -73,8 +73,8 @@ grep -rn "runs-on" ~/dev/me/*/.github/workflows/*.y*ml | grep -v actions-runners
 `actions/setup-go` は**両方で使える**。同じ `setup-*` でも挙動が違うので、まとめて扱わない。
 
 **`watcher` は GitHub の機械だけで動く。** 自宅 Mac の runner を持たないので手順 4 は要らない。
-`Dockerfile` も `mise.toml` も `.golangci.yml` も無く、版が書かれているのは
-`go.mod` の `go` 行と `go-version` の 2 か所だけ。
+`Dockerfile` も `mise.toml` も無く、版が書かれているのは `go.mod` の `go` 行・`go-version`・
+`golangci-lint-action` の `version` の 3 か所。
 
 ### 3. 版を書き換える
 
