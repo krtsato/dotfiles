@@ -32,7 +32,7 @@
 4. **書いた後に読み返し、専門用語を含む文を数える。** 1 つでもあれば言い換える
 5. 語を減らすのではなく、**語が担っていた区別を日常語で言い直す**
 
-詳細: `~/.claude/projects/-Users-s11639-dev-me/memory/explain-in-plain-language.md`
+言い換えの型と実例: [docs/plain-language.md](docs/plain-language.md)
 
 ### 短い指示の読み方
 
