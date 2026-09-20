@@ -22,7 +22,7 @@ Conventional Commits に従う。
 
 - リポジトリに `PULL_REQUEST_TEMPLATE.md` があれば、その内容に従う
 - タイトルは英語で、コミットメッセージと同じ形式。**本文は日本語**
-- できる限り issue 番号を関連付ける
+- issue 番号を関連付ける。対応する issue が無い場合は本文に `N/A` と書く
 - 指定が無ければ **draft** で作成する
 - 作成後に GitHub Copilot をレビュワーに追加する
 - **1 つの PR は 1 つの目的に絞る**
@@ -38,4 +38,4 @@ gh pr view <番号> --json reviewRequests
 
 ## GitHub の操作
 
-適切な GitHub MCP tool があればそれを使い、無ければ `gh` CLI を使う。
+`gh` CLI を使う。GitHub MCP tool は、`gh` に同等のコマンドが無い操作のときだけ使う。

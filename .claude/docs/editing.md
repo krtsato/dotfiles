@@ -23,5 +23,4 @@ npx markdownlint-cli2 --config ~/dev/me/dotfiles/.markdownlint.yaml <file>
 
 ## Bash
 
-`echo "---"` のようにダッシュで始まる引用文字列を避け、`echo ===` や `echo ~~~` を使う
-（許可の確認が出るのを避けるため）。
+ダッシュで始まる引用文字列（`echo "---"`）は許可の確認が出る。区切りには `echo ===` を使う。
