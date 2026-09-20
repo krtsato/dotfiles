@@ -4,23 +4,56 @@ description: >-
   `~/dev/me` 配下の 8 リポ（mcp-tradingview / mcp-invest-knowledge / mcp-mediable /
   mcp-note / mcp-seeking-alpha / mcp-youtube / trade-moomoo / watcher）で、Go・Python・
   GitHub Actions のステップ・Docker イメージなど**固定された版を上げる**。あわせて
-  自宅 Mac の self-hosted runner の PATH を点検する。「Go を上げて」「Python を上げて」
+  自宅 Mac の runner（self-hosted）の PATH を点検する。「Go を上げて」「Python を上げて」
   「actions の版を上げて」「runner が古い」「定期実行が版のせいで落ちた」のような
-  リクエストで使用。Do NOT use for: 依存ライブラリ（`go.mod` の require 行）の更新、
-  アプリのコード変更、runner の新規登録、GitHub ホスト専用リポの作業。
+  リクエストで使用。扱うファイルは `go.mod` / `.github/workflows/*.yaml` / `Dockerfile*` /
+  `mise.toml` / `.golangci.yml` / runner の `.path` の 6 種類。Do NOT use for: 依存ライブラリ
+  （`go.mod` の require 行）の更新、アプリのコード変更、runner の新規登録、
+  GitHub の機械専用リポの作業。
 compatibility: >-
   macOS + Homebrew + mise 環境を前提。`gh` CLI（認証済み）、`go`、`docker`、
-  `npx markdownlint-cli2` が要る。self-hosted runner が 5 台登録済みであること。
+  `npx markdownlint-cli2` が要る。自宅 Mac の runner が 5 台登録済みであること。
 ---
 
 # 版を上げる
+
+## 呼び方
+
+| 平易な言い方 | 内部の呼び方 |
+| --- | --- |
+| 自宅 Mac の runner | self-hosted runner |
+| GitHub の機械 | GitHub ホスト（`ubuntu-latest` 等） |
+
+以降はこの表の左側（平易な言い方）に統一する。コード中の実際の値（`self-hosted` 等）はそのまま書く。
+
+## 目次
+
+- [使いどころ](#使いどころ)
+- [この作業が難しい理由](#この作業が難しい理由)
+- [前提の確認](#前提の確認)
+- [手順](#手順)
+- [使用例](#使用例)
+- [禁止事項](#禁止事項)
+- [成功基準](#成功基準)
+- [実行チェックリスト](#実行チェックリスト)
+- [Troubleshooting](#troubleshooting)
+
+## 使いどころ
+
+| 場面 | きっかけ | 使う手順番号 | 得られるもの |
+| --- | --- | --- | --- |
+| Go の版上げ | 「Go を 1.26 に上げて」等の依頼 | 1・2・3・5・6 | `go.mod`・workflow・Dockerfile の版が揃った状態 |
+| Python の版上げ | 「Python を上げて」「定期実行が版のせいで落ちた」 | 1・2・4・5・6 | 自宅 Mac の runner が新しい Python で動く状態（`mise.toml` が本体） |
+| runner の PATH 点検 | 「runner が古い」「`xcrun` の警告が出る」 | 4 | `.path` の先頭が shims になり、陳腐化が起きなくなった状態 |
 
 ## この作業が難しい理由
 
 **同じ `.github/workflows/` の中に 2 種類の実行環境が混ざっている。** 片方で正解の手が、
 もう片方では必ず失敗する。2026-09-06 に 3 リポの定期実行がこれで止まった。
 
-背景と「揃えてはいけない所」の一覧は `~/dev/me/dotfiles/docs/maintenance.md` にある。**先に読む。**
+実行環境の前提（自宅 Mac と GitHub の機械の見分け方・揃えてはいけない所）は
+`references/environments.md` にある。**先に読む。**
+背景と履歴は `~/dev/me/dotfiles/docs/maintenance.md` にある。
 
 ## 前提の確認
 
@@ -105,12 +138,12 @@ for d in ~/dev/me/mcp-note/actions-runners/magazine-sync \
          ~/dev/me/mcp-invest-knowledge/actions-runners \
          ~/dev/me/mcp-tradingview/actions-runners; do
   echo "== $d"
-  head -c 60 "$d/.path"; echo
+  cut -d: -f1 "$d/.path"; echo   # 先頭だけ見れば shims が先頭かを判定できる
   tr ':' '\n' < "$d/.path" | while read -r e; do [ -n "$e" ] && [ ! -d "$e" ] && echo "   欠落 $e"; done
 done
 ```
 
-先頭が `.../mise/shims` でない、または「欠落」が出たら `docs/maintenance.md` の手順で直す。
+先頭が `.../mise/shims` でない、または「欠落」が出たら `references/environments.md` の手順で直す。
 
 ### 5. 検証する
 
@@ -118,19 +151,26 @@ done
 | --- | --- |
 | ビルドとテスト | 各 Go リポで `go build ./... && go test ./...` |
 | lint | CI に任せる（ローカルの golangci-lint は Go の版ずれで壊れることがある） |
-| **self-hosted の実動作** | ワークフローを 1 本 `workflow_dispatch` で走らせる。**dry run は途中で止まることがある**ので、どのステップまで到達したかを必ず確認する |
+| **自宅 Mac の runner の実動作** | ワークフローを 1 本 `workflow_dispatch` で走らせる。**dry run は途中で止まることがある**ので、どのステップまで到達したかを必ず確認する |
 | runner が新設定を読んだか | run のログから `/usr/bin/xcrun` の警告が消えたこと |
 
 ### 6. PR にする
 
 **1 PR = 1 リポ。** 横断でまとめない（1 つが赤いと全部止まる）。
-本文には「どの版から どの版へ」と「self-hosted に影響があるか」を書く。
+本文には「どの版から どの版へ」と「自宅 Mac の runner に影響があるか」を書く。
+
+## 使用例
+
+| ユーザーの言葉 | 実行するコマンド | 期待される結果 |
+| --- | --- | --- |
+| 「mcp-tradingview の Go を 1.26 に上げて」 | 手順 1 の grep で対象を洗い出し、`go.mod` と全 workflow の `go-version` を書き換えて `go build ./... && go test ./...` を流す | ビルドとテストが通り、`go.mod` と全 workflow の版が一致する |
+| 「invest-knowledge の定期実行が Python の版で落ちた」 | `mise.toml` の版を上げ、自宅 Mac の runner のワークフローを `workflow_dispatch` で 1 本走らせる | run が成功し、run のログから `/usr/bin/xcrun` の警告が出ない |
 
 ## 禁止事項
 
 | してはいけないこと | なぜ |
 | --- | --- |
-| **self-hosted のワークフローに `actions/setup-python` を足す** | `/Users/runner` に入れようとして必ず失敗する（2026-09-06 に 3 リポが停止） |
+| **自宅 Mac の runner のワークフローに `actions/setup-python` を足す** | `/Users/runner` に入れようとして必ず失敗する（2026-09-06 に 3 リポが停止） |
 | **`.path` に「今の PATH」をそのまま書き写す** | 対話シェルの PATH には存在しないフォルダが多数混ざる。**shims を先頭に置く**のが正解 |
 | **busy な runner を再起動する** | 実行中の job を殺す |
 | **distroless と debian を無理に揃える** | mediable は ffmpeg、note は日本語 OCR が要る。**理由があって分かれている** |
@@ -140,28 +180,28 @@ done
 ## 成功基準
 
 - 版を書いている場所が**全部**同じ値になっている（手順 1 の洗い出しで再確認）
-- self-hosted のワークフローを 1 本実際に走らせて成功している
+- 自宅 Mac の runner のワークフローを 1 本実際に走らせて成功している
 - runner の `.path` に欠落が無く、先頭が shims
 - 各リポの CI が green
 
 ## 実行チェックリスト
 
-- [ ] `docs/maintenance.md` を読んだ
+- [ ] `references/environments.md` を読んだ
 - [ ] 全リポが behind 0・dirty 0
 - [ ] runner が online・busy=false
 - [ ] 版が書かれている場所を洗い出した（作業コピーを除外して）
-- [ ] `runs-on` で self-hosted と GitHub ホストを仕分けた
+- [ ] `runs-on` で自宅 Mac の runner と GitHub の機械を仕分けた
 - [ ] 版を書き換えた（go.mod / workflows / mise.toml / Dockerfile / lint）
 - [ ] runner の `.path` を点検した
 - [ ] `go build` と `go test` が通る
-- [ ] self-hosted のワークフローを 1 本実際に走らせた
+- [ ] 自宅 Mac の runner のワークフローを 1 本実際に走らせた
 - [ ] リポごとに PR を出した
 
 ## Troubleshooting
 
 ### `mkdir: /Users/runner: Permission denied`
 
-self-hosted に `actions/setup-python` が入っている。**削除する**。Python の版は mise が決める。
+自宅 Mac の runner に `actions/setup-python` が入っている。**削除する**。Python の版は mise が決める。
 
 ### 版を上げたのに古い版で動く
 
@@ -174,7 +214,7 @@ self-hosted に `actions/setup-python` が入っている。**削除する**。P
 
 ### golangci-lint がローカルで動かない
 
-Go の版と golangci-lint の版がずれていることが多い。**CI に判定させる**（GitHub ホストで動く）。
+Go の版と golangci-lint の版がずれていることが多い。**CI に判定させる**（GitHub の機械で動く）。
 
 ### 定期実行が「取り消し」で終わる
 

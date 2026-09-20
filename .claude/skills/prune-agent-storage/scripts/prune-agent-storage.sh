@@ -182,7 +182,7 @@ echo "セッションログ・memory・plugins は対象外です。"
 echo
 
 if [ "${#candidates[@]}" -eq 0 ]; then
-	echo "削除したファイル数: 0"
+	echo "片付けたファイル数: 0"
 	echo
 	echo "しきい値より古いファイルはありません。"
 	exit 0
@@ -231,9 +231,9 @@ done
 echo
 
 if [ "$MODE" = list ]; then
-	echo "削除したファイル数: 0"
+	echo "片付けたファイル数: 0"
 	echo
-	echo "これは一覧のみです。ゴミ箱へ移すには --apply、完全に削除するには --purge を付けてください。"
+	echo "これは一覧のみです。ゴミ箱へ移すには --apply、完全に消すには --purge を付けてください。"
 	exit 0
 fi
 
@@ -260,6 +260,6 @@ for root in "$CLAUDE_DIR/projects" "$CLAUDE_DIR/file-history"; do
 	[ -d "$root" ] && find "$root" -mindepth 1 -type d -empty -delete 2>/dev/null || true
 done
 
-echo "削除したファイル数: ${removed}"
+echo "片付けたファイル数: ${removed}"
 echo "解放した容量: $((total_bytes / 1024 / 1024)) MB"
 echo "残っているファイル数: $(find "$CLAUDE_DIR/plans" "$CLAUDE_DIR/projects" "$CLAUDE_DIR/file-history" -type f 2>/dev/null | wc -l | tr -d ' ')"

@@ -26,6 +26,7 @@ compatibility: >-
 - [禁止事項](#禁止事項)
 - [成功基準](#成功基準)
 - [実行チェックリスト](#実行チェックリスト)
+- [評価シナリオ](#評価シナリオ)
 - [Troubleshooting](#troubleshooting)
 
 ## ユースケース
@@ -77,6 +78,13 @@ compatibility: >-
 
 ## 処理手順
 
+**語の使い分け。** この 2 語を混ぜない。
+
+| 語 | 指すもの |
+| --- | --- |
+| **ゲート** | 改稿 1 本ごとに通す 4 つの関門（出所・保護フィールド・書式・内容） |
+| **検査** | corpus 全体に対する事後の確認（混入検査など） |
+
 ### ステップ1: 指摘を取り出す
 
 PR 本文の表から抽出する。**本文の形式が 2 種類ある**ので両方に対応する。
@@ -115,10 +123,12 @@ grep -E '^\[[0-9]+:[0-9]{2}' "$src" > "$W/transcript.txt"
 - 出力は digest の Markdown 全文のみ。1 行目は必ず `---`。前置き・差分の説明・
   コードフェンスを書かない。
 - 要点と原則系セクションの箇条書きは 1 つ残らず [m:ss] 錨を持つこと。
-- 錨を 2 つ以上続けて書かない（[1:37][18:20] は参照リンクと解釈され書式検査に落ちる）。
+- 錨を 2 つ以上続けて書かない（[1:37][18:20] は参照リンクと解釈され書式ゲートに落ちる）。
 ```
 
-呼び出しは時間上限を切る。
+呼び出しは時間上限を切る。上限の 1800 秒は**改稿 1 本の実測所要の数倍**にあたり、
+返ってこなくなった呼び出しを打ち切るためのもの。`--kill-after=30` は、打ち切りを受けてから
+強制終了するまでの猶予（秒）。
 
 ```bash
 timeout --kill-after=30 1800 claude -p --model claude-opus-4-8 --output-format text \
@@ -140,7 +150,7 @@ fi
 ### ステップ5: 機械ゲート（この順序で）
 
 ```bash
-# 1) provenance が一字一句同じか
+# 1) 出所行が一字一句同じか
 grep -Fxq "$(grep -m1 '^> 動画:' "$W/current.md")" "$W/revised.md" || fail
 grep -Fxq "$(grep -m1 '^> 出典:' "$W/current.md")" "$W/revised.md" || fail
 
@@ -150,7 +160,7 @@ for k in content_type published_at; do
   [ "$(fm "$W/current.md" "$k")" = "$(fm "$W/revised.md" "$k")" ] || fail
 done
 
-# 3) 書式 → 内容 → 書式検証
+# 3) 書式ゲート → 内容ゲート → 書式ゲート
 npx markdownlint-cli2 --fix --config ~/dev/me/dotfiles/.markdownlint.yaml "$W/revised.md"
 go run ./cmd/knowledge-derive-check --derived "$W/scope" --vault "$W/vault" || fail
 npx markdownlint-cli2 --config ~/dev/me/dotfiles/.markdownlint.yaml "$W/revised.md" || fail
@@ -169,7 +179,7 @@ npx markdownlint-cli2 --config ~/dev/me/dotfiles/.markdownlint.yaml "$W/revised.
 
 ### ステップ7: PR にする
 
-- **1 digest = 1 commit**。内容忠実性は機械検証できず、人手の commit 単位レビューが前提
+- **1 digest = 1 commit**。内容の忠実さは機械では判定できず、人手の commit 単位レビューが前提
 - draft PR への追記なら push のみ。merge 済み digest なら新しいブランチに全件まとめて 1 PR
 - PR 本文に「再監査していない・残指摘の件数は未知」と明記する
 - Copilot をレビュワーに追加し、指摘をトリアージしてから merge する
@@ -207,12 +217,17 @@ npx markdownlint-cli2 --config ~/dev/me/dotfiles/.markdownlint.yaml "$W/revised.
 - [ ] video id で元字幕を引いた（id8 で検索していない）
 - [ ] 改稿プロンプトに 7 つの拘束をすべて入れた
 - [ ] 前置き除去を通した
-- [ ] provenance・保護フィールド・書式・内容の 4 つのゲートを通した
+- [ ] 出所・保護フィールド・書式・内容の 4 つのゲートを通した
 - [ ] ゲート落ちの出力を保存し、原因を個別に確認した
 - [ ] 1 digest = 1 commit にした
 - [ ] corpus 全体で混入検査を実行した
 - [ ] PR 本文に「再監査していない」と明記した
 - [ ] Copilot レビューをトリアージしてから merge した
+
+## 評価シナリオ
+
+起動する例・起動しない例と、動作の確かめ方は
+[references/evaluations.md](references/evaluations.md) にある。
 
 ## Troubleshooting
 
@@ -248,7 +263,7 @@ npx markdownlint-cli2 --config ~/dev/me/dotfiles/.markdownlint.yaml "$W/revised.
 
 ### Error: `no derived digests found`
 
-**Cause**: 検査用に置いたファイル名が `.md` で終わっていない（vault walker は `.md` しか拾わない）。
+**Cause**: ゲート用に置いたファイル名が `.md` で終わっていない（vault walker は `.md` しか拾わない）。
 
-**Solution**: 検査時は**最終的な digest ファイル名**で staging する。作業用の中間名のまま
+**Solution**: ゲートに渡すときは**最終的な digest ファイル名**で staging する。作業用の中間名のまま
 渡さない。
