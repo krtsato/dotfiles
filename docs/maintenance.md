@@ -69,10 +69,10 @@ tr ':' '\n' < "$d/.path" | awk -v s=~/.local/share/mise/shims 'BEGIN{print s} $0
 | `.github/workflows/*.yaml` の `go-version` | Go 7 リポ | self-hosted でも `actions/setup-go` を使う |
 | `.github/workflows/*.yaml` の `python-version` | **GitHub の機械のみ** | self-hosted に足さない |
 | `.github/workflows/*.yaml` の `uses: <action>@<版>` | 全リポ | `checkout@v4` 等 |
-| `golangci-lint-action` の `version` | Go 6 リポ | action の版（`v7`）と lint 本体の版（`v2.13.2`）は別。**watcher には無い** |
+| `golangci-lint-action` の `version` | Go 7 リポ | action の版（`v7`）と lint 本体の版（`v2.13.2`）は別 |
 | `Dockerfile*` の `FROM` | 6 リポ | **固定の仕方が 2 通り**（下記）。watcher は配布物を作らないので無い |
 | `mise.toml` の `[tools]` | invest-knowledge のみ | 自宅 Mac の版を決める |
-| `.golangci.yml` | Go 7 リポ中 6 | watcher だけ持たない（下記） |
+| `.golangci.yml` | Go 7 リポ | 全リポでバイト単位に同一 |
 
 ## 揃っていないが、揃えてはいけないもの
 
@@ -89,7 +89,6 @@ tr ':' '\n' < "$d/.path" | awk -v s=~/.local/share/mise/shims 'BEGIN{print s} $0
 | 分かれている所 | 揃えるとどうなるか |
 | --- | --- |
 | youtube のビルド用イメージが `bookworm`（他は `alpine`） | **どちらでも出力は同じ**（`CGO_ENABLED=0` の静的バイナリ）。揃えても壊れないが、得るものも無い |
-| watcher の CI に lint が無い（`go vet` / `go test` / `go build` だけ） | 他の Go リポと同じ `.golangci.yml` と手順を置けば揃う。**2026-09-20 時点で未着手**。理由があって外しているのではない |
 | Python イメージの固定（trade-moomoo は digest 付き・他はタグのみ） | digest 付きは**同じ物が確実に手に入る**。代わりに版上げのたび digest も張り替える必要がある |
 
 ## 揃え終わったもの
@@ -97,9 +96,13 @@ tr ':' '\n' < "$d/.path" | awk -v s=~/.local/share/mise/shims 'BEGIN{print s} $0
 | いつ | 何を | 実測 |
 | --- | --- | --- |
 | 2026-09-07 | **`.golangci.yml` を 6 リポ全部に**（以前は tradingview だけ） | 指摘は 5 リポ合計 **50 件**、すべて `--fix` で直る定型置換。他の linter からの新規指摘は 0 件 |
+| 2026-09-20 | **watcher にも lint を**（Go 7 リポ全部が同一設定に） | 初回 **7 件**（`modernize` 3・`staticcheck` 4）。うち 4 件は `--fix`、3 件は大文字始まりのエラー文で手直し |
 
 `modernize` の指摘は挙動を変えない書き換えだけだった（`errors.As` → `errors.AsType`、
 `strings.Split` → `strings.SplitSeq`、`if` の大小比較 → `min` / `max` など）。
+
+**`--fix` の後はビルドを通す。** watcher では `sort.Slice` を `slices.Sort` に置き換えた後も
+`sort` の import が残り、**そのままではコンパイルできなかった**。
 
 **「揃える」と「厳しくする」は別物**である点に注意する。設定を配るのは後者で、
 配った先で新たな指摘が出る。着手前に必ず件数を測る:
