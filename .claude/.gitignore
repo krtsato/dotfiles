@@ -8,7 +8,10 @@
 !CLAUDE.md
 # AGENTS.md は CLAUDE.md への symlink。二重管理を避けるため実体を持たない。
 !AGENTS.md
-# 詳細は docs/ に置き、CLAUDE.md から参照する。
+# 常に効く規則。rules/ は CLAUDE.md と同じく毎回読み込まれる。
+!rules
+!rules/**
+# 根拠と却下した案。docs/ は読み込まれないので、必要なときに自分で開く。
 !docs
 !docs/**
 !settings.json
