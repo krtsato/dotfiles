@@ -160,4 +160,21 @@ PR がマージされたら、指示を待たずに次を実施して結果を�
 
 ## シェル
 
-- `echo "---"` のようなダッシュ始まりのクォート文字列は避け、`echo '~~~'` 等を使用する
+- `echo "---"` のようなダッシュ始まりのクォート文字列は避け、区切りには `echo ===` を使う
+
+## 共有 skill — 正本は Claude 側
+
+`~/.codex/skills/` の一部は `~/.claude/skills/` への symlink。**正本は Claude 側の 1 つだけ**で、
+Codex 用に書き換えない（直すときは正本を直す）。実体のあるディレクトリは Codex 固有の skill。
+
+Claude 固有の語が出てきたら、次のように読み替える。
+
+| SKILL.md の記述 | Codex での読み方 |
+| --- | --- |
+| `Read` / `Write` / `Edit` / `Glob` / `Grep` | 対応する読み書き・検索の操作 |
+| `Bash(...)` | シェル実行。括弧の中は許可の範囲を示すだけで、コマンドそのものではない |
+| `Agent` / `Task` / サブエージェント | Codex のサブエージェント。使えなければ自分で調べる |
+| `Skill` ツールで `<名前>` を呼ぶ | その skill の `SKILL.md` を読んで従う |
+| `compatibility:` | 前提条件。Codex の項目一覧には無いが、無視してよい |
+
+symlink の作成と点検は `~/dev/me/dotfiles/agent-bridge/share-skills.sh`。
