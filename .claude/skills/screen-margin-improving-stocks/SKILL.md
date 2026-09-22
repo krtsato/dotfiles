@@ -1,6 +1,6 @@
 ---
 name: screen-margin-improving-stocks
-description: Screen Japanese stocks that satisfy three conditions at once — margin ratio improving week over week, trading volume rising, and a lecture-derived technique firing in the forward ledger — then report code, name, sector and the Japanese technique names in a table. Triggers on requests like "売買代金が上がっていて信用倍率が改善している銘柄を教えて", "買い推奨できそうな銘柄を30個", "信用需給が改善している銘柄のスクリーニング". Reads mcp-tradingview JSONL data (data/seido-margin, data/paper-ledger.jsonl) and one TradingView scanner response. Do NOT use for US stocks, for backtesting a single technique, for placing or sizing orders, or for evaluating the seido study itself (that is tradingview-seido-study).
+description: Screen Japanese stocks that satisfy three conditions at once — margin ratio improving week over week, trading volume rising, and a lecture-derived technique firing in the forward ledger — then report code, name, sector and the Japanese technique names in a table. Triggers on requests like "売買代金が上がっていて信用倍率が改善している銘柄を教えて", "買い推奨できそうな銘柄を30個", "信用需給が改善している銘柄のスクリーニング", "ALL_半導体関連 の中から条件に合う銘柄を出して". A watchlist name restricts the population to that list's Japanese stocks and also reports which condition removed each member that did not match. Reads mcp-tradingview JSONL data (data/seido-margin, data/paper-ledger.jsonl) and one TradingView scanner response. Do NOT use for US stocks, for backtesting a single technique, for placing or sizing orders, or for evaluating the seido study itself (that is tradingview-seido-study).
 compatibility: Requires local clones of mcp-tradingview and mcp-invest-knowledge, Docker, and outbound access to scanner.tradingview.com. The screen runs inside a container so the host's Go version and TLS roots cannot change the result; the image is rebuilt on every run so a source change cannot be judged with stale code. No API key, no Python, no jq. Read-only; the data and notes are mounted read-only and nothing is written.
 allowed-tools: Bash(sh *), Bash(docker *), Bash(ls *), Read, Glob, Grep, Agent
 ---
@@ -28,6 +28,8 @@ allowed-tools: Bash(sh *), Bash(docker *), Bash(ls *), Read, Glob, Grep, Agent
 | 市場データの取得 | `scanner.tradingview.com` への問い合わせ。**1 回だけ** |
 | 出来高比 | 直近の出来高が平均の何倍か |
 | 順位の推移 | 売買代金の日次順位の変化 |
+| 母集団 | 3 条件を当てる対象。既定は全市場、ウォッチリスト名を渡すとその日本株だけ |
+| 外れた銘柄 | ウォッチリストの構成銘柄のうち条件に該当しなかったもの。**順位ではない** |
 
 ## 目次
 
@@ -56,7 +58,14 @@ allowed-tools: Bash(sh *), Bash(docker *), Bash(ls *), Read, Glob, Grep, Agent
 - **Steps**: 件数を変えて再実行（`screen.sh 10` のように**位置引数**で渡す）
 - **Result**: 同じ条件・同じ順序の上位 N 件
 
-### 3. 該当が少ないことの確認
+### 3. ウォッチリストの中だけで見る
+
+- **Trigger**: 「ALL_半導体関連 の中で条件に合う銘柄は？」「商社で信用倍率が改善しているのは？」
+- **Steps**: ウォッチリスト名を**第 2 位置引数**で渡す（`screen.sh 30 ALL_半導体関連`）
+- **Result**: 該当した銘柄の表と、**該当しなかった構成銘柄を理由つきで**並べた節。
+  名前が違えば近い候補が示されるので、そこから選び直す
+
+### 4. 該当が少ないことの確認
 
 - **Trigger**: 「今週は候補が少ない気がする」
 - **Steps**: 通常どおり実行し、**絞り込みの各段階の件数**を読む
@@ -68,6 +77,7 @@ allowed-tools: Bash(sh *), Bash(docker *), Bash(ls *), Read, Glob, Grep, Agent
 | --- | --- |
 | mcp-tradingview のクローン | `ls ~/dev/me/mcp-tradingview/data/seido-margin` |
 | mcp-invest-knowledge のクローン | `ls ~/dev/me/mcp-invest-knowledge/sources/technique-notes` |
+| 分類の正本（ウォッチリストで絞るときだけ） | `ls ~/dev/me/mcp-invest-knowledge/sources/watchlists` |
 | Docker | 判定はコンテナの中で動く。**Go も Python も jq もホストに要らない** |
 | 外部接続 | 市場データの取得で **1 回だけ**。認証不要 |
 | image | **毎回作り直す**（理由はステップ 2）。変更が無ければ 10 秒ほど |
@@ -92,9 +102,19 @@ image は毎回作り直される（変更が無ければ 10 秒ほど。**tag �
 sh ~/.claude/skills/screen-margin-improving-stocks/scripts/screen.sh 30
 ```
 
+ウォッチリストの中だけで見るときは、名前を**第 2 位置引数**で渡す。
+
+```bash
+sh ~/.claude/skills/screen-margin-improving-stocks/scripts/screen.sh 30 ALL_半導体関連
+```
+
 **コンテナを使うのは、実行するマシンによって結果が変わらないようにするため**（同じデータなら同じ表が出る）。
 
 標準出力に表、標準エラーに**絞り込みの各段階の件数**と**技法の内訳**が出る。**両方を読む。**
+
+**ウォッチリストで絞っても表の意味は変わらない**——載るのは条件に該当した銘柄だけで、
+ウォッチリストを順位づけたものではない。該当しなかった構成銘柄は**別の節**に理由つきで出るので、
+**その節を候補として読ませない**（[出力](#出力)）。
 
 ### ステップ 3: 表と注意書きを出す
 
@@ -114,6 +134,9 @@ sh ~/.claude/skills/screen-margin-improving-stocks/scripts/screen.sh 30
 3. **倍率が下がった理由**（買い残が減ったのか売り残が増えたのか。**両方動いているのが大半**。「不明」は残高を読めていないという意味で、変化が無かったのではない）
 4. **順位が「—」の銘柄の読み方**（上位 300 の記録外というだけで、**取引が無いという意味ではない**）
 5. **「条件に合った」であって「儲かる」ではない**（この基盤の検証結果は「単独技法にエッジ無し」）
+6. **ウォッチリストで絞ったときだけ**: 外れた銘柄の節は**候補ではない**。とくに
+   「信用残高の週次記録に無い」は**判定できなかった**という意味で、条件で落ちたのとは別である
+   （ETF に多い）。この 2 つを混ぜて「〇〇件が条件に合わなかった」とまとめない
 
 ### 入出力の例
 
@@ -143,6 +166,8 @@ sh ~/.claude/skills/screen-margin-improving-stocks/scripts/screen.sh 30
 - [ ] 要求件数に届かない場合、**条件を緩めずそのまま報告**した
 - [ ] 表にコード・銘柄名・**セクター**・**日本語の技法名**を含めた
 - [ ] [出力](#出力)の注意書き **5 点をすべて**書いた
+- [ ] ウォッチリストで絞った場合、**外れた銘柄の節を候補として書いていない**
+- [ ] ウォッチリストで絞った場合、**「記録に無い」と「条件で落ちた」を分けて**報告した
 
 ## 成功基準
 
@@ -159,6 +184,7 @@ sh ~/.claude/skills/screen-margin-improving-stocks/scripts/screen.sh 30
 | 全行にセクターと技法（日本語）がある | 「不明」やローマ字の slug が無いことを目視 |
 | 絞り込みの各段階の件数を報告した | 標準エラーの 2 行が出力に反映されている |
 | 注意書き 5 点がある | [出力](#出力)の 5 項目と突き合わせる |
+| 絞った場合、構成銘柄が全部どちらかに現れる | 表の件数＋外れた銘柄の件数＝母集団の件数 |
 
 ## Troubleshooting
 
@@ -212,6 +238,31 @@ sh ~/.claude/skills/screen-margin-improving-stocks/scripts/screen.sh 30
 - **Solution**: `ls ~/dev/me/mcp-tradingview/data/turnover-rank/japan` の件数を見る。
   8 日分未満なら記録の蓄積待ち。**「—」は「取引が無い」ではなく「上位 300 の記録外」**なので、
   そのまま報告してよい。
+
+### Error: `ウォッチリスト "..." は正本にありません`
+
+- **Cause**: 名前が違う。正本の名前は TradingView 上のウォッチリスト名と同一である。
+- **Solution**: エラーが**近い候補を並べて出す**ので、そこから選び直す。
+  候補が出ない場合は全件が並ぶ。**推測で別の名前を試さず、出た候補から選ぶ。**
+
+### Error: `ウォッチリスト "..." に日本株がありません`
+
+- **Cause**: 為替・指数・国債・米国株だけのリストを指定した。この絞り込みは
+  **JPX の週次公表**を読むので、日本株以外には何も言えない。
+- **Solution**: 日本株を含むリストを選ぶ。**全市場に黙って戻さない**——
+  聞かれていない問いに答えることになる。
+
+### Error: `分類の正本がありません`
+
+- **Cause**: `mcp-invest-knowledge` に `sources/watchlists` が無い（未クローン、または未マージ）。
+- **Solution**: `SCREEN_CANON` で場所を指定するか、絞らずに実行する。
+  **絞らない実行は正本を読まない**ので、正本が無くても従来どおり動く。
+
+### 症状: 外れた銘柄が全部「信用残高の週次記録に無い」
+
+- **Cause**: そのウォッチリストが ETF・新規上場・整理銘柄中心で、JPX の週次公表に載っていない。
+- **Solution**: **異常ではない。** 「条件に合わなかった」ではなく**「判定できなかった」**と報告する。
+  この絞り込みは信用残高が前提なので、載らない銘柄には最初から何も言えない。
 
 ### 症状: 表の技法名が英字の slug のまま
 
