@@ -5,9 +5,11 @@ description: >-
   mcp-note / mcp-seeking-alpha / mcp-youtube / trade-moomoo / watcher）で、Go・Python・
   GitHub Actions のステップ・Docker イメージなど**固定された版を上げる**。あわせて
   自宅 Mac の runner（self-hosted）の PATH を点検する。「Go を上げて」「Python を上げて」
-  「actions の版を上げて」「runner が古い」「定期実行が版のせいで落ちた」のような
+  「actions の版を上げて」「golangci-lint を上げて」「手元と CI で lint の結果が違う」
+  「runner が古い」「定期実行が版のせいで落ちた」のような
   リクエストで使用。扱うファイルは `go.mod` / `.github/workflows/*.yaml` / `Dockerfile*` /
-  `mise.toml` / `.golangci.yml` / runner の `.path` の 6 種類。Do NOT use for: 依存ライブラリ
+  `mise.toml` / `.golangci.yml` / runner の `.path` の 6 種類と、**手元に入れた `golangci-lint`
+  の実行ファイル**。Do NOT use for: 依存ライブラリ
   （`go.mod` の require 行）の更新、アプリのコード変更、runner の新規登録、
   GitHub の機械専用リポの作業。
 compatibility: >-
@@ -45,6 +47,7 @@ compatibility: >-
 | Go の版上げ | 「Go を 1.26 に上げて」等の依頼 | 1・2・3・5・6 | `go.mod`・workflow・Dockerfile の版が揃った状態 |
 | Python の版上げ | 「Python を上げて」「定期実行が版のせいで落ちた」 | 1・2・4・5・6 | 自宅 Mac の runner が新しい Python で動く状態（`mise.toml` が本体） |
 | runner の PATH 点検 | 「runner が古い」「`xcrun` の警告が出る」 | 4 | `.path` の先頭が shims になり、陳腐化が起きなくなった状態 |
+| lint の版上げ・版ずれ | 「golangci-lint を上げて」「手元と CI で lint の結果が違う」「設定が読めないと言われる」 | 1・3・5 | CI の `version:` と手元の実行ファイルが同じ版に揃った状態 |
 
 ## この作業が難しい理由
 
@@ -86,6 +89,9 @@ done
 `actions-runners/` と `.worktrees/` は**作業コピーであって正本ではない**ので必ず除外する
 （含めて数えると件数が倍になる）。
 
+**`golangci-lint` は 2 か所にある。** ワークフローの `version:`（CI が使う版＝正本）と、
+自分の機械に入れた実行ファイル。**後者は洗い出しの grep に出てこない**ので、手順 3 で別途揃える。
+
 **ファイル名の `*` を展開させない。** zsh は一致しない `*` を見つけるとその行を丸ごと中断するので、
 `Dockerfile` を持たないリポ（seeking-alpha・watcher）が**黙って 1 件も出ない**。
 ファイルの絞り込みは `--include` に任せる。
@@ -119,13 +125,43 @@ grep -rn "runs-on" ~/dev/me/*/.github/workflows/*.y*ml | grep -v actions-runners
 | 2 | `mise.toml`（invest-knowledge のみ）— 自宅 Mac の実際の版がここで決まる |
 | 3 | `Dockerfile*` の `FROM`。**digest 付き（trade-moomoo）は digest も張り替える** |
 | 4 | `golangci-lint-action` の `version`（action 自体の `@v7` とは別物） |
+| 5 | **手元の `golangci-lint` を 4 と同じ版に入れ直す**（下記） |
 
-digest の取り方:
+#### 手元の golangci-lint を CI に揃える
+
+**版は mise が管理する。** `~/dev/me/mise.toml` に書いてあり、CI の `version:` と同じ値にする。
 
 ```bash
-docker pull python:3.14.7-slim >/dev/null && \
-  docker inspect --format='{{index .RepoDigests 0}}' python:3.14.7-slim
+grep -rh -A2 'golangci-lint-action' ~/dev/me/*/.github/workflows/*.y*ml | grep 'version:'
+grep golangci ~/dev/me/mise.toml
 ```
+
+両方が同じでなければ `mise.toml` を直して `mise install` する。
+
+#### 割り込んでいる実行ファイルを退ける
+
+**よくある故障はこちら。** `go install` で入った古い版が `~/go/bin` に居座り、
+**mise の shims より PATH で先に来る**。mise は正しい版を持っているのに、走るのは別物になる。
+
+```bash
+which -a golangci-lint      # 1 行目が ~/go/bin なら割り込まれている
+golangci-lint version       # 走る版を必ず確かめる
+```
+
+```text
+/Users/s11639/go/bin/golangci-lint                    ← v1 系が先頭
+/Users/s11639/.local/share/mise/installs/...2.13.2/   ← mise が持つ正しい版
+/Users/s11639/.local/share/mise/shims/golangci-lint
+```
+
+直し方は **`~/go/bin` の方を消す**（mise 側は触らない）。
+
+```bash
+rm ~/go/bin/golangci-lint && golangci-lint version
+```
+
+**`go install github.com/golangci/...` で入れ直さない。** それが割り込みを作った原因で、
+同じ名前の実行ファイルを黙って上書きする。**版の正本は mise。**
 
 ### 4. runner の PATH を点検する
 
@@ -150,7 +186,7 @@ done
 | 何を | どう |
 | --- | --- |
 | ビルドとテスト | 各 Go リポで `go build ./... && go test ./...` |
-| lint | CI に任せる（ローカルの golangci-lint は Go の版ずれで壊れることがある） |
+| lint | **手元で `golangci-lint run ./...`**。走らせる前に `golangci-lint version` が CI の `version:` と同じことを確かめる |
 | **自宅 Mac の runner の実動作** | ワークフローを 1 本 `workflow_dispatch` で走らせる。**dry run は途中で止まることがある**ので、どのステップまで到達したかを必ず確認する |
 | runner が新設定を読んだか | run のログから `/usr/bin/xcrun` の警告が消えたこと |
 
@@ -192,8 +228,10 @@ done
 - [ ] 版が書かれている場所を洗い出した（作業コピーを除外して）
 - [ ] `runs-on` で自宅 Mac の runner と GitHub の機械を仕分けた
 - [ ] 版を書き換えた（go.mod / workflows / mise.toml / Dockerfile / lint）
+- [ ] **手元の `golangci-lint version` が CI の `version:` と一致することを確かめた**
 - [ ] runner の `.path` を点検した
 - [ ] `go build` と `go test` が通る
+- [ ] `golangci-lint run ./...` が通る（CI 任せにしない）
 - [ ] 自宅 Mac の runner のワークフローを 1 本実際に走らせた
 - [ ] リポごとに PR を出した
 
@@ -212,9 +250,25 @@ done
 `/usr/bin/xcrun` が PATH に入っている（**ディレクトリでなく実行ファイル**）。害は無いがノイズになる。
 `.path` から実在しない項目を除くと消える。**新しい `.path` を読んだかどうかの目印**にもなる。
 
+### `you are using a configuration file for golangci-lint v2 with golangci-lint v1`
+
+**手元の実行ファイルが v1 系に入れ替わっている。** 設定ファイルは v2 の書式なので読めない。
+
+```bash
+which -a golangci-lint   # 1 行目が ~/go/bin なら割り込まれている
+rm ~/go/bin/golangci-lint
+golangci-lint version    # mise の 2.13.2 に戻る
+```
+
+原因は別の作業での `go install`。**`~/go/bin` は mise の shims より PATH で先に来る**ので、
+mise が正しい版を持っていても走るのは古い方になる。**入れ直さず、割り込みを消す。**
+
 ### golangci-lint がローカルで動かない
 
-Go の版と golangci-lint の版がずれていることが多い。**CI に判定させる**（GitHub の機械で動く）。
+まず上の版ずれを疑う。**「CI に任せる」で済ませない**——提供マシンの枠を使い切っていると
+CI は実行そのものを受け付けず、**判定が一度も行われないまま緑に見える**ことがある
+（2 秒・0 ステップ・runner 名が空）。手元の検査は `go vet` が見つけられない指摘を拾うので、
+手元で走らせて確かめる。
 
 ### 定期実行が「取り消し」で終わる
 
