@@ -7,7 +7,7 @@ description: >-
   「前と比べてどう変わった」のようなリクエストで使用。扱うのは mcp-tradingview の
   `tradingview-signal-study` と、その出力 JSON の突き合わせ。
   Do NOT use for: 銘柄の絞り込み（screen-margin-improving-stocks を使う）、
-  発注、前向き台帳の集計（tradingview_ledger_report）、技法ノートの起案。
+  発注、前向き台帳の集計（MCP ツール `tradingview:tradingview_ledger_report`）、技法ノートの起案。
 compatibility: >-
   mcp-tradingview と mcp-invest-knowledge のクローンが要る。価格は外部提供元から取得し
   `-cache-dir` に固定されるので、同じ cache なら結果は再現する。読むだけで何も発注しない。
@@ -46,6 +46,8 @@ allowed-tools: Bash, Read, Glob, Grep
 - [手順](#手順)
 - [合意の水準を決める](#合意の水準を決める)
 - [出力](#出力)
+- [成功基準](#成功基準)
+- [完了基準](#完了基準)
 - [チェックリスト](#チェックリスト)
 - [Troubleshooting](#troubleshooting)
 
@@ -84,43 +86,64 @@ allowed-tools: Bash, Read, Glob, Grep
 **`go run` を使わない。** 背景で走らせると親が終わったときに扱いが不安定になり、
 **出力が無いのに「終了」と見える**ことがある。先に実行ファイルにする。
 
+前後を比べるときは、**枝ごとに別の名前で作る**。
+
 ```bash
 cd ~/dev/me/mcp-tradingview
-go build -o /tmp/study-bin ./cmd/tradingview-signal-study
+git worktree add .worktrees/before origin/main --detach      # 直す前
+go build -o /tmp/study-before ./cmd/tradingview-signal-study  # ← .worktrees/before で
+cd .worktrees/<直した枝> && go build -o /tmp/study-after ./cmd/tradingview-signal-study
 ```
 
-前後を比べるときは、**両方を別の名前で作り、中身が違うことを確かめる**。
+**中身が違うことを必ず確かめる。** 同じなら比較になっていない。
 
 ```bash
-md5 -q /tmp/study-before /tmp/study-after   # 同じなら比較になっていない
+md5 -q /tmp/study-before /tmp/study-after
 ```
+
+1 回だけ測るなら `/tmp/study-after` だけでよい。
 
 ### ステップ 2: 走らせる
 
-**cache と種を固定する。** これを揃えないと、差が修正由来か揺らぎ由来か分からない。
+**cache と種を揃える。** これを揃えないと、差が修正由来か揺らぎ由来か分からない。
 
 ```bash
-/tmp/study-bin \
-  -universe ~/dev/me/mcp-tradingview/data/universe/mvp-mixed.json \
+cd ~/dev/me/mcp-tradingview
+/tmp/study-after \
+  -universe data/universe/mvp-mixed.json \
   -notes-dir ~/dev/me/mcp-invest-knowledge/sources/technique-notes \
-  -cache-dir /tmp/study-cache -out-dir /tmp/study-out
+  -cache-dir /tmp/study-cache -seed 1 \
+  -out-dir /tmp/out-after
 ```
 
-合流を見るときは `-confluence-state` と `-levels` を足す（水準は次節）。
-20 銘柄で **15〜25 分**かかる。背景で走らせ、**実行中のものを数えて**二重起動を防ぐ。
+合流も見るときは 2 つ足す。**`-levels` は必ず指定する**（既定は何も絞らない・次節）。
 
 ```bash
-ps aux | grep study-bin | grep -v grep | wc -l
+  -confluence-state -levels 4,5,6,7,8,9,10
 ```
+
+20 銘柄で **15〜25 分**。背景で走らせ、**引数まで見て**二重起動を防ぐ。
+
+```bash
+ps aux | grep -E 'study-(before|after)' | grep -v grep
+```
+
+名前だけでは前後を区別できないので、**引数の `-out-dir` で見分ける**。
 
 ### ステップ 3: 突き合わせる
 
+出力は `<out-dir>/<universe 名>-<実行日>.json` に 1 つできる。
+
 ```bash
+ls /tmp/out-before /tmp/out-after        # ファイル名を確認する
 python3 ~/.claude/skills/evaluate-techniques/scripts/compare.py \
-  <前の結果.json> <後の結果.json> technique      # または confluence
+  /tmp/out-before/mvp-mixed-<日付>.json \
+  /tmp/out-after/mvp-mixed-<日付>.json \
+  technique                              # 合流なら confluence
 ```
 
-**落ちたら直すまで報告しない。** 落ちる理由は項目名の取り違えか、走らせ方の誤り。
+**終了コードが 1 なら結果を読まない。** 比較が成立していないという意味で、
+理由（項目が読めない・母集団が違う・関門が効いていない）が表示される。直してから測り直す。
 
 ## 合意の水準を決める
 
@@ -151,7 +174,11 @@ python3 ~/.claude/skills/evaluate-techniques/scripts/compare.py \
 
 表のあとに、**次の 5 点を必ず書く**。
 
-1. **判定の内訳**（4 つの判定語ごとの件数。前後で比べるなら両方）
+1. **判定の内訳**（下の 4 語ごとの件数。前後で比べるなら両方。`compare.py` が出す）
+   - `outperformed_matched_null` 比較対象を上回った
+   - `not_significant` 上回ったとは言えない
+   - `insufficient_power` 試行数や銘柄数が足りない
+   - `not_evaluable` そもそも評価できない
 2. **入力が動いたか**（試行数の変化。判定が動かなくても入力が動いていれば書く）
 3. **q 値**（p 値だけ出さない。29 個試せば偶然 1 個は 0.05 を切る）
 4. **合流の単調性**（合意が増えるほど成績が上がるか。合流を測ったときだけ）
@@ -174,29 +201,52 @@ q 値: ma-deviation-rate の q は 0.365（29 個の中では、まだありふ�
 
 **出力**: 終わらない。**全水準で試行数が同じなら関門が効いていない**ので、水準を上げて測り直す。
 
+## 成功基準
+
+| 種類 | 基準 |
+| --- | --- |
+| **定量** | 測定の起動から報告まで **Bash 8 回以内**／価格の取得は cache がある限り **0 回**／`compare.py` の終了コードが **0**／同じ cache と種で 2 回走らせた結果が**完全に一致** |
+| **定性** | 利用者が追加の指示を出さなくても、**判定の内訳・入力の変化・q 値・射程が揃っている**こと。「差が無い」と「測れていない」が読み分けられること |
+
+## 完了基準
+
+| 満たすこと | 確認方法 |
+| --- | --- |
+| 比較が成立している | `compare.py` の終了コードが 0 |
+| 合流なら関門が効いている | 水準を上げると試行数が減っている（`compare.py` が確かめる） |
+| 判定の内訳が 4 語すべて出ている | 出力の「判定の内訳」節を見る |
+| 入力の変化を報告した | 判定が動かなくても、試行数が動いていれば書いた |
+| 射程を添えた | 銘柄数・生存者バイアス・手数料と滑りの扱い |
+
 ## チェックリスト
 
 - [ ] `go build` で実行ファイルを作った（`go run` を背景で使っていない）
 - [ ] 前後を比べるなら、2 つの実行ファイルの中身が違うことを確かめた
-- [ ] `-cache-dir` と種を両方の実行で揃えた
+- [ ] `-cache-dir` と `-seed` を両方の実行で揃えた
 - [ ] 二重起動していないことを確かめた
 - [ ] 合流なら `-levels` を上げた（既定のままにしていない）
-- [ ] **水準を上げると試行数が減ることを確かめた**
-- [ ] `compare.py` が落ちずに通った
+- [ ] **水準を上げると試行数が減った**（`compare.py` が自動で確かめる）
+- [ ] `compare.py` の終了コードが 0 だった（1 なら結果を読まない）
 - [ ] 出力の 5 点をすべて書いた
 - [ ] 基準（alpha）を結果を見てから動かしていない
 
 ## Troubleshooting
 
-### 全水準で試行数が同じ
+### 水準を上げても試行数が減らない
 
-**関門が効いていない。** `-levels` を上げる。状態ベースでは 4 でも足りないことが実測で分かっている。
+**関門が効いていない。** `compare.py` が終了コード 1 で落とし、どの水準どうしが同じかを出す。
+`-levels` を上げて測り直す。状態ベースでは 4 でも足りないことが実測で分かっている。
 この状態の結果は「差が無い」ではなく「**測れていない**」。
 
-### `compare.py` が「項目がありません」で落ちる
+### `compare.py` が終了コード 1 で落ちる
 
-**正しい動き。** 存在しない項目名を比べると全件一致に見えるので、先に落としている。
-エラーが読める項目の一覧を出すので、そこから選び直す。
+**正しい動き。** 理由は 3 つのいずれかで、どれも「差が無い」ではなく「比較が成立していない」。
+
+| 出るエラー | 意味 |
+| --- | --- |
+| 項目がありません | 存在しない項目名を比べると全件一致に見えるので、先に落としている |
+| 比べる対象が揃っていません | 片側にしかない技法がある。universe かノートが違う |
+| 水準を上げても試行数が減っていません | 関門が絞っていない |
 
 ### 出力ファイルができないのに「終了」と出る
 
@@ -219,5 +269,6 @@ q 値: ma-deviation-rate の q は 0.365（29 個の中では、まだありふ�
 
 ## 参照
 
+- 評価シナリオと動作確認: [references/evaluations.md](references/evaluations.md)
 - 統計の設計と判定語: `~/dev/me/mcp-tradingview/docs/signal-study.md`
 - 合流の設計: 同上の「コンフルエンス」節
