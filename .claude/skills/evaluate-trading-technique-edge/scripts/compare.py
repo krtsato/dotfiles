@@ -5,6 +5,10 @@
 「差が無い」と「測れていない」を同じ顔で出さないため。
 
 終了コード: 0 = 比較できた / 1 = 比較が成立しない（結果を読まない）
+
+「水準を上げても試行数が減らない」はエラーにしない。候補は状態に入った瞬間を
+数えるので、水準に鈍感なのが設計どおりだから。誤ってエラーにしていた時期があり、
+正しい分析を止めていた。
 """
 import json
 import sys
@@ -63,19 +67,21 @@ def check_same_population(before, after):
         )
 
 
-def check_levels_bite(rows, label):
-    """水準を上げたら試行数が減ることを確かめる。減らない関門は絞っていない。"""
+def note_levels_are_flat(rows, label):
+    """水準に対して試行数が動かないことを報告する。異常ではない。
+
+    候補は「状態に入った瞬間」なので、合意 4 の局面も合意 12 の局面も入り口は
+    1 回と数える。試行数が水準に鈍感なのは設計どおり。ただし全水準が完全に同じなら、
+    その比較から「合意の効果」は読めないので、funnel を見るよう促す。
+    """
     ks = sorted(rows, key=lambda x: int(x[2:]))
     counts = [rows[k]["total_trades"] for k in ks]
-    flat = [
-        f"{ks[i]}({counts[i]}) = {ks[i + 1]}({counts[i + 1]})"
-        for i in range(len(counts) - 1)
-        if counts[i] == counts[i + 1]
-    ]
-    if flat:
-        die(
-            f"{label}: 水準を上げても試行数が減っていません — {', '.join(flat)}。"
-            " 関門が絞っていないので、この結果は読めません。-levels を上げて測り直してください。"
+    if len(counts) > 1 and len(set(counts)) == 1:
+        print(
+            f"※ {label}: 全水準で試行数が同じ（{counts[0]} 件）。"
+            "候補は「状態に入った瞬間」なので水準に鈍感なのは正常だが、"
+            "この比較からは合意の効果を読めない。\n"
+            "   funnel（絞り込みの各段階）と dissent_share（売りノート別の成立率）を見ること。"
         )
 
 
@@ -102,8 +108,8 @@ def main():
     check_fields(after, after_path)
     check_same_population(before, after)
     if kind == "confluence":
-        check_levels_bite(before, "前の結果")
-        check_levels_bite(after, "後の結果")
+        note_levels_are_flat(before, "前の結果")
+        note_levels_are_flat(after, "後の結果")
 
     keys = sorted(before, key=lambda x: int(x[2:])) if kind == "confluence" else sorted(before)
     print(f"比べた対象: {len(keys)} 件")
