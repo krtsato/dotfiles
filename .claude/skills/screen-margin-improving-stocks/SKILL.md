@@ -1,6 +1,6 @@
 ---
 name: screen-margin-improving-stocks
-description: Screen Japanese stocks that satisfy three conditions at once — margin ratio improving week over week, trading volume rising, and a lecture-derived technique firing in the forward ledger — then report code, name, sector and the Japanese technique names in a table. Triggers on requests like "売買代金が上がっていて信用倍率が改善している銘柄を教えて", "買い推奨できそうな銘柄を30個", "信用需給が改善している銘柄のスクリーニング", "ALL_半導体関連 の中から条件に合う銘柄を出して". A watchlist name restricts the population to that list's Japanese stocks and also reports which condition removed each member that did not match. Reads mcp-tradingview JSONL data (data/seido-margin, data/paper-ledger.jsonl) and one TradingView scanner response. Do NOT use for US stocks, for backtesting a single technique, for placing or sizing orders, or for evaluating the seido study itself (that is tradingview-seido-study).
+description: Screen Japanese stocks that satisfy three conditions at once — margin ratio improving week over week, trading volume rising, and a lecture-derived technique firing in the forward ledger — then report code, name, sector and the Japanese technique names in a table. Triggers on requests like "売買代金が上がっていて信用倍率が改善している銘柄を教えて", "買い推奨できそうな銘柄を30個", "信用需給が改善している銘柄のスクリーニング", "ALL_半導体関連 の中から条件に合う銘柄を出して". A watchlist name restricts the population to that list's Japanese stocks and also reports which condition removed each member that did not match. Reads mcp-tradingview JSONL data (data/seido-margin-daily, data/paper-ledger.jsonl) and one TradingView scanner response. Do NOT use for US stocks, for backtesting a single technique, for placing or sizing orders, or for evaluating the seido study itself (that is tradingview-seido-study).
 compatibility: Requires local clones of mcp-tradingview and mcp-invest-knowledge, Docker, and outbound access to scanner.tradingview.com. The screen runs inside a container so the host's Go version and TLS roots cannot change the result; the image is rebuilt on every run so a source change cannot be judged with stale code. No API key, no Python, no jq. Read-only; the data and notes are mounted read-only and nothing is written.
 allowed-tools: Bash(sh *), Bash(docker *), Bash(ls *), Read, Glob, Grep, Agent
 ---
@@ -22,7 +22,7 @@ allowed-tools: Bash(sh *), Bash(docker *), Bash(ls *), Read, Glob, Grep, Agent
 
 | 正式名 | 意味 |
 | --- | --- |
-| 倍率が改善 | 条件 1。信用倍率が 4 週前より下がっている |
+| 倍率が改善 | 条件 1。信用倍率が 4 週前より下がっている。**公表は日次なので、約 7 日おきに 4 時点を取る** |
 | 売買が活発 | 条件 2。出来高比と当日代金の条件を満たす |
 | 技法が該当 | 条件 3。講義由来の技法が台帳で発火している |
 | 市場データの取得 | `scanner.tradingview.com` への問い合わせ。**1 回だけ** |
@@ -75,7 +75,7 @@ allowed-tools: Bash(sh *), Bash(docker *), Bash(ls *), Read, Glob, Grep, Agent
 
 | 要る物 | 確認方法 |
 | --- | --- |
-| mcp-tradingview のクローン | `ls ~/dev/me/mcp-tradingview/data/seido-margin` |
+| mcp-tradingview のクローン | `ls ~/dev/me/mcp-tradingview/data/seido-margin-daily` |
 | mcp-invest-knowledge のクローン | `ls ~/dev/me/mcp-invest-knowledge/sources/technique-notes` |
 | 分類の正本（ウォッチリストで絞るときだけ） | `ls ~/dev/me/mcp-invest-knowledge/sources/watchlists` |
 | Docker | 判定はコンテナの中で動く。**Go も Python も jq もホストに要らない** |
@@ -87,11 +87,14 @@ allowed-tools: Bash(sh *), Bash(docker *), Bash(ls *), Read, Glob, Grep, Agent
 ### ステップ 1: 前提が揃っているか見る
 
 ```bash
-ls ~/dev/me/mcp-tradingview/data/seido-margin
+ls ~/dev/me/mcp-tradingview/data/seido-margin-daily
 ```
 
-`syumatsu*.jsonl` が **4 つ以上**あること。無ければ週次の取り込みが止まっている。
+`mtall*.jsonl` があり、**最新が数日以内**であること。無い・古いなら日次の取り込みが止まっている。
 **その場合は絞り込みを続けず、取り込みの失敗を先に直す。**
+
+**旧 `data/seido-margin/` を見ない。** そこは 2026-09-18 で終わった週次の保管庫で、
+**常に存在する**ため、確認先にすると日次が死んでいても通ってしまう。
 
 ### ステップ 2: 絞り込みを実行する
 
@@ -135,7 +138,7 @@ sh ~/.claude/skills/screen-margin-improving-stocks/scripts/screen.sh 30 ALL_半�
 4. **順位が「—」の銘柄の読み方**（上位 300 の記録外というだけで、**取引が無いという意味ではない**）
 5. **「条件に合った」であって「儲かる」ではない**（この基盤の検証結果は「単独技法にエッジ無し」）
 6. **ウォッチリストで絞ったときだけ**: 外れた銘柄の節は**候補ではない**。とくに
-   「信用残高の週次記録に無い」は**判定できなかった**という意味で、条件で落ちたのとは別である
+   「信用残高の記録に無い」は**判定できなかった**という意味で、条件で落ちたのとは別である
    （ETF に多い）。この 2 つを混ぜて「〇〇件が条件に合わなかった」とまとめない
 
 ### 入出力の例
@@ -159,7 +162,7 @@ sh ~/.claude/skills/screen-margin-improving-stocks/scripts/screen.sh 30 ALL_半�
 
 ## チェックリスト
 
-- [ ] 週次データが 4 週以上あることを確認した
+- [ ] 日次データがあり、最新が数日以内であることを確認した
 - [ ] **コンテナ経由**で実行した（ホスト直実行に切り替えていない）
 - [ ] 件数は**位置引数**で渡した（`screen.sh 30`）
 - [ ] 標準エラーの**絞り込みの各段階の件数**を読んだ
@@ -190,15 +193,22 @@ sh ~/.claude/skills/screen-margin-improving-stocks/scripts/screen.sh 30 ALL_半�
 
 ### Error: `信用残高のファイルが見つかりません`
 
-- **Cause**: `SCREEN_REPO` が mcp-tradingview を指していない、または週次データが未取得。
-- **Solution**: `ls ~/dev/me/mcp-tradingview/data/seido-margin` で `syumatsu*.jsonl` の存在を確認する。
-  無ければ週次の取り込みが止まっている。**絞り込みを続けず、取り込みの失敗を先に直す。**
+- **Cause**: `SCREEN_REPO` が mcp-tradingview を指していない、または日次データが未取得。
+- **Solution**: `ls ~/dev/me/mcp-tradingview/data/seido-margin-daily` で `mtall*.jsonl` の存在を確認する。
+  無ければ日次の取り込みが止まっている。**絞り込みを続けず、取り込みの失敗を先に直す。**
 
-### Error: `公表週が N 週しかありません`
+### Error: `N 週前（基準日 … ごろ）の信用残高がありません`
 
-- **Cause**: 週次データが 4 週分に満たない（新しい環境、または取り込みの停止）。
+- **Cause**: 4 週ぶんの記録が揃っていない（新しい環境、または取り込みの停止）。公表が日次に
+  なったので、**回数ではなく暦で 4 時点**（約 7 日おき・前後 4 日まで）を取る。どこか 1 つが
+  埋まらないと比較しない。**間隔は基準日で測る**（公表日は切り替えで跳ぶため）。
 - **Solution**: 取り込みの実行履歴を確認する。**週数を減らして回避しない**——
   3 週の倍率変化は傾向ではなく雑音で、条件の意味が変わる。
+
+### Error: `N 週前と同じ公表しかありません`
+
+- **Cause**: 同じファイルが 2 つの時点に割り当たった＝その期間の公表が欠けている。
+- **Solution**: **週ごとの比較になっていないので、そのまま報告する。** 欠けた日は取り直せない。
 
 ### Error: `技法ノートが読めません`
 
@@ -248,7 +258,7 @@ sh ~/.claude/skills/screen-margin-improving-stocks/scripts/screen.sh 30 ALL_半�
 ### Error: `ウォッチリスト "..." に日本株がありません`
 
 - **Cause**: 為替・指数・国債・米国株だけのリストを指定した。この絞り込みは
-  **JPX の週次公表**を読むので、日本株以外には何も言えない。
+  **JPX の公表**を読むので、日本株以外には何も言えない。
 - **Solution**: 日本株を含むリストを選ぶ。**全市場に黙って戻さない**——
   聞かれていない問いに答えることになる。
 
