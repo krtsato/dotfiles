@@ -37,9 +37,13 @@ if ! command -v docker >/dev/null 2>&1; then
   echo "  go run ./cmd/tradingview-screen-margin -repo $REPO -notes $NOTES -count $COUNT" >&2
   exit 1
 fi
-if [ ! -d "$REPO/data/seido-margin" ]; then
-  echo "信用残高のファイルが見つかりません: $REPO/data/seido-margin" >&2
-  echo "週次の取り込みが止まっている可能性があります。先にそちらを確認してください。" >&2
+# Check the LIVE feed, not the archive. JPX moved this statistic to a daily
+# publication on 2026-09-25; data/seido-margin now holds only the retired weekly
+# files and will always exist, so testing it would pass while the daily ingest is
+# dead and the screen silently compares four-week-old numbers.
+if [ ! -d "$REPO/data/seido-margin-daily" ]; then
+  echo "信用残高のファイルが見つかりません: $REPO/data/seido-margin-daily" >&2
+  echo "日次の取り込みが止まっている可能性があります。先にそちらを確認してください。" >&2
   exit 1
 fi
 if [ ! -d "$NOTES" ]; then
