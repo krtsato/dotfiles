@@ -1,4 +1,5 @@
 .DS_Store
+.eval-skills/
 .gitconfig.*
 .worktrees/
 Alfred/usage.data
