@@ -1,0 +1,7 @@
+interface:
+  display_name: "Consulting Slides"
+  short_description: "根拠と意思決定をつなぐ経営資料を設計し、全ページを検証"
+  default_prompt: "Use $create-consulting-slides to turn my sources into a concrete, evidence-based executive slide deck."
+
+policy:
+  allow_implicit_invocation: true
