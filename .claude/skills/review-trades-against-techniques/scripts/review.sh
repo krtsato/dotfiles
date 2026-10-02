@@ -23,11 +23,8 @@ trap 'rm -rf "$WORK"' EXIT
 for d in "$IK" "$TV" "$TM"; do
   [ -d "$d" ] || { echo "error: $d がありません" >&2; exit 1; }
 done
-# 置き場（日付ごとのファイル）が本来の形。単一ファイルは 2026-10-02 までの古い形で、
-# 古い clone でも動くよう残してある。どちらも無ければ確かめようがないので止める。
 LEDGER="$TV/data/paper-ledger"
-[ -d "$LEDGER" ] || LEDGER="$TV/data/paper-ledger.jsonl"
-[ -e "$LEDGER" ] || {
+[ -d "$LEDGER" ] || {
   echo "error: 前向き台帳がありません（$TV/data/paper-ledger）。" >&2
   echo "       台帳が無いと、技法が出ていたかを確かめられません。" >&2
   exit 1; }
