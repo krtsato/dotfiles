@@ -32,7 +32,7 @@ description: >-
 | --- | --- |
 | 約定 | 証券会社が記録した 1 回の売買成立。**損益も手数料も入っていない** |
 | 持ち高の組み立て | 買いと売りを突き合わせ、建値を平均で追うこと |
-| 前向き台帳 | `mcp-tradingview/data/paper-ledger.jsonl`。**結果を知る前に**記録された技法の発火 |
+| 前向き台帳 | `mcp-tradingview/data/paper-ledger/`（決定日ごとに 1 ファイル）。**結果を知る前に**記録された技法の発火 |
 | 照合できた取引 | 建ても決済も台帳の期間に入っている取引 |
 | 技法が出ていた | 買った日（と直前 3 日）に、その銘柄を技法が選んでいた |
 
@@ -72,7 +72,7 @@ description: >-
 | 要る物 | 確認方法 |
 | --- | --- |
 | mcp-invest-knowledge | `ls ~/dev/me/mcp-invest-knowledge/cmd/trade-review` |
-| mcp-tradingview の台帳 | `ls ~/dev/me/mcp-tradingview/data/paper-ledger.jsonl` |
+| mcp-tradingview の台帳 | `ls ~/dev/me/mcp-tradingview/data/paper-ledger/` |
 | trade-moomoo と OpenD | `pgrep -f OpenD`。**動いていないと約定を取れない** |
 | 現物の口座 ID | `MOOMOO_ACC_ID` に入れる |
 | Docker | 約定の取得はコンテナの中で動く |
@@ -82,8 +82,12 @@ description: >-
 ### ステップ 1: 台帳があり、期間が十分か見る
 
 ```bash
-ls -l ~/dev/me/mcp-tradingview/data/paper-ledger.jsonl
+ls ~/dev/me/mcp-tradingview/data/paper-ledger/ | tail -3
 ```
+
+**決定日ごとに 1 ファイル**なので、一覧の末尾が**数日以内**であること。
+2026-10-02 までは単一ファイル `paper-ledger.jsonl` だった（1 ファイル 100 MB の上限に達したため分割）。
+古い clone ならそちらを見るが、**両方無ければ振り返りは成立しない**。
 
 **台帳が無いか極端に短ければ、振り返りは成立しない。** 技法が出ていたかを確かめる術が無くなり、
 報告書は「照合できた取引 0 件」になる。その場合は**そう報告して止める**。条件を緩めない。

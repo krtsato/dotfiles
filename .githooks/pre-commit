@@ -9,6 +9,44 @@
 
 set -eu
 
+# --- Skills: the repository paths they tell the reader to look at -------------
+#
+# A skill names paths in prose and in `ls` examples, and nothing compiles them.
+# When a data layout moves, the prose keeps pointing at the old place and the
+# first step of the skill reports "the file is missing" -- about a file that was
+# renamed, not one that is gone.
+#
+# This happened on 2026-10-02: the forward ledger became a directory and two
+# skills kept telling the reader to `ls` the file.
+#
+# Only ~/dev/me paths are checked, because those are the ones this machine can
+# answer for. A path inside a repository that is not cloned here is skipped, not
+# failed: absent is not the same as wrong.
+missing=""
+for f in $(git diff --cached --name-only --diff-filter=ACM | grep '^\.claude/skills/' || true); do
+	[ -f "$f" ] || continue
+	for ref in $(grep -ohE '~/dev/me/[a-zA-Z0-9_-]+/[a-zA-Z0-9_/.-]+' "$f" | sort -u); do
+		real="$HOME${ref#\~}"
+		repo="$HOME/dev/me/$(printf '%s' "${ref#\~/dev/me/}" | cut -d/ -f1)"
+		[ -d "$repo" ] || continue
+		[ -e "$real" ] || missing="${missing}
+  $f -> $ref"
+	done
+done
+if [ -n "$missing" ]; then
+	cat >&2 <<MSG
+
+pre-commit: a skill points at a path that does not exist. Commit aborted.
+${missing}
+
+The repository is cloned here, so this is a stale reference rather than a
+missing checkout. Update the skill, or use a path that exists.
+
+To commit anyway: git commit --no-verify
+MSG
+	exit 1
+fi
+
 if ! command -v gitleaks >/dev/null 2>&1; then
 	cat >&2 <<'MSG'
 pre-commit: gitleaks not found, refusing to commit without a credential check.
