@@ -18,6 +18,12 @@ Conventional Commits に従う。
 - 破壊的変更は `!` を付ける（例: `feat!: remove deprecated API`）
 - **コミット単位で issue 番号に紐づけない。** issue 番号は Pull Request に紐づける
 
+## 番号の書き方
+
+**PR と issue の番号には必ずリポジトリ名を添える**（`mcp-tradingview #398`）。
+チャット、PR 本文、issue、記憶のすべてで。番号だけでは、横断で作業しているリポジトリの
+どれを指すか読み手に分からない。
+
 ## Pull Request
 
 - リポジトリに `PULL_REQUEST_TEMPLATE.md` があれば、その内容に従う
