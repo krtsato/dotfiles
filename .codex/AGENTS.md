@@ -100,40 +100,23 @@
 - Claude 実行中は同じ worktree のセッションを並行起動しない。ラッパーの lock エラーを無視しない
 - local cleanup では worktree を削除する前に、その worktree に紐づく Claude セッションと管理情報を専用 cleanup スクリプトで削除する
 
-## スコープ復唱（変更着手前）
+## 規則 — 正本は Claude 側
 
-- 変更に着手する前に、対象のファイルパス・ページパスを明示して認識を合わせる
-- 類似ターゲットが複数存在する場合（例: 複数サービスの contact ページ、同名ファイル）は、推測で進めず着手前に対象を確認する
-- 指示と実際の対象が食い違っていたら、作業を進める前に指摘する
+**作業を始める前に必ず次を読む。** skill と同じく**正本は 1 つだけ**で、ここに写しを作らない
+（直すときは正本を直す）。
 
-## Git 規約
+| いつ | 読むファイル |
+| --- | --- |
+| **毎回** | `~/.claude/CLAUDE.md` — 伝え方・原則・文脈の使い方 |
+| 計画を書く前・コード変更を始める前 | `~/.claude/rules/workflow.md` |
+| commit・PR を出す前 | `~/.claude/rules/git.md` |
+| Markdown を編集した後 | `~/.claude/rules/editing.md` |
+| 委譲する前 | `~/.claude/rules/delegation.md` |
 
-### commit メッセージ
+**読まずに進めない。** Git の運用・課題の立て方・変更要求の書き方・Markdown の検査は
+すべてこの正本に書いてある。
 
-Conventional Commits 形式: `<type>(<scope>): <description>`
-
-- type: `feat` / `fix` / `docs` / `style` / `refactor` / `perf` / `test` / `build` / `ci` / `chore`
-- 破壊的変更は `!` を付与（例: `feat!: remove deprecated API`）
-- commit は意味のある粒度でまとめる（機械的な一括 commit にしない）
-- **Issue 番号は commit に紐づけない**（PR に紐づける）
-
-### ブランチ・worktree
-
-- コード変更を伴う作業は専用ブランチ + 専用 worktree で開始する（軽微な修正・既存 PR への追記は例外）
-- worktree はプロジェクト内の `.worktrees/<branch-name>` に作成する: `git worktree add .worktrees/<branch-name> -b <branch-name>`
-- `.worktrees/` が `.gitignore` に未追加なら追加する
-- **worktree 作成直後に絶対パスで cd する**。シェルの cwd は親リポジトリに残るため、cd せずに grep / test / git を実行すると親側のクリーンなファイルを読んでしまう
-
-### push・PR
-
-- push 前に必ず `git fetch --all && git rebase origin/main`（デフォルトブランチ名に読み替え）を実行する
-- PR タイトルは Conventional Commits 形式の英語、本文は日本語
-- PR には可能な限り Issue を紐づける（例: `- #123`）
-- 特に指定がない場合 draft で作成し、GitHub Copilot をレビュワーに追加する
-- 1 PR につき 1 つの目的に集中する
-- リポジトリに `PULL_REQUEST_TEMPLATE.md` があればそれに従う
-
-### マージ後 cleanup（自発的に実施）
+## マージ後 cleanup（自発的に実施）
 
 PR がマージされたら、指示を待たずに次を実施して結果を報告する:
 
@@ -153,14 +136,6 @@ PR がマージされたら、指示を待たずに次を実施して結果を�
 - 動作を証明できるまで「完了」と言わない。テスト実行結果・ログ・実際の表示確認を添える
 - オフラインテスト（fake / httptest 等）が通っても、可能なら live の実データで 1 回検証する
 - 対応できない要件は silent に落とさず「unsupported」と明示する
-
-## Markdown
-
-- Markdown ファイルの編集後は `npx markdownlint-cli2 --config ~/dev/me/dotfiles/.markdownlint.yaml <file>` を実行し、警告があれば修正する
-
-## シェル
-
-- `echo "---"` のようなダッシュ始まりのクォート文字列は避け、区切りには `echo ===` を使う
 
 ## 共有 skill — 正本は Claude 側
 
