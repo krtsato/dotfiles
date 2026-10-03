@@ -55,6 +55,8 @@ git worktree add .worktrees/<branch-name> -b <branch-name>
 - **`.worktrees/` はプロジェクト内に作る**（ディレクトリ許可の確認を避けるため）
 - `.gitignore` に `.worktrees/` を入れておく
 - いまいる場所は `git rev-parse --git-dir` で判定する。`/worktrees/` を含めば worktree の中
+- **作成直後に絶対パスで cd する。** シェルの現在地は親リポジトリに残るため、cd せずに
+  `grep` / `test` / `git` を実行すると**親側のきれいなファイルを読んでしまう**
 
 メインの作業ディレクトリで始めようとした場合は、worktree の作成を提案する。
 
