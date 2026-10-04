@@ -98,7 +98,10 @@
       "Bash(GOFLAGS=*)",
       "Bash(CGO_ENABLED=*)",
       "Bash(PATH=*)",
-      "Bash(cd *)"
+      "Bash(cd *)",
+      "mcp__notion__notion-update-page",
+      "mcp__notion__notion-move-pages",
+      "mcp__notion__notion-query-data-sources"
     ],
     "deny": [
       "Bash(sudo *)",
@@ -416,5 +419,6 @@
         "x-api-key": "to be added"
       }
     }
-  }
+  },
+  "model": "opus"
 }
