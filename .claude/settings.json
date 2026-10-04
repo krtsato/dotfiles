@@ -419,5 +419,6 @@
         "x-api-key": "to be added"
       }
     }
-  }
+  },
+  "model": "opus"
 }
