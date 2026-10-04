@@ -1,6 +1,6 @@
 ---
 name: screen-margin-improving-stocks
-description: Screen Japanese stocks that satisfy three conditions at once — margin ratio falling across a three-week window, trading volume rising, and a lecture-derived technique firing in the forward ledger — then report code, name, sector and the Japanese technique names in a table. Triggers on requests like "売買代金が上がっていて信用倍率が改善している銘柄を教えて", "買い推奨できそうな銘柄を30個", "信用需給が改善している銘柄のスクリーニング", "ALL_半導体関連 の中から条件に合う銘柄を出して". A watchlist name restricts the population to that list's Japanese stocks and also reports which condition removed each member that did not match. Reads mcp-tradingview JSONL data (data/seido-margin-daily, data/paper-ledger) and one TradingView scanner response. Do NOT use for US stocks, for backtesting a single technique, for placing or sizing orders, or for evaluating the seido study itself (that is tradingview-seido-study).
+description: Screen Japanese stocks that satisfy three conditions at once — margin ratio falling across a three-week window, trading volume rising, and a lecture-derived technique firing in the forward ledger — then report code, name, sector and the Japanese technique names in a table, and list apart the stocks whose techniques are only about to fire (approaching a cross) so they are never read as fired. Triggers on requests like "売買代金が上がっていて信用倍率が改善している銘柄を教えて", "買い推奨できそうな銘柄を30個", "信用需給が改善している銘柄のスクリーニング", "ALL_半導体関連 の中から条件に合う銘柄を出して", "もうすぐクロスしそうな銘柄", "シグナルが出そうな銘柄". A watchlist name restricts the population to that list's Japanese stocks and also reports which condition removed each member that did not match. Reads mcp-tradingview JSONL data (data/seido-margin-daily, data/paper-ledger) and one TradingView scanner response. Do NOT use for US stocks, for backtesting a single technique, for placing or sizing orders, or for evaluating the seido study itself (that is tradingview-seido-study).
 compatibility: Requires local clones of mcp-tradingview and mcp-invest-knowledge, Docker, and outbound access to scanner.tradingview.com. The screen runs inside a container so the host's Go version and TLS roots cannot change the result; the image is rebuilt on every run so a source change cannot be judged with stale code. No API key, no Python, no jq. Read-only; the data and notes are mounted read-only and nothing is written.
 allowed-tools: Bash(sh *), Bash(docker *), Bash(ls *), Bash(grep *), Read, Glob, Grep, Agent
 ---
@@ -25,7 +25,8 @@ allowed-tools: Bash(sh *), Bash(docker *), Bash(ls *), Bash(grep *), Read, Glob,
 | 倍率が改善 | 条件 1。信用倍率が**約 3 週間前**より下がっている。**公表は日次なので、約 7 日おきに 4 時点を取る**。点が 4 つなら間は 3 つなので、張る期間は 3 週間 |
 | 窓の起点 | 比べる 4 時点のうち一番新しい日。最新の公表で 4 時点が揃わないとき、**揃う日まで最大 6 日戻す**。戻した事実は標準エラーに出る |
 | 売買が活発 | 条件 2。出来高比と当日代金の条件を満たす |
-| 技法が該当 | 条件 3。講義由来の技法が台帳で発火している |
+| 技法が該当 | 条件 3。講義由来の技法が台帳で**完成して**発火している。予兆だけの記録は数えない |
+| 予兆 | 技法の**手前で成立する条件**（クロスの手前など）だけが満たされ、技法としてはまだ完成していない。**別の節**に出し、買い候補として扱わない |
 | 市場データの取得 | `scanner.tradingview.com` への問い合わせ。**1 回だけ** |
 | 出来高比 | 直近の出来高が平均の何倍か |
 | 順位の推移 | 売買代金の日次順位の変化 |
@@ -66,7 +67,13 @@ allowed-tools: Bash(sh *), Bash(docker *), Bash(ls *), Bash(grep *), Read, Glob,
 - **Result**: 該当した銘柄の表と、**該当しなかった構成銘柄を理由つきで**並べた節。
   名前が違えば近い候補が示されるので、そこから選び直す
 
-### 4. 該当が少ないことの確認
+### 4. もうすぐシグナルが出そうな銘柄を見る
+
+- **Trigger**: 「もうすぐクロスしそうな銘柄」「シグナルが出そうな銘柄」「予兆のある銘柄」
+- **Steps**: 通常どおり実行し、表の後ろの**予兆の節**を読む
+- **Result**: 条件 1・2 を満たし、技法が手前まで来ている銘柄の表。**まだ起きていない**ことを必ず添える
+
+### 5. 該当が少ないことの確認
 
 - **Trigger**: 「今週は候補が少ない気がする」
 - **Steps**: 通常どおり実行し、**絞り込みの各段階の件数**を読む
@@ -114,7 +121,8 @@ sh ~/.claude/skills/screen-margin-improving-stocks/scripts/screen.sh 30 ALL_半�
 
 **コンテナを使うのは、実行するマシンによって結果が変わらないようにするため**（同じデータなら同じ表が出る）。
 
-標準出力に表、標準エラーに**絞り込みの各段階の件数**と**技法の内訳**が出る。**両方を読む。**
+標準出力に表と**予兆の節**、標準エラーに**絞り込みの各段階の件数**（予兆のみの件数を含む）と
+**技法の内訳**が出る。**両方を読む。**
 
 **ウォッチリストで絞っても表の意味は変わらない**——載るのは条件に該当した銘柄だけで、
 ウォッチリストを順位づけたものではない。該当しなかった構成銘柄は**別の節**に理由つきで出るので、
@@ -131,7 +139,7 @@ sh ~/.claude/skills/screen-margin-improving-stocks/scripts/screen.sh 30 ALL_半�
 
 ## 出力
 
-表のあとに、**1 から 7 を必ず書く**。8 と 9 は**当てはまるときだけ**書く。
+表のあとに、**1 から 8 を必ず書く**。9 と 10 は**当てはまるときだけ**書く。
 
 1. **比べた期間**（標準エラーの「倍率の窓」の行をそのまま伝える。**起点を戻したときは
    何日戻したかも必ず書く**——窓が数日古い表と最新の表は、見た目が全く同じになる）
@@ -140,12 +148,16 @@ sh ~/.claude/skills/screen-margin-improving-stocks/scripts/screen.sh 30 ALL_半�
 4. **倍率が下がった理由**（買い残が減ったのか売り残が増えたのか。**両方動いているのが大半**。「不明」は残高を読めていないという意味で、変化が無かったのではない）
 5. **順位が「—」の銘柄の読み方**（上位 300 の記録外というだけで、**取引が無いという意味ではない**）
 6. **「条件に合った」であって「儲かる」ではない**（この基盤の検証結果は「単独技法にエッジ無し」）
-7. **上場株数比と枚数は表示だけ**（条件にも並び順にも使っていない。講義は需給の重さを
+7. **予兆の節**（**0 件でもその事実を書く**。1 件以上なら表を出し、次の 3 点を添える。
+   **まだ起きていない**——過去データでは 4〜17% が結局クロスしない／**前向きの成績**——予兆の記録は 20 営業日後に決着する。決着した記録の読み出し結果が
+   あればそれを添え、無ければ「効くかどうかはまだ分からない」と書く／**講義は支持と戒めの両方**を述べている。
+   予兆の節の銘柄を**買い候補として数えない**）
+8. **上場株数比と枚数は表示だけ**（条件にも並び順にも使っていない。講義は需給の重さを
    **1 日の出来高に対する比率**で測ると明言しており〔66dceb86〕、**上場株数・浮動株という語は
    字幕 265 本のどこにも出てこない**。**「—」は記録が無いという意味**で 0 ではない）
-8. **「比較に使わなかった公表」が出たときだけ**: 必ず伝える（市場全体で売り残だけが膨らんだ日は
+9. **「比較に使わなかった公表」が出たときだけ**: 必ず伝える（市場全体で売り残だけが膨らんだ日は
    時点に使わない。配当・優待の権利取りの売りで倍率が下がるだけで、銘柄ごとの需給は変わっていない）
-9. **ウォッチリストで絞ったときだけ**: 外れた銘柄の節は**候補ではない**。とくに
+10. **ウォッチリストで絞ったときだけ**: 外れた銘柄の節は**候補ではない**。とくに
    「信用残高の記録に無い」は**判定できなかった**という意味で、条件で落ちたのとは別である
    （ETF に多い）。この 2 つを混ぜて「〇〇件が条件に合わなかった」とまとめない
 
@@ -158,11 +170,16 @@ sh ~/.claude/skills/screen-margin-improving-stocks/scripts/screen.sh 30 ALL_半�
 ```text
 倍率の窓（基準日）: 2026-09-04 → 2026-09-29 の 4 時点（最新の基準日 2026-10-01 では 4 時点が揃わず、起点を 2 日戻した）
 倍率が改善 251 → 株式 245 → 売買が活発 77 → 技法が該当 32 件
+予兆のみ（技法はまだ完成していない）: 0 件
 うち順位の推移が分かるもの: 4 件（残りは上位 300 の外）
 
 | # | コード | 銘柄名 | セクター | 終値 | 当日代金(億) | 順位の推移 | 出来高比 | 信用倍率 約3週前→今 | 倍率が下がった理由 | 買残の上場株数比 | 買残の枚数 | 該当した技法 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | 1 | 5019 | 出光興産 | エネルギー資源 | 1651 | 144 | 204位→119位 (+85) | 1.25 | 21.50 → 6.00 | 買い残 -108000 / 売り残 +82500 | 2.4% | 1083枚 | 一目均衡表・雲上抜け |
+
+### 予兆 — 技法はまだ完成していない（0 件・買い候補ではありません）
+
+なし
 ```
 
 **入力**: 「該当が 3 件しかないなら条件を緩めて 30 件にして」
@@ -178,7 +195,8 @@ sh ~/.claude/skills/screen-margin-improving-stocks/scripts/screen.sh 30 ALL_半�
 - [ ] **比べた期間**を出力に書いた。起点を戻していれば**何日戻したか**も書いた
 - [ ] 要求件数に届かない場合、**条件を緩めずそのまま報告**した
 - [ ] 表にコード・銘柄名・**セクター**・**日本語の技法名**を含めた
-- [ ] [出力](#出力)の注意書き **1 から 7 をすべて**書いた。8 と 9 は当てはまれば書いた
+- [ ] [出力](#出力)の注意書き **1 から 8 をすべて**書いた。9 と 10 は当てはまれば書いた
+- [ ] **予兆の節の銘柄を買い候補として書いていない**。1 件以上なら注意 3 点を添えた
 - [ ] ウォッチリストで絞った場合、**外れた銘柄の節を候補として書いていない**
 - [ ] ウォッチリストで絞った場合、**「記録に無い」と「条件で落ちた」を分けて**報告した
 
@@ -196,8 +214,8 @@ sh ~/.claude/skills/screen-margin-improving-stocks/scripts/screen.sh 30 ALL_半�
 | 表の行数が要求件数、または該当件数と一致 | 表の最終行の番号を数える |
 | 全行にセクターと技法（日本語）がある | 「不明」やローマ字の slug が無いことを目視 |
 | 絞り込みの各段階の件数を報告した | 標準エラーの 2 行が出力に反映されている |
-| 注意書き 1 から 7 がある | [出力](#出力)と突き合わせる。8 と 9 は当てはまるときだけ |
-| 絞った場合、構成銘柄が全部どちらかに現れる | 表の件数＋外れた銘柄の件数＝母集団の件数 |
+| 注意書き 1 から 8 がある | [出力](#出力)と突き合わせる。9 と 10 は当てはまるときだけ |
+| 絞った場合、構成銘柄が全部どこか 1 か所に現れる | 技法が該当＋予兆のみ（どちらも標準エラー）＋外れた銘柄（標準出力の見出し）＝母集団（標準エラー）。表は件数の上限で切れるので表の行数では数えない |
 
 ## Troubleshooting
 
@@ -293,6 +311,23 @@ sh ~/.claude/skills/screen-margin-improving-stocks/scripts/screen.sh 30 ALL_半�
 - **Solution**: **異常ではない。条件は緩んでいない**——同じ 4 時点・同じ 3 差分で、
   窓の終わりが数日手前になるだけ。**戻した日数を出力に必ず書く。** 戻りは最大 6 日で、
   7 日に達すると直近 1 週間が窓の外に出るため絞り込みは失敗する。
+
+### 症状: 予兆の節がいつも 0 件
+
+- **Cause**: 2 通りある。(a) 予兆の銘柄が条件 1・2 と重なっていない——**正常**。参考までに、記録が
+  始まった 2026-10-05 は予兆の 44 銘柄と倍率改善の 167 銘柄の重なりが 0 だった。(b) 台帳に予兆の
+  記録が届いていない——台帳の同期が止まっている。
+- **Solution**: `ls ~/dev/me/mcp-tradingview/data/paper-ledger` で最新のファイルが数日以内かを見る。
+  新しければ (a) なので 0 件をそのまま報告する。古ければ (b) で、**同期の停止を先に直す**。
+  どちらの場合も条件を緩めて予兆の銘柄を増やさない。
+
+### 症状: 「判定できない技法の記録が N 件」と出る
+
+- **Cause**: 台帳の記録のうち、完成か予兆か読み取れないものがある。`signal` が壊れている、または
+  `any_of`（どれか 1 つ成立）の中に予兆の条件がある——後者は別の条件で記録された可能性があり、
+  推測で振り分けない。
+- **Solution**: **どちらにも数えていない**ことを報告する。記録は検証してから書かれるので通常は 0 件。
+  出たら台帳の記録経路を調べる。
 
 ### 症状: 表の技法名が英字の slug のまま
 
