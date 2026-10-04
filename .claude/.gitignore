@@ -17,6 +17,11 @@
 !settings.json
 !skills
 !skills/**/*
+# Claude Code が自動で同期する公式 skill（docx/pptx/xlsx/pdf など）。配布元が正本で、
+# ここで持つと同期のたびに数万行の差分になる。自作の skill は上の !skills/**/* で追跡する。
+skills/synced/
+skills/.trash/
+
 # Symlink created by `mdreview setup`; it points outside this repo, so
 # committing it would leave a broken link on every other machine.
 skills/mdreview
