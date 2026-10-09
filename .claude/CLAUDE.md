@@ -15,6 +15,7 @@
 | コミット・PR を出す前 | [rules/git.md](rules/git.md) |
 | Markdown を編集した後 | [rules/editing.md](rules/editing.md) |
 | 文脈の使い方を変えたくなったとき | [docs/context-efficiency.md](docs/context-efficiency.md) |
+| 外部 API の上限超過・429 の原因を書く前 | [docs/external-api-quota-errors.md](docs/external-api-quota-errors.md) |
 
 ## 伝え方
 
