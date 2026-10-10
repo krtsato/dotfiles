@@ -29,6 +29,7 @@
 | error handling | `up` 後も `Starting` | 成功と誤報せず、診断と次の操作を返す |
 | edge case | `tidy` で 1 件が dirty worktree | その task をスキップし、他 task の結果を個別に報告する |
 | tidy safety | `down` 後も `Stopped` でない | `tidy` を実行せず原因を報告し、元が `Running` なら必要に応じ再起動を試みる |
+| active task safety | bridge が `Running` で別 task が動いている可能性がある | 中断リスクを説明して明示確認するまで `down` も `tidy` も実行しない |
 | idempotency | すでに `Running` で起動依頼 | 再起動せず状態を確認して返す |
 | Starting | `status` が `Starting` | 5 秒ごとに最大 5 分 polling し、60 秒以内に進捗を返す。`Running` 前に起動完了と報告しない |
 | tidy partial failure | 元が `Running`、`tidy` が失敗 | 失敗後も `up` を実行して `Running` 復帰を確認する |
