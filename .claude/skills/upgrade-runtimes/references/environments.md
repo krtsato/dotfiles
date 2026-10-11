@@ -12,7 +12,7 @@
 | `ubuntu-latest` 等 | GitHub の機械 | `actions/setup-*` が全部使える |
 | `[self-hosted, macOS, *]` | 自宅 Mac | **`actions/setup-python` は使えない**（後述） |
 
-`watcher` は GitHub の機械だけで動く（自宅 Mac の runner を持たない）。
+`watcher` と `mcp-notebooklm` は GitHub の機械だけで動く（自宅 Mac の runner を持たない）。
 
 ## `actions/setup-python` を自宅 Mac の runner に足してはいけない理由
 
