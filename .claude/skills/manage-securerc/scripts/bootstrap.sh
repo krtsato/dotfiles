@@ -13,6 +13,19 @@ fail() {
 
 [ "${SECURERC_PROVIDER_TASK:-}" != "1" ] || fail "refusing to modify the CLI from a securerc provider task; run bootstrap from a local agent session"
 
+check_config_permissions() {
+  [ -f "$config" ] || return 0
+
+  if config_mode=$(stat -f '%Lp' "$config" 2>/dev/null); then
+    :
+  elif config_mode=$(stat -c '%a' "$config" 2>/dev/null); then
+    :
+  else
+    fail "cannot inspect configuration file permissions"
+  fi
+  [ "$config_mode" = 600 ] || fail "configuration file permissions must be 0600"
+}
+
 resolve_path() {
   path=$1
   link_hops=0
@@ -43,6 +56,8 @@ if command -v securerc >/dev/null 2>&1; then
   command_path=$(resolve_path "$command_path" 2>/dev/null || true)
 fi
 
+check_config_permissions
+
 if [ -n "$expected_command" ] && [ "$command_path" = "$expected_command" ]; then
   printf '%s\n' "manage-securerc bootstrap: securerc already uses $command_path"
   exit 0
@@ -70,14 +85,6 @@ linked_path=$(resolve_path "$(command -v securerc)" 2>/dev/null || true)
 [ "$linked_path" = "$expected_command" ] || fail "npm link completed but securerc resolves to an unexpected path: ${linked_path:-unresolved}"
 
 if [ -f "$config" ]; then
-  if config_mode=$(stat -f '%Lp' "$config" 2>/dev/null); then
-    :
-  elif config_mode=$(stat -c '%a' "$config" 2>/dev/null); then
-    :
-  else
-    fail "cannot inspect configuration file permissions"
-  fi
-  [ "$config_mode" = 600 ] || fail "configuration file permissions must be 0600"
   securerc status
 else
   printf '%s\n' "manage-securerc bootstrap: securerc linked; configuration is not created yet: $config"
