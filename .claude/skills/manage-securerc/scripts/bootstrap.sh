@@ -11,6 +11,8 @@ fail() {
   exit 1
 }
 
+[ "${SECURERC_PROVIDER_TASK:-}" != "1" ] || fail "refusing to modify the CLI from a securerc provider task; run bootstrap from a local agent session"
+
 resolve_path() {
   path=$1
 
