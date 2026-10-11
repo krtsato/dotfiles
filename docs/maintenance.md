@@ -11,7 +11,7 @@
 
 見分け方と `actions/setup-python` を足してはいけない理由は `references/environments.md` にある。
 
-自宅 Mac で動くワークフローは **15 本**（tradingview 4 / invest-knowledge 7 / mediable 2 / note 1 / seeking-alpha 1）。
+自宅 Mac で動くワークフローは **18 本**（tradingview 7 / invest-knowledge 8 / mediable 1 / note 1 / seeking-alpha 1・2026-10-12 時点）。
 `watcher` と `mcp-notebooklm` は GitHub の機械だけで動くので、この数に入らない。
 
 **2026-09-06 に 3 リポの定期実行が `actions/setup-python` の追加で止まった。** この経緯が
@@ -54,7 +54,7 @@
 | いつ | 何を | 実測 |
 | --- | --- | --- |
 | 2026-09-07 | **`.golangci.yml` を 6 リポ全部に**（以前は tradingview だけ） | 指摘は 5 リポ合計 **50 件**、すべて `--fix` で直る定型置換。他の linter からの新規指摘は 0 件 |
-| 2026-09-20 | **watcher にも lint を**（Go 8 リポ全部が同一設定に） | 初回 **7 件**（`modernize` 3・`staticcheck` 4）。うち 4 件は `--fix`、3 件は大文字始まりのエラー文で手直し |
+| 2026-09-20 | **watcher にも lint を**（Go 7 リポ全部が同一設定に） | 初回 **7 件**（`modernize` 3・`staticcheck` 4）。うち 4 件は `--fix`、3 件は大文字始まりのエラー文で手直し |
 
 `modernize` の指摘は挙動を変えない書き換えだけだった（`errors.As` → `errors.AsType`、
 `strings.Split` → `strings.SplitSeq`、`if` の大小比較 → `min` / `max` など）。
@@ -66,7 +66,7 @@
 配った先で新たな指摘が出る。着手前に必ず件数を測る:
 
 ```bash
-GL=~/.local/share/mise/installs/golangci-lint/2.13.2/golangci-lint-2.13.2-darwin-arm64/golangci-lint
+GL="mise x -- golangci-lint"   # the version pinned in ~/dev/me/mise.toml
 for r in <repos>; do (cd ~/dev/me/$r && echo "$r: $($GL run --config ~/dev/me/mcp-tradingview/.golangci.yml   --output.text.path stdout 2>/dev/null | grep -cE '\.go:[0-9]+')"); done
 ```
 

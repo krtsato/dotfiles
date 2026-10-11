@@ -94,7 +94,7 @@ cd ~/dev/me
 for r in */; do r=${r%/}; [ -d "$r/.git" ] || continue
   grep -rqsE "^go |go-version|python-version|^FROM (golang|python)" "$r" \
     --include=go.mod --include='*.yml' --include='*.yaml' --include='Dockerfile*' \
-    --exclude-dir=.worktrees --exclude-dir=actions-runners --exclude-dir=node_modules && echo "$r"
+    --exclude-dir=.worktrees --exclude-dir=actions-runners --exclude-dir=node_modules --exclude-dir=.claude && echo "$r"
 done
 ```
 
@@ -170,7 +170,7 @@ golangci-lint version       # 走る版を必ず確かめる
 
 ```text
 /Users/s11639/go/bin/golangci-lint                    ← v1 系が先頭
-/Users/s11639/.local/share/mise/installs/...2.13.2/   ← mise が持つ正しい版
+/Users/s11639/.local/share/mise/installs/...2.14.0/   ← mise が持つ正しい版
 /Users/s11639/.local/share/mise/shims/golangci-lint
 ```
 
@@ -285,7 +285,7 @@ done
 ```bash
 which -a golangci-lint   # 1 行目が ~/go/bin なら割り込まれている
 rm ~/go/bin/golangci-lint
-golangci-lint version    # mise の 2.13.2 に戻る
+golangci-lint version    # mise.toml の版に戻る
 ```
 
 原因は別の作業での `go install`。**`~/go/bin` は mise の shims より PATH で先に来る**ので、
