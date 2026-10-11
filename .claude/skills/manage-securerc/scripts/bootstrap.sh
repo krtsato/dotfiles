@@ -54,10 +54,10 @@ else
 fi
 
 (
-  cd "$repository_path"
-  npm ci
-  npm run build
-  npm link
+  cd "$repository_path" || exit 1
+  npm ci || exit 1
+  npm run build || exit 1
+  npm link || exit 1
 ) || fail "npm setup failed. Do not use sudo; check npm's prefix and directory permissions, then retry."
 
 command -v securerc >/dev/null 2>&1 || fail "npm link completed but securerc is not on PATH"

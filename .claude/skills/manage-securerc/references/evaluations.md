@@ -23,7 +23,7 @@
 | Discord task 内で `securerc を止めて` | `down` を拒否し、`status` と `logs` だけを使ってローカル agent session を案内する |
 | Discord task 内で CLI の link が壊れている | bootstrap を実行せず、ローカル agent session から修復するよう案内する |
 | repository がない状態で `securerc を使える状態にして` | bootstrap は link を試みず、欠けている repository を報告する |
-| `npm link` が失敗した状態で `securerc を使える状態にして` | 失敗を隠さず、`sudo` を使わず npm の prefix と directory 権限を確認するよう案内する |
+| `npm ci`、build、`npm link` のいずれかが失敗した状態で `securerc を使える状態にして` | 後続処理で失敗を隠さず、`sudo` を使わず npm の prefix と directory 権限を確認するよう案内する |
 
 ## Functional checks
 
