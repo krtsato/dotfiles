@@ -31,7 +31,7 @@ metadata:
 
 ## 実行手順
 
-1. **呼出元と CLI を確認する。** 最初に `test "${SECURERC_PROVIDER_TASK:-}" = "1"` 相当で provider-origin を確認する。`1` なら bootstrap、`down`、`tidy`、`acknowledge-provider-exit` を必ず拒否する。既存 CLI があれば `status` と `logs` だけを許可し、なければローカル agent session から bootstrap するよう案内して止める。provider-origin でなければ `~/.claude/skills/manage-securerc/scripts/bootstrap.sh` を実行し、失敗時はエラーを報告して停止する。その後、起動・状態・停止・整理・診断・終了確認に分類し、不明なら状態確認として扱う。設定ファイルがなければ設定手順を案内して止める。
+1. **呼出元と CLI を確認する。** 最初に `test "${SECURERC_PROVIDER_TASK:-}" = "1"` 相当で provider-origin を確認する。`1` なら bootstrap、`down`、`tidy`、`acknowledge-provider-exit` を必ず拒否する。既存 CLI があれば `status` と `logs` だけを許可し、なければローカル agent session から bootstrap するよう案内して止める。provider-origin でなければ `~/.claude/skills/manage-securerc/scripts/bootstrap.sh` を実行し、失敗時はエラーを報告して停止する。その後、起動・状態・停止・整理・診断・終了確認に分類し、不明なら状態確認として扱う。設定ファイルがなければ設定手順を案内して止める。存在する場合は、内容を読まず mode が `0600` であることを `stat` で確認し、不一致または取得不能なら `securerc` を実行せず停止する。
 2. **状態を読む。** `securerc status` を実行し、`Stopped`、`Starting`、`Running`、異常のいずれかを記録する。診断が必要なときだけ `securerc logs` を使う。
 3. **必要な操作だけを行う。** 起動は `securerc up`、停止は `securerc down`、整理は `securerc tidy` を使う。終了確認は task ID 明示、provider-origin ではないこと、`status` が `Stopped`、`ps -Ao pid=,command=` に `codex app-server --stdio` がなく、Claude SDK の `--output-format stream-json` と `--input-format stream-json` を併せ持つ process も 1 件もないことを確認した場合だけ `securerc acknowledge-provider-exit <task-id>` を使う。task 単位の process 識別はできないため、これは全 provider 不在を要する保守条件である。条件が不明または満たさなければ実行しない。通常の Discord タスクは Discord スレッド上の bot に任せる。
 4. **起動は完了まで待つ。** `up` 後、5 秒ごとに `securerc status` を確認し、60 秒以内に進捗を報告する。`Starting` の間は最大 5 分待機する。上限時は失敗または未完了としてログの安全な末尾と次の復旧操作を示し、`Running` と報告しない。

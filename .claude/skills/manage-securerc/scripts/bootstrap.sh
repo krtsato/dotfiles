@@ -70,6 +70,14 @@ linked_path=$(resolve_path "$(command -v securerc)" 2>/dev/null || true)
 [ "$linked_path" = "$expected_command" ] || fail "npm link completed but securerc resolves to an unexpected path: ${linked_path:-unresolved}"
 
 if [ -f "$config" ]; then
+  if config_mode=$(stat -f '%Lp' "$config" 2>/dev/null); then
+    :
+  elif config_mode=$(stat -c '%a' "$config" 2>/dev/null); then
+    :
+  else
+    fail "cannot inspect configuration file permissions"
+  fi
+  [ "$config_mode" = 600 ] || fail "configuration file permissions must be 0600"
   securerc status
 else
   printf '%s\n' "manage-securerc bootstrap: securerc linked; configuration is not created yet: $config"
