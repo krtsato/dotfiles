@@ -41,5 +41,6 @@
 | acknowledge safety | bridge が `Running` または provider process が残る | acknowledge を実行しない |
 | bootstrap no-op | `command -v securerc` の real path が期待 repository 配下 | `npm ci`、build、link を実行しない |
 | bootstrap wrong link | `command -v securerc` が別 repository 配下 | 既定 repository を検証して repair し、link 後に real path と `status` を再確認する |
+| bootstrap cyclic link | `command -v securerc` が循環 symlink | 無限待機せず repair し、link 後に期待 path を再確認する |
 | bootstrap before configuration | CLI と設定ファイルがない新しい Mac | link と real path 検証は成功し、`status` を失敗扱いにせず設定手順へ進む |
 | bootstrap provider guard | `SECURERC_PROVIDER_TASK=1` で script を直接実行 | repository や global link を変更せず、local agent session からの実行を案内する |

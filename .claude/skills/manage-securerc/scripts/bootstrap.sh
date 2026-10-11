@@ -15,8 +15,11 @@ fail() {
 
 resolve_path() {
   path=$1
+  link_hops=0
 
   while [ -L "$path" ]; do
+    link_hops=$((link_hops + 1))
+    [ "$link_hops" -le 40 ] || return 1
     directory=$(CDPATH= cd -P "$(dirname "$path")" 2>/dev/null && pwd) || return 1
     target=$(readlink "$path") || return 1
     case $target in
