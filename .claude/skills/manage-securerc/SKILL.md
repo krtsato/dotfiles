@@ -2,8 +2,8 @@
 name: manage-securerc
 description: Secure Remote Control（securerc）の起動、Running 確認、状態確認、停止、完了済み会話の整理、診断、初期設定確認、明示的な provider 終了確認を行う。Discord の bot が応答しない、会話を整理したい、Mac を離れる前に止めたい、または「securerc を管理して」と依頼されたときに使う。Discord の通常タスク実行、任意の Discord スレッド削除、任意パスの診断ログ読取、token の表示・変更だけには使わない。
 license: MIT
-compatibility: macOS で securerc CLI と ~/.config/securerc/config.json が利用可能であること。Discord bot token の内容は読まない。
-allowed-tools: Bash(securerc:*), Bash(command:*), Bash(ps:*), Bash(stat:*), Bash(test:*), Bash(sleep:*), AskUserQuestion
+compatibility: macOS、Node.js、npm、~/dev/me/securerc、~/.config/securerc/config.json を使用する。Discord bot token の内容は読まない。
+allowed-tools: Bash(securerc:*), Bash(command:*), Bash(ps:*), Bash(~/.claude/skills/manage-securerc/scripts/bootstrap.sh:*), Bash(stat:*), Bash(test:*), Bash(sleep:*), AskUserQuestion
 metadata:
   author: s11639
   version: "1.0"
@@ -21,17 +21,17 @@ metadata:
 
 ## 重要な境界
 
-- `securerc` の実行前に `command -v securerc` と設定ファイルの存在だけを確認する。token file は内容を読まず、`test` と `stat` で存在と mode `0600` だけを確認する。値の表示・コピー・変更はしない。
+- `securerc` の実行前に、この skill の `scripts/bootstrap.sh` を実行する。CLI の real path が既定の `~/dev/me/securerc/dist/src/cli.js`（移行・検証時は `SECURERC_REPOSITORY` 配下）と完全一致すれば副作用なく終了する。未導入、壊れた link、別 checkout を指す場合だけ、Git repository と `package.json` を確認して `npm ci`、`npm run build`、`npm link` を順に実行する。link 後は real path を再確認し、設定ファイルがある場合だけ `securerc status` も確認する。`sudo` は使わない。token file は内容を読まず、`test` と `stat` で存在と mode `0600` だけを確認する。値の表示・コピー・変更はしない。
 - 曖昧な依頼の既定は **状態確認 → 必要なら起動 → `Running` 確認**。会話の削除、停止、終了確認は既定で実行しない。
 - `Starting` は準備中であり、成功ではない。`securerc status` を 5 秒間隔、最大 5 分繰り返す。5 秒はローカル状態確認の過剰な反復を避け、5 分は無限待機を防ぎ、60 秒以内の進捗報告は無応答に見せないためである。`Running` になるまで利用者へ起動完了と報告せず、新規 Discord 投稿を案内しない。上限時は失敗または未完了としてログを診断し、`Running` と報告しない。
 - 完了会話の整理対象は、securerc が記録した `completed` または `failed` のスレッドだけである。未知の Forum 投稿、実行中の会話、設定ファイルは削除しない。bridge が `Running` の場合、`down` は別の実行中・入力待ち task も中断し得るため、その影響を明示して利用者の確認を得るまで停止・整理しない。
 - `acknowledge-provider-exit` は、ユーザーが task ID を明示し、`ps` で該当 provider process が存在しないことを確認できた場合だけ実行する。task ID がないときは、対話可能なら `AskUserQuestion` を 1 回だけ使って task ID を取得する。対話不能なら不足を報告して終了する。推測で確認済みにしない。
-- securerc 自身が起動した Discord task からこの skill を呼んだ場合、`down`、`tidy`、`acknowledge-provider-exit` は自身を停止または中断させるため実行しない。ローカル agent session から依頼するよう案内する。
+- securerc 自身が起動した Discord task からこの skill を呼んだ場合、bootstrap、`down`、`tidy`、`acknowledge-provider-exit` は自身の実行環境を変更、停止または中断させるため実行しない。既存 CLI の `status` と `logs` だけを許可し、CLI がなければローカル agent session から bootstrap するよう案内する。
 - 診断ログは `securerc logs` だけを使う。任意 path のログを読まない。
 
 ## 実行手順
 
-1. **呼出元と依頼を確認する。** 最初に `test "${SECURERC_PROVIDER_TASK:-}" = "1"` 相当で provider-origin を確認する。`1` なら `down`、`tidy`、`acknowledge-provider-exit` を必ず拒否し、`status` と `logs` だけを許可して、ローカル agent session から依頼するよう案内する。そうでなければ起動・状態・停止・整理・診断・終了確認に分類し、不明なら状態確認として扱う。初回なら CLI と `~/.config/securerc/config.json` の存在を確認し、欠けていれば設定手順を案内して止める。
+1. **呼出元と CLI を確認する。** 最初に `test "${SECURERC_PROVIDER_TASK:-}" = "1"` 相当で provider-origin を確認する。`1` なら bootstrap、`down`、`tidy`、`acknowledge-provider-exit` を必ず拒否する。既存 CLI があれば `status` と `logs` だけを許可し、なければローカル agent session から bootstrap するよう案内して止める。provider-origin でなければ `~/.claude/skills/manage-securerc/scripts/bootstrap.sh` を実行し、失敗時はエラーを報告して停止する。その後、起動・状態・停止・整理・診断・終了確認に分類し、不明なら状態確認として扱う。設定ファイルがなければ設定手順を案内して止める。存在する場合は、内容を読まず mode が `0600` であることを `stat` で確認し、不一致または取得不能なら `securerc` を実行せず停止する。
 2. **状態を読む。** `securerc status` を実行し、`Stopped`、`Starting`、`Running`、異常のいずれかを記録する。診断が必要なときだけ `securerc logs` を使う。
 3. **必要な操作だけを行う。** 起動は `securerc up`、停止は `securerc down`、整理は `securerc tidy` を使う。終了確認は task ID 明示、provider-origin ではないこと、`status` が `Stopped`、`ps -Ao pid=,command=` に `codex app-server --stdio` がなく、Claude SDK の `--output-format stream-json` と `--input-format stream-json` を併せ持つ process も 1 件もないことを確認した場合だけ `securerc acknowledge-provider-exit <task-id>` を使う。task 単位の process 識別はできないため、これは全 provider 不在を要する保守条件である。条件が不明または満たさなければ実行しない。通常の Discord タスクは Discord スレッド上の bot に任せる。
 4. **起動は完了まで待つ。** `up` 後、5 秒ごとに `securerc status` を確認し、60 秒以内に進捗を報告する。`Starting` の間は最大 5 分待機する。上限時は失敗または未完了としてログの安全な末尾と次の復旧操作を示し、`Running` と報告しない。
@@ -41,9 +41,11 @@ metadata:
 ### 操作別チェックリスト
 
 - [ ] `securerc` と設定ファイルの存在を確認した
+- [ ] bootstrap が CLI の link 先を確認し、必要な場合だけ `npm link` を修復した
+- [ ] bootstrap の失敗時に `sudo` を使わず、表示された権限・npm 設定を確認するよう案内した
 - [ ] token の値を読まず、出力にも含めていない
 - [ ] token file の存在と mode `0600` だけを確認した
-- [ ] provider-origin を確認し、該当時は `status` と `logs` 以外を拒否した
+- [ ] provider-origin を最初に確認し、該当時は bootstrap を含む `status` と `logs` 以外を拒否した
 - [ ] 依頼が曖昧な場合は削除せず、状態確認から始めた
 - [ ] `Starting` を成功として報告せず、`Running` まで確認した
 - [ ] polling 中に 60 秒以内の進捗報告をした
@@ -94,6 +96,7 @@ metadata:
 | Error | Cause | Solution |
 | --- | --- | --- |
 | `securerc: command not found` | CLI 未導入または PATH 未設定 | securerc リポジトリの導入手順を実施し、新しい shell で再確認する |
+| bootstrap が失敗する | repository がない、または `npm ci`、build、link が失敗した | `SECURERC_REPOSITORY` または既定の `~/dev/me/securerc` を確認する。`sudo` は使わず、npm の prefix と対象 directory の権限を直してから再実行する |
 | 設定ファイルがない | 初期設定が未完了 | `~/.config/securerc/config.json` を作る手順を案内する。token は依頼者だけが入力する |
 | `Starting` が続く | Discord 接続または provider の準備待ち | `securerc logs` を確認し、認証・ネットワーク・CLI 導入を順に確認する |
 | `down` 後に `Stopped` を確認できない | bridge が停止していない、または状態取得に失敗した | `tidy` は実行せず原因を報告する。元が `Running` で最新状態が異なるなら、安全に再起動を試みる |
