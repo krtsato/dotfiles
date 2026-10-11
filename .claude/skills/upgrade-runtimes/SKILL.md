@@ -1,8 +1,8 @@
 ---
 name: upgrade-runtimes
 description: >-
-  `~/dev/me` 配下の 8 リポ（mcp-tradingview / mcp-invest-knowledge / mcp-mediable /
-  mcp-note / mcp-seeking-alpha / mcp-youtube / trade-moomoo / watcher）で、Go・Python・
+  `~/dev/me` 配下の 9 リポ（mcp-tradingview / mcp-invest-knowledge / mcp-mediable /
+  mcp-note / mcp-seeking-alpha / mcp-youtube / mcp-notebooklm / trade-moomoo / watcher）で、Go・Python・
   GitHub Actions のステップ・Docker イメージなど**固定された版を上げる**。あわせて
   自宅 Mac の runner（self-hosted）の PATH を点検する。「Go を上げて」「Python を上げて」
   「actions の版を上げて」「golangci-lint を上げて」「手元と CI で lint の結果が違う」
@@ -77,7 +77,7 @@ compatibility: >-
 ```bash
 cd ~/dev/me
 for r in mcp-tradingview mcp-invest-knowledge mcp-mediable mcp-note \
-         mcp-seeking-alpha mcp-youtube trade-moomoo watcher; do
+         mcp-seeking-alpha mcp-youtube mcp-notebooklm trade-moomoo watcher; do
   echo "== $r"
   grep -rnE "^go |go-version:|python-version:|uses: .*@|version: v?[0-9]|^FROM " "$r" \
     --include='go.mod' --include='*.yaml' --include='*.yml' \
@@ -85,6 +85,20 @@ for r in mcp-tradingview mcp-invest-knowledge mcp-mediable mcp-note \
     | grep -vE "actions-runners|\.worktrees"
 done
 ```
+
+**一覧から漏れたリポを先に探す。** 上の一覧は手で書いたもので、新しいリポは黙って外れる
+（2026-10-12、`mcp-notebooklm` が漏れていた）。版を固定しているリポを全部拾い、一覧と比べる。
+
+```bash
+cd ~/dev/me
+for r in */; do r=${r%/}; [ -d "$r/.git" ] || continue
+  grep -rqsE "^go |go-version|python-version|^FROM (golang|python)" "$r" \
+    --include=go.mod --include='*.yml' --include='*.yaml' --include='Dockerfile*' \
+    --exclude-dir=.worktrees --exclude-dir=actions-runners --exclude-dir=node_modules && echo "$r"
+done
+```
+
+2026-10-12 時点の出力は上の一覧と同じ 9 リポ。Node だけを使うリポ（blogs・securerc・mdreview）は対象外。
 
 `actions-runners/` と `.worktrees/` は**作業コピーであって正本ではない**ので必ず除外する
 （含めて数えると件数が倍になる）。
@@ -111,8 +125,8 @@ grep -rn "runs-on" ~/dev/me/*/.github/workflows/*.y*ml | grep -v actions-runners
 
 `actions/setup-go` は**両方で使える**。同じ `setup-*` でも挙動が違うので、まとめて扱わない。
 
-**`watcher` は GitHub の機械だけで動く。** 自宅 Mac の runner を持たないので手順 4 は要らない。
-`Dockerfile` も `mise.toml` も無く、版が書かれているのは `go.mod` の `go` 行・`go-version`・
+**`watcher` と `mcp-notebooklm` は GitHub の機械だけで動く。** 自宅 Mac の runner を持たないので手順 4 は要らない。
+どちらも `Dockerfile` も `mise.toml` も無く、版が書かれているのは `go.mod` の `go` 行・`go-version`・
 `golangci-lint-action` の `version` の 3 か所。
 
 ### 3. 版を書き換える
@@ -126,6 +140,12 @@ grep -rn "runs-on" ~/dev/me/*/.github/workflows/*.y*ml | grep -v actions-runners
 | 3 | `Dockerfile*` の `FROM`。**digest 付き（trade-moomoo）は digest も張り替える** |
 | 4 | `golangci-lint-action` の `version`（action 自体の `@v7` とは別物） |
 | 5 | **手元の `golangci-lint` を 4 と同じ版に入れ直す**（下記） |
+
+#### Go を上げたら golangci-lint も上げる
+
+**Go の修正版を上げただけで、古い lint が標準ライブラリを読めなくなることがある。**
+2026-10-12、Go 1.27.1 → 1.27.2 で v2.13.2 が全 8 リポで型検査の誤りを出し、v2.14.0 で 0 件に戻った
+（下の Troubleshooting）。**Go を上げたら、lint を走らせて確かめてから PR にする。**
 
 #### 手元の golangci-lint を CI に揃える
 
@@ -270,6 +290,14 @@ golangci-lint version    # mise の 2.13.2 に戻る
 
 原因は別の作業での `go install`。**`~/go/bin` は mise の shims より PATH で先に来る**ので、
 mise が正しい版を持っていても走るのは古い方になる。**入れ直さず、割り込みを消す。**
+
+### `export data version 5 is greater than maximum supported version 4`
+
+**lint が新しい Go の標準ライブラリを読めない。** `could not import fmt` などの型検査の誤りが
+全ファイルで出る。コードの問題ではない。golangci-lint を新しい版に上げる（`mise latest golangci-lint`）。
+
+手元の `mise.toml` を直しても、**作業中のシェルの PATH は古い版のフォルダを直接指したまま**のことがある。
+`golangci-lint version` が古いままなら `mise x golangci-lint@<版> -- golangci-lint run ./...` で確かめる。
 
 ### golangci-lint がローカルで動かない
 
