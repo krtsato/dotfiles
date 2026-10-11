@@ -16,10 +16,12 @@ fail() {
 resolve_path() {
   path=$1
   link_hops=0
+  # Match the common kernel symlink traversal limit to bound cycles.
+  max_link_hops=40
 
   while [ -L "$path" ]; do
     link_hops=$((link_hops + 1))
-    [ "$link_hops" -le 40 ] || return 1
+    [ "$link_hops" -le "$max_link_hops" ] || return 1
     directory=$(CDPATH= cd -P "$(dirname "$path")" 2>/dev/null && pwd) || return 1
     target=$(readlink "$path") || return 1
     case $target in
