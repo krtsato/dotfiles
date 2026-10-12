@@ -175,6 +175,10 @@ which -a golangci-lint      # 1 行目が ~/go/bin なら割り込まれてい�
 golangci-lint version       # 走る版を必ず確かめる
 ```
 
+**割り込みの診断と、それを消した後の確認では、わざと `mise x --` を付けない。** エディタやフックが
+素の名前で呼んだときに実際に何が走るかを見るのが目的だから（この節と Troubleshooting の素の呼び出しはすべてこれ）。
+検証（手順 5）では `mise x --` を付ける。
+
 ```text
 /Users/s11639/go/bin/golangci-lint                    ← v1 系が先頭
 /Users/s11639/.local/share/mise/installs/...2.14.0/   ← mise が持つ正しい版
@@ -221,7 +225,7 @@ done
 | 何を | どう |
 | --- | --- |
 | ビルドとテスト | 各 Go リポで `go build ./... && go test ./...` |
-| lint | **手元で `golangci-lint run ./...`**。走らせる前に `golangci-lint version` が CI の `version:` と同じことを確かめる |
+| lint | **手元で `mise x -- golangci-lint run ./...`**。走らせる前に `mise x -- golangci-lint version` が CI の `version:` と同じことを確かめる。`~/dev/me` 配下で実行する（外では版が決まらず `No version is set`） |
 | **自宅 Mac の runner の実動作** | ワークフローを 1 本 `workflow_dispatch` で走らせる。**dry run は途中で止まることがある**ので、どのステップまで到達したかを必ず確認する |
 | runner が新設定を読んだか | run のログから `/usr/bin/xcrun` の警告が消えたこと |
 
@@ -263,10 +267,10 @@ done
 - [ ] 版が書かれている場所を洗い出した（作業コピーを除外して）
 - [ ] `runs-on` で自宅 Mac の runner と GitHub の機械を仕分けた
 - [ ] 版を書き換えた（go.mod / workflows / mise.toml / Dockerfile / lint）
-- [ ] **手元の `golangci-lint version` が CI の `version:` と一致することを確かめた**
+- [ ] **手元の `mise x -- golangci-lint version` が CI の `version:` と一致することを確かめた**
 - [ ] runner の `.path` を点検した
 - [ ] `go build` と `go test` が通る
-- [ ] `golangci-lint run ./...` が通る（CI 任せにしない）
+- [ ] `mise x -- golangci-lint run ./...` が通る（CI 任せにしない）
 - [ ] 自宅 Mac の runner のワークフローを 1 本実際に走らせた
 - [ ] リポごとに PR を出した
 
