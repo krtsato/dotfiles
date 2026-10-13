@@ -152,10 +152,10 @@
 
 **台帳が記録したものだけを使う。** 技法の判定をここで再実装しない。
 その結果、使える技法は次のように決まる。**下の 2 つの表はどちらも 2026-09-10 前後の実測で、いまの値ではない**
-（講義まとめから技法ノートを起こす判定が毎晩進むので、本数は増え続ける）。いまの総数は実装と同じ数え方で出す。
+（講義まとめから技法ノートを起こす判定が毎晩進むので、本数は増え続ける）。いまの総数は実装と同じ場所・同じ数え方で出す（`screen.sh` と同じく `SCREEN_NOTES` があればそちらを数える）。
 
 ```sh
-find ~/dev/me/mcp-invest-knowledge/sources/technique-notes -name '_technique-*.md' | wc -l
+find "${SCREEN_NOTES:-$HOME/dev/me/mcp-invest-knowledge/sources/technique-notes}" -name '_technique-*.md' | wc -l
 ```
 
 | | 件数 |
