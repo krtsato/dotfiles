@@ -35,8 +35,8 @@
 
 | 分かれている所 | 理由 |
 | --- | --- |
-| mediable の実行イメージが `debian:bookworm-slim` | **ffmpeg が要る**。distroless にはパッケージ管理が無く入れられない |
-| note の実行イメージが `debian:bookworm-slim` | **日本語 OCR（tesseract）が要る**。同上 |
+| mediable の実行イメージが `debian:trixie-slim` | **ffmpeg が要る**。distroless にはパッケージ管理が無く入れられない |
+| note の実行イメージが `debian:trixie-slim` | **日本語 OCR（tesseract）が要る**。同上 |
 | tradingview / invest-knowledge / youtube が distroless | 外部コマンドが不要なので、攻撃面の小さい方を選べる |
 
 ## runner の前提
