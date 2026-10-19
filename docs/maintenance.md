@@ -31,8 +31,8 @@
 | `go.mod` の `go` | Go 8 リポ | trade-moomoo は Python なので無い |
 | `.github/workflows/*.yaml` の `go-version` | Go 8 リポ | 自宅 Mac の runner でも `actions/setup-go` を使う |
 | `.github/workflows/*.yaml` の `python-version` | **GitHub の機械のみ** | 自宅 Mac の runner に足さない |
-| `.github/workflows/*.yaml` の `uses: <action>@<版>` | 全リポ | `checkout@v4` 等 |
-| `golangci-lint-action` の `version` | Go 8 リポ | action の版（`v7`）と lint 本体の版（`v2.14.0`）は別 |
+| `.github/workflows/*.yaml` の `uses: <action>@<版>` | 全リポ | `checkout@v7` 等 |
+| `golangci-lint-action` の `version` | Go 8 リポ | action の版（`v9`）と lint 本体の版（`v2.15.0`）は別。2026-10 の版上げは mcp の 7 リポだけで、watcher は `v7`・`v2.14.0` のまま |
 | `Dockerfile*` の `FROM` | 6 リポ | **固定の仕方が 2 通り**（下記）。watcher と mcp-notebooklm は配布物を作らないので無い |
 | `mise.toml` の `[tools]` | invest-knowledge のみ | 自宅 Mac の版を決める |
 | `.golangci.yml` | Go 8 リポ | 全リポでバイト単位に同一 |
@@ -46,7 +46,7 @@
 
 | 分かれている所 | 揃えるとどうなるか |
 | --- | --- |
-| youtube のビルド用イメージが `bookworm`（他は `alpine`） | **どちらでも出力は同じ**（`CGO_ENABLED=0` の静的バイナリ）。揃えても壊れないが、得るものも無い |
+| youtube のビルド用イメージが `trixie`（他は `alpine`） | **どちらでも出力は同じ**（`CGO_ENABLED=0` の静的バイナリ）。揃えても壊れないが、得るものも無い |
 | Python イメージの固定（trade-moomoo は digest 付き・他はタグのみ） | digest 付きは**同じ物が確実に手に入る**。代わりに版上げのたび digest も張り替える必要がある |
 
 ## 揃え終わったもの

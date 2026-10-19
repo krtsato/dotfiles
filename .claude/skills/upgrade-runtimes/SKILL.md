@@ -144,8 +144,8 @@ grep -rn "runs-on" ~/dev/me/*/.github/workflows/*.y*ml | grep -v actions-runners
 | --- | --- |
 | 1 | `go.mod` の `go` 行と、全ワークフローの `go-version` |
 | 2 | `mise.toml`（invest-knowledge のみ）— 自宅 Mac の実際の版がここで決まる |
-| 3 | `Dockerfile*` の `FROM`。**digest 付き（trade-moomoo）は digest も張り替える** |
-| 4 | `golangci-lint-action` の `version`（action 自体の `@v7` とは別物） |
+| 3 | `Dockerfile*` の `FROM`。**digest 付き（trade-moomoo）は digest も張り替える**。alpine は `golang:<版>-alpine3.24` のように**明示する**（浮動の名札は中身が黙って変わる） |
+| 4 | `golangci-lint-action` の `version`（action 自体の `@v9` とは別物） |
 | 5 | **手元の `golangci-lint` を 4 と同じ版に入れ直す**（下記） |
 
 #### Go を上げたら golangci-lint も上げる
@@ -224,7 +224,8 @@ done
 
 | 何を | どう |
 | --- | --- |
-| ビルドとテスト | 各 Go リポで `go build ./... && go test ./...` |
+| ビルドとテスト | 各 Go リポで `mise x -- go build ./... && mise x -- go test ./...`。**素の `go` を使わない**——作業中のシェルの PATH が古い Go のフォルダを直接指していることがあり（2026-10-20、1.27.2 のリポを 1.27.1 で走らせて偽の失敗が出た） |
+| Docker の土台 | 新しい土台で全 `Dockerfile*` を**名前を付けて**ビルドし、中の道具（ffmpeg・`tesseract --list-langs` の `jpn` など）を動かしてから名前ごと消す。名前を付けないと確認のたびに名前の無いイメージが残る |
 | lint | **手元で `mise x -- golangci-lint run ./...`**。走らせる前に `mise x -- golangci-lint version` が CI の `version:` と同じことを確かめる。`~/dev/me` 配下で実行する（外では版が決まらず `No version is set`） |
 | **自宅 Mac の runner の実動作** | ワークフローを 1 本 `workflow_dispatch` で走らせる。**dry run は途中で止まることがある**ので、どのステップまで到達したかを必ず確認する |
 | runner が新設定を読んだか | run のログから `/usr/bin/xcrun` の警告が消えたこと |
@@ -238,7 +239,7 @@ done
 
 | ユーザーの言葉 | 実行するコマンド | 期待される結果 |
 | --- | --- | --- |
-| 「mcp-tradingview の Go を 1.26 に上げて」 | 手順 1 の grep で対象を洗い出し、`go.mod` と全 workflow の `go-version` を書き換えて `go build ./... && go test ./...` を流す | ビルドとテストが通り、`go.mod` と全 workflow の版が一致する |
+| 「mcp-tradingview の Go を 1.26 に上げて」 | 手順 1 の grep で対象を洗い出し、`go.mod` と全 workflow の `go-version` を書き換えて `mise x -- go build ./... && mise x -- go test ./...` を流す | ビルドとテストが通り、`go.mod` と全 workflow の版が一致する |
 | 「invest-knowledge の定期実行が Python の版で落ちた」 | `mise.toml` の版を上げ、自宅 Mac の runner のワークフローを `workflow_dispatch` で 1 本走らせる | run が成功し、run のログから `/usr/bin/xcrun` の警告が出ない |
 
 ## 禁止事項
