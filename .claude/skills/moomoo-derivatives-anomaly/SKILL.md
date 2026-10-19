@@ -55,7 +55,7 @@ Normalization rules:
 Common mappings:
 
 | User mention | Standard symbol |
-|--------------|-----------------|
+| -------------- | ----------------- |
 | 腾讯 | `HK.00700` |
 | 阿里巴巴、阿里 | `HK.09988` |
 | 苹果、Apple | `US.AAPL` |
@@ -126,15 +126,15 @@ it is read-only. OpenD must be running and logged in.
 Script entry:
 
 ```bash
-"$HOME/dev/me/trade-moomoo/moomoo-anomaly" derivatives <STANDARD_SYMBOL> --time-range <DAYS> [--analysis-dimensions ...] [--language-id <ID>] --json
+"$HOME/dev/me/trade-moomoo/bin/moomoo-anomaly" derivatives <STANDARD_SYMBOL> --time-range <DAYS> [--analysis-dimensions ...] [--language-id <ID>] --json
 ```
 
 Examples:
 
 ```bash
-"$HOME/dev/me/trade-moomoo/moomoo-anomaly" derivatives HK.00700 --time-range 7 --json
-"$HOME/dev/me/trade-moomoo/moomoo-anomaly" derivatives US.NVDA --time-range 7 --analysis-dimensions option_unusual option_volatility --json
-"$HOME/dev/me/trade-moomoo/moomoo-anomaly" derivatives US.AAPL --time-range 7 --analysis-dimensions option_sentiment option_comprehensive --json
+"$HOME/dev/me/trade-moomoo/bin/moomoo-anomaly" derivatives HK.00700 --time-range 7 --json
+"$HOME/dev/me/trade-moomoo/bin/moomoo-anomaly" derivatives US.NVDA --time-range 7 --analysis-dimensions option_unusual option_volatility --json
+"$HOME/dev/me/trade-moomoo/bin/moomoo-anomaly" derivatives US.AAPL --time-range 7 --analysis-dimensions option_sentiment option_comprehensive --json
 ```
 
 ### 6. Check the Result
