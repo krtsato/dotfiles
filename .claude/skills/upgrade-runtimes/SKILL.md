@@ -6,10 +6,12 @@ description: >-
   GitHub Actions のステップ・Docker イメージなど**固定された版を上げる**。あわせて
   自宅 Mac の runner（self-hosted）の PATH を点検する。「Go を上げて」「Python を上げて」
   「actions の版を上げて」「golangci-lint を上げて」「手元と CI で lint の結果が違う」
-  「runner が古い」「定期実行が版のせいで落ちた」のような
+  「runner が古い」「定期実行が版のせいで落ちた」「Docker イメージの版を上げて」
+  「使われない Docker イメージを消して」のような
   リクエストで使用。扱うファイルは `go.mod` / `.github/workflows/*.yaml` / `Dockerfile*` /
   `mise.toml` / `.golangci.yml` / runner の `.path` の 6 種類と、**手元に入れた `golangci-lint`
-  の実行ファイル**。Do NOT use for: 依存ライブラリ
+  の実行ファイル**。Docker の名前の点検で見つかった `Makefile` と `*.sh` の `docker build` /
+  `docker run` の行も直す。Do NOT use for: 依存ライブラリ
   （`go.mod` の require 行）の更新、アプリのコード変更、runner の新規登録、
   GitHub の機械専用リポの作業。
 compatibility: >-
@@ -47,6 +49,7 @@ compatibility: >-
 | Go の版上げ | 「Go を 1.26 に上げて」等の依頼 | 1・2・3・5・6 | `go.mod`・workflow・Dockerfile の版が揃った状態 |
 | Python の版上げ | 「Python を上げて」「定期実行が版のせいで落ちた」 | 1・2・4・5・6 | 自宅 Mac の runner が新しい Python で動く状態（`mise.toml` が本体） |
 | runner の PATH 点検 | 「runner が古い」「`xcrun` の警告が出る」 | 4 | `.path` の先頭が shims になり、陳腐化が起きなくなった状態 |
+| Docker の土台の版上げ・片付け | 「docker image の版を上げて」「使われないイメージを消して」「ディスクが圧迫されている」 | 1・3・5・6（詳細は `references/docker-images.md`） | 土台の名札が最新で明示され、中の道具が動き、名前の無いイメージが溜まらない状態 |
 | lint の版上げ・版ずれ | 「golangci-lint を上げて」「手元と CI で lint の結果が違う」「設定が読めないと言われる」 | 1・3・5 | CI の `version:` と手元の実行ファイルが同じ版に揃った状態 |
 
 ## この作業が難しい理由
@@ -144,7 +147,7 @@ grep -rn "runs-on" ~/dev/me/*/.github/workflows/*.y*ml | grep -v actions-runners
 | --- | --- |
 | 1 | `go.mod` の `go` 行と、全ワークフローの `go-version` |
 | 2 | `mise.toml`（invest-knowledge のみ）— 自宅 Mac の実際の版がここで決まる |
-| 3 | `Dockerfile*` の `FROM`。**digest 付き（trade-moomoo）は digest も張り替える**。alpine は `golang:<版>-alpine3.24` のように**明示する**（浮動の名札は中身が黙って変わる） |
+| 3 | `Dockerfile*` の `FROM`。**手順は `references/docker-images.md`**（分類・名札の実在確認・中の道具の確認・名前の付け方・片付け）。**digest 付き（trade-moomoo）は digest も張り替える**。alpine は `golang:<版>-alpine3.24` のように**明示する**（浮動の名札は中身が黙って変わる） |
 | 4 | `golangci-lint-action` の `version`（action 自体の `@v9` とは別物） |
 | 5 | **手元の `golangci-lint` を 4 と同じ版に入れ直す**（下記） |
 
@@ -225,7 +228,8 @@ done
 | 何を | どう |
 | --- | --- |
 | ビルドとテスト | 各 Go リポで `mise x -- go build ./... && mise x -- go test ./...`。**素の `go` を使わない**——作業中のシェルの PATH が古い Go のフォルダを直接指していることがあり（2026-10-20、1.27.2 のリポを 1.27.1 で走らせて偽の失敗が出た） |
-| Docker の土台 | 新しい土台で全 `Dockerfile*` を**名前を付けて**ビルドし、中の道具（ffmpeg・`tesseract --list-langs` の `jpn` など）を動かしてから名前ごと消す。名前を付けないと確認のたびに名前の無いイメージが残る |
+| Docker の土台 | `references/docker-images.md` の手順 4。新しい土台で全 `Dockerfile*` を**名前を付けて**ビルドし、中の道具を動かしてから名前ごと消す。取り込みは**今の土台と同じ日のデータで出力を比べる** |
+| Docker の片付け | `references/docker-images.md` の手順 5・6。名前の無いビルド・`--rm` の無い起動が無いこと、毎日作り直すワークフローに片付けの手順があること、手元の `docker system df` の前後 |
 | lint | **手元で `mise x -- golangci-lint run ./...`**。走らせる前に `mise x -- golangci-lint version` が CI の `version:` と同じことを確かめる。`~/dev/me` 配下で実行する（外では版が決まらず `No version is set`） |
 | **自宅 Mac の runner の実動作** | ワークフローを 1 本 `workflow_dispatch` で走らせる。**dry run は途中で止まることがある**ので、どのステップまで到達したかを必ず確認する |
 | runner が新設定を読んだか | run のログから `/usr/bin/xcrun` の警告が消えたこと |
@@ -251,6 +255,9 @@ done
 | **busy な runner を再起動する** | 実行中の job を殺す |
 | **distroless と debian を無理に揃える** | mediable は ffmpeg、note は日本語 OCR が要る。**理由があって分かれている** |
 | **`actions-runners/` 配下のファイルを正本として数える／編集する** | 作業コピー。正本はリポジトリ直下 |
+| **MCP サーバーの `docker run` に `--name` を足す** | 2 つの会話が同時に起動すると 2 つ目が「名前が使用中」で落ちる。`--rm` なので自動の名前は残らない |
+| **自宅 Mac の runner がビルド中に `docker builder prune -af` する** | 並行するビルドが次に使う中間物を消す。ワークフローでは `--filter until=24h` を付ける |
+| **名札を推測で書く** | `alpine3.25` のように存在しない組み合わせがある。`docker manifest inspect` で確かめる |
 | 版だけ上げて動作確認しない | 版の問題は**ビルドではなく実行時**に出る |
 
 ## 成功基準
@@ -268,6 +275,7 @@ done
 - [ ] 版が書かれている場所を洗い出した（作業コピーを除外して）
 - [ ] `runs-on` で自宅 Mac の runner と GitHub の機械を仕分けた
 - [ ] 版を書き換えた（go.mod / workflows / mise.toml / Dockerfile / lint）
+- [ ] Docker の土台は `references/docker-images.md` の手順で、名札の実在・中の道具・名前の付け方・片付けまで確かめた
 - [ ] **手元の `mise x -- golangci-lint version` が CI の `version:` と一致することを確かめた**
 - [ ] runner の `.path` を点検した
 - [ ] `go build` と `go test` が通る
