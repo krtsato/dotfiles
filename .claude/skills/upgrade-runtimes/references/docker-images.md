@@ -81,12 +81,23 @@ docker rmi upgrade-check-mediable
 
 名前の無いイメージ・後に残るコンテナを作っていないかを見る。
 
+ビルドと起動は**別々に**拾う。1 本の grep で両方を見ると、`docker builder prune` やコメントが混ざり、
+`-t` を持つ起動（`docker run -t`）が「名前あり」として黙って外れる。
+
 ```bash
 cd ~/dev/me
-grep -rnE 'docker (build|run)' --include='*.y*ml' --include='*.sh' --include='Makefile' \
+# 1. ビルド: -t / --tag の無い行。builder（prune）とコメント行は除く
+grep -rnE 'docker (image )?build( |\\|$)' --include='*.y*ml' --include='*.sh' --include=Makefile \
   --exclude-dir=.worktrees --exclude-dir=actions-runners mcp-* trade-moomoo watcher \
-  | grep -vE -- '-t |--tag|--rm'
+  | grep -vE ':[0-9]+:[[:space:]]*#' | grep -vE -- '(-t|--tag)[ =]'
+
+# 2. 起動: 全件を後ろ 3 行つきで出し、--rm があるかを目で確かめる
+grep -rnE -A3 'docker run( |\\|$)' --include='*.y*ml' --include='*.sh' --include=Makefile \
+  --exclude-dir=.worktrees --exclude-dir=actions-runners mcp-* trade-moomoo watcher
 ```
+
+**起動は目で確かめる。** オプションが `\` で次の行へ続く書き方では、`--rm` が `docker run` と別の行に来るので、
+行単位の grep では判定できない（`-A3` で後ろの行を一緒に出しているのはそのため）。
 
 | 見つかったもの | すること |
 | --- | --- |
@@ -134,7 +145,15 @@ docker images --format '{{.Repository}}:{{.Tag}} {{.Size}} {{.CreatedSince}}' | 
 | 名前の外れたイメージ（`docker image prune -f`） | ボリューム |
 
 ビルドの中間物をまとめて消す `docker builder prune -af` は、**自宅 Mac の runner がビルド中でないとき**だけ使う
-（`gh api repos/krtsato/<repo>/actions/runs?status=in_progress` で確かめる）。最後に `docker system df` で回収量を報告する。
+（下で 1 件も出ないことを確かめる）。
+
+```bash
+for r in mcp-tradingview mcp-invest-knowledge mcp-mediable mcp-note mcp-seeking-alpha; do
+  gh api "repos/krtsato/$r/actions/runs?status=in_progress" -q ".workflow_runs[] | \"$r \\(.name)\""
+done
+```
+
+最後に `docker system df` で回収量を報告する。
 
 ## もっと軽い土台にできるか
 

@@ -10,7 +10,8 @@ description: >-
   「使われない Docker イメージを消して」のような
   リクエストで使用。扱うファイルは `go.mod` / `.github/workflows/*.yaml` / `Dockerfile*` /
   `mise.toml` / `.golangci.yml` / runner の `.path` の 6 種類と、**手元に入れた `golangci-lint`
-  の実行ファイル**。Do NOT use for: 依存ライブラリ
+  の実行ファイル**。Docker の名前の点検で見つかった `Makefile` と `*.sh` の `docker build` /
+  `docker run` の行も直す。Do NOT use for: 依存ライブラリ
   （`go.mod` の require 行）の更新、アプリのコード変更、runner の新規登録、
   GitHub の機械専用リポの作業。
 compatibility: >-
