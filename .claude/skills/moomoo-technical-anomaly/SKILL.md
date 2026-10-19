@@ -54,7 +54,7 @@ Normalization rules:
 Common mappings:
 
 | User mention | Standard symbol |
-|--------------|-----------------|
+| -------------- | ----------------- |
 | 腾讯 | `HK.00700` |
 | 阿里巴巴、阿里 | `HK.09988` |
 | 苹果、Apple | `US.AAPL` |
@@ -131,15 +131,15 @@ is read-only. OpenD must be running and logged in.
 Script entry:
 
 ```bash
-"$HOME/dev/me/trade-moomoo/moomoo-anomaly" technical <STANDARD_SYMBOL> --time-range <DAYS> [--indicator-filters ...] [--language-id <ID>] --json
+"$HOME/dev/me/trade-moomoo/bin/moomoo-anomaly" technical <STANDARD_SYMBOL> --time-range <DAYS> [--indicator-filters ...] [--language-id <ID>] --json
 ```
 
 Examples:
 
 ```bash
-"$HOME/dev/me/trade-moomoo/moomoo-anomaly" technical US.NVDA --time-range 7 --json
-"$HOME/dev/me/trade-moomoo/moomoo-anomaly" technical HK.00700 --time-range 7 --indicator-filters MACD RSI6 RSI12 RSI24 --json
-"$HOME/dev/me/trade-moomoo/moomoo-anomaly" technical SH.600519 --time-range 14 --indicator-filters BOLL MA --json
+"$HOME/dev/me/trade-moomoo/bin/moomoo-anomaly" technical US.NVDA --time-range 7 --json
+"$HOME/dev/me/trade-moomoo/bin/moomoo-anomaly" technical HK.00700 --time-range 7 --indicator-filters MACD RSI6 RSI12 RSI24 --json
+"$HOME/dev/me/trade-moomoo/bin/moomoo-anomaly" technical SH.600519 --time-range 14 --indicator-filters BOLL MA --json
 ```
 
 ### 6. Check the Result

@@ -54,7 +54,7 @@ Normalization rules:
 Common mappings:
 
 | User mention | Standard symbol |
-|--------------|-----------------|
+| -------------- | ----------------- |
 | 腾讯 | `HK.00700` |
 | 阿里巴巴、阿里 | `HK.09988` |
 | 苹果、Apple | `US.AAPL` |
@@ -123,15 +123,15 @@ read-only. OpenD must be running and logged in.
 Script entry:
 
 ```bash
-"$HOME/dev/me/trade-moomoo/moomoo-anomaly" capital <STANDARD_SYMBOL> --time-range <DAYS> [--analysis-dimensions ...] [--language-id <ID>] --json
+"$HOME/dev/me/trade-moomoo/bin/moomoo-anomaly" capital <STANDARD_SYMBOL> --time-range <DAYS> [--analysis-dimensions ...] [--language-id <ID>] --json
 ```
 
 Examples:
 
 ```bash
-"$HOME/dev/me/trade-moomoo/moomoo-anomaly" capital US.NVDA --time-range 7 --json
-"$HOME/dev/me/trade-moomoo/moomoo-anomaly" capital HK.00700 --time-range 7 --analysis-dimensions funds_distribution funds_broker --json
-"$HOME/dev/me/trade-moomoo/moomoo-anomaly" capital US.AAPL --time-range 5 --analysis-dimensions funds_flow --json
+"$HOME/dev/me/trade-moomoo/bin/moomoo-anomaly" capital US.NVDA --time-range 7 --json
+"$HOME/dev/me/trade-moomoo/bin/moomoo-anomaly" capital HK.00700 --time-range 7 --analysis-dimensions funds_distribution funds_broker --json
+"$HOME/dev/me/trade-moomoo/bin/moomoo-anomaly" capital US.AAPL --time-range 5 --analysis-dimensions funds_flow --json
 ```
 
 ### 6. Check the Result
