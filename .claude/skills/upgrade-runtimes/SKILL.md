@@ -239,7 +239,7 @@ done
 
 | ユーザーの言葉 | 実行するコマンド | 期待される結果 |
 | --- | --- | --- |
-| 「mcp-tradingview の Go を 1.26 に上げて」 | 手順 1 の grep で対象を洗い出し、`go.mod` と全 workflow の `go-version` を書き換えて `go build ./... && go test ./...` を流す | ビルドとテストが通り、`go.mod` と全 workflow の版が一致する |
+| 「mcp-tradingview の Go を 1.26 に上げて」 | 手順 1 の grep で対象を洗い出し、`go.mod` と全 workflow の `go-version` を書き換えて `mise x -- go build ./... && mise x -- go test ./...` を流す | ビルドとテストが通り、`go.mod` と全 workflow の版が一致する |
 | 「invest-knowledge の定期実行が Python の版で落ちた」 | `mise.toml` の版を上げ、自宅 Mac の runner のワークフローを `workflow_dispatch` で 1 本走らせる | run が成功し、run のログから `/usr/bin/xcrun` の警告が出ない |
 
 ## 禁止事項

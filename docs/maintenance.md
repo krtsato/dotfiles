@@ -32,7 +32,7 @@
 | `.github/workflows/*.yaml` の `go-version` | Go 8 リポ | 自宅 Mac の runner でも `actions/setup-go` を使う |
 | `.github/workflows/*.yaml` の `python-version` | **GitHub の機械のみ** | 自宅 Mac の runner に足さない |
 | `.github/workflows/*.yaml` の `uses: <action>@<版>` | 全リポ | `checkout@v7` 等 |
-| `golangci-lint-action` の `version` | Go 8 リポ | action の版（`v9`）と lint 本体の版（`v2.15.0`）は別 |
+| `golangci-lint-action` の `version` | Go 8 リポ | action の版（`v9`）と lint 本体の版（`v2.15.0`）は別。2026-10 の版上げは mcp の 7 リポだけで、watcher は `v7`・`v2.14.0` のまま |
 | `Dockerfile*` の `FROM` | 6 リポ | **固定の仕方が 2 通り**（下記）。watcher と mcp-notebooklm は配布物を作らないので無い |
 | `mise.toml` の `[tools]` | invest-knowledge のみ | 自宅 Mac の版を決める |
 | `.golangci.yml` | Go 8 リポ | 全リポでバイト単位に同一 |
