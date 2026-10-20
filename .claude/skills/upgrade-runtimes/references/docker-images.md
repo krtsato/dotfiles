@@ -27,8 +27,10 @@ grep -rn --include='Dockerfile*' --exclude-dir=.worktrees --exclude-dir=actions-
 | Go のビルド用 | `golang:<Go の版>-alpine3.24` | invest-knowledge・mediable・note・tradingview ×3 | Go の版は `go.mod` に合わせる。**alpine の版も明示する** |
 | Go のビルド用 | `golang:<Go の版>-trixie` | youtube | 同上。Debian の世代も明示する |
 | 実行用・最小 | `gcr.io/distroless/static-debian13:nonroot` | invest-knowledge・tradingview ×3・youtube | Debian の世代が上がったら数字を上げる。`nonroot`（uid 65532）は変わらない |
-| 実行用・道具入り | `debian:trixie-slim` | mediable（ffmpeg）・note（MCP server の日本語 OCR） | 世代名を上げる。**中の道具の版も変わる**ので手順 4 が必須 |
-| Python | `python:<版>-slim` | tradingview の取り込み 3 本 | Python の版を上げる。依存の wheel が新しい版にあるか手順 4 で確かめる |
+| 実行用・道具入り | `alpine:3.24` | mediable（ffmpeg） | alpine の版を上げる。**中の ffmpeg の版も変わる**ので手順 4 が必須 |
+| 実行用・道具入り | `debian:trixie-slim` | note（MCP server の日本語 OCR） | 世代名を上げる。**中の道具の版も変わる**ので手順 4 が必須 |
+| Python | `python:<版>-alpine3.24` | tradingview の取り込み 2 本（信用残高・空売り比率） | Python の版と alpine の版を上げる。依存に **Alpine 向けの wheel（`musllinux`）** があるか手順 4 で確かめる（`--progress=plain` の記録に `Building wheel` が出たらソースから組まれている） |
+| Python | `python:<版>-slim` | tradingview の逆日歩の取り込み | Python の版を上げる。Alpine 化は実データの確認待ち（mcp-tradingview #551） |
 | Python・digest 付き | `python:<版>-slim@sha256:…` | trade-moomoo | **digest も張り替える** |
 
 **浮動の名札（`golang:1.27.2-alpine`）を見つけたら明示に直す。** 中身の alpine が黙って変わる。
@@ -162,9 +164,9 @@ done
 
 | イメージ | Debian | Alpine | 結果 |
 | --- | --- | --- | --- |
-| mediable（ffmpeg） | 749 MB | 196 MB | 同じ引数で同じ mp4。ffmpeg は 7.1 → 8.1 に上がる |
-| tradingview の取り込み 2 本（pdfplumber） | 309 MB | 198 MB | 出力が 1 バイトも違わない |
-| 逆日歩の取り込み（moomoo の部品） | 462 MB | 360 MB | 部品の読み込みと単体テストは通る |
+| mediable（ffmpeg） | 749 MB | 196 MB | 同じ引数で同じ mp4。ffmpeg は 7.1 → 8.1 に上がる。**採用済み**（mcp-mediable #212） |
+| tradingview の取り込み 2 本（pdfplumber） | 309 MB | 198 MB | 出力が 1 バイトも違わない。**採用済み**（mcp-tradingview #550） |
+| 逆日歩の取り込み（moomoo の部品） | 470 MB | 360 MB | 部品の読み込みと単体テストは通る。**実データの確認待ち**（mcp-tradingview #551） |
 | note（OCR） | 322 MB | 203 MB | **日本語が崩れる。** Alpine の学習データは大きい標準版で、文字の間に空白が入り数字が丸数字に化け、約 2.6 倍遅い |
 | note（OCR・学習データだけ Debian から） | 322 MB | 127 MB | ほぼ一致（16 枚中 5 枚が完全一致、残りも空白を除いて 9 割台） |
 
