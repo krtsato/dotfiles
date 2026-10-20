@@ -253,7 +253,7 @@ done
 | **自宅 Mac の runner のワークフローに `actions/setup-python` を足す** | `/Users/runner` に入れようとして必ず失敗する（2026-09-06 に 3 リポが停止） |
 | **`.path` に「今の PATH」をそのまま書き写す** | 対話シェルの PATH には存在しないフォルダが多数混ざる。**shims を先頭に置く**のが正解 |
 | **busy な runner を再起動する** | 実行中の job を殺す |
-| **distroless と debian を無理に揃える** | mediable は ffmpeg、note は日本語 OCR が要る。**理由があって分かれている** |
+| **distroless と道具入りの土台（alpine・debian）を無理に揃える** | mediable は ffmpeg、note は日本語 OCR が要る。**理由があって分かれている** |
 | **`actions-runners/` 配下のファイルを正本として数える／編集する** | 作業コピー。正本はリポジトリ直下 |
 | **MCP サーバーの `docker run` に `--name` を足す** | 2 つの会話が同時に起動すると 2 つ目が「名前が使用中」で落ちる。`--rm` なので自動の名前は残らない |
 | **自宅 Mac の runner がビルド中に `docker builder prune -af` する** | 並行するビルドが次に使う中間物を消す。ワークフローでは `--filter until=24h` を付ける |

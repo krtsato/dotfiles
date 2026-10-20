@@ -35,7 +35,7 @@
 
 | 分かれている所 | 理由 |
 | --- | --- |
-| mediable の実行イメージが `debian:trixie-slim` | **ffmpeg が要る**。distroless にはパッケージ管理が無く入れられない |
+| mediable の実行イメージが `alpine:3.24` | **ffmpeg が要る**。distroless にはパッケージ管理が無く入れられない |
 | note の実行イメージが `debian:trixie-slim` | **MCP server の日本語 OCR（tesseract）が要る**。同上。日次同期はイメージを使わず、自宅 Mac の Apple Vision で読む（2026-10-20、mcp-note #173）。macOS を上げたら同期の起動時点検が通るかを見る |
 | tradingview / invest-knowledge / youtube が distroless | 外部コマンドが不要なので、攻撃面の小さい方を選べる |
 
