@@ -182,7 +182,7 @@ npx markdownlint-cli2 --config ~/dev/me/dotfiles/.markdownlint.yaml "$W/revised.
 - **1 digest = 1 commit**。内容の忠実さは機械では判定できず、人手の commit 単位レビューが前提
 - draft PR への追記なら push のみ。merge 済み digest なら新しいブランチに全件まとめて 1 PR
 - PR 本文に「再監査していない・残指摘の件数は未知」と明記する
-- Copilot をレビュワーに追加し、指摘をトリアージしてから merge する
+- Copilot はレビュワーに付けない。codex が使えるなら差分を `codex exec -s read-only` でレビューし、指摘をトリアージしてから merge する。**使えないときは PR 本文に「レビュー未実施」と書く**（この skill は codex が使えない間にも使うため）
 
 ## 禁止事項
 
@@ -222,7 +222,7 @@ npx markdownlint-cli2 --config ~/dev/me/dotfiles/.markdownlint.yaml "$W/revised.
 - [ ] 1 digest = 1 commit にした
 - [ ] corpus 全体で混入検査を実行した
 - [ ] PR 本文に「再監査していない」と明記した
-- [ ] Copilot レビューをトリアージしてから merge した
+- [ ] codex のレビューをトリアージした、または PR 本文に「レビュー未実施」と書いた
 
 ## 評価シナリオ
 

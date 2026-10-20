@@ -30,7 +30,7 @@ Conventional Commits に従う。
 - タイトルは英語で、コミットメッセージと同じ形式。**本文は日本語**
 - issue 番号を関連付ける。対応する issue が無い場合は本文に `N/A` と書く
 - 指定が無ければ **draft** で作成する
-- 作成後に GitHub Copilot をレビュワーに追加する
+- **オーナーが `krtsato` のリポジトリでは、GitHub Copilot をレビュワーに追加しない。** Enterprise の共有枠なので、使いすぎると他の人が使えなくなる。レビューは下の codex で受ける。それ以外のリポジトリは、そのリポジトリの規約に従う
 - **1 つの PR は 1 つの目的に絞る**
 - 本文の Reference 欄に**課題の URL** を書く。**マージで自動的に閉じない書き方**にする
 
@@ -43,13 +43,15 @@ Conventional Commits に従う。
 | 見出し | `##` に `（）` を**使わない**。修飾は ` — ` |
 | 実装の細部 | `<details><summary>詳細</summary></details>` で折りたたむ |
 
-### Copilot のレビュー依頼
+### レビュー
 
-REST は 200 を返しても無視されることがある。GraphQL の `requestReviews` に bot の id を渡し、
-**送った後に実際に付いたかを確認する**。
+**コミットした後に**、PR の差分を `codex exec -s read-only` に標準入力で渡してレビューを受ける。
+`origin/main...HEAD` はコミット済みの差分だけを見るので、未コミットのまま渡すと空のレビューになる。
+出力は `tail` で受ける（結論は末尾に出る。`head` だと途中で切れる）。
+指摘はマージ前に 1 件ずつ仕分ける。対応しない指摘は、根拠を PR のコメントに残す。
 
 ```sh
-gh pr view <番号> --json reviewRequests
+git diff origin/main...HEAD | codex exec -s read-only "この差分をレビューしてください" | tail -n 100
 ```
 
 ## GitHub の操作
