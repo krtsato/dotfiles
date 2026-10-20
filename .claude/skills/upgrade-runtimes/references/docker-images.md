@@ -29,8 +29,7 @@ grep -rn --include='Dockerfile*' --exclude-dir=.worktrees --exclude-dir=actions-
 | 実行用・最小 | `gcr.io/distroless/static-debian13:nonroot` | invest-knowledge・tradingview ×3・youtube | Debian の世代が上がったら数字を上げる。`nonroot`（uid 65532）は変わらない |
 | 実行用・道具入り | `alpine:3.24` | mediable（ffmpeg） | alpine の版を上げる。**中の ffmpeg の版も変わる**ので手順 4 が必須 |
 | 実行用・道具入り | `debian:trixie-slim` | note（MCP server の日本語 OCR） | 世代名を上げる。**中の道具の版も変わる**ので手順 4 が必須 |
-| Python | `python:<版>-alpine3.24` | tradingview の取り込み 2 本（信用残高・空売り比率） | Python の版と alpine の版を上げる。依存に **Alpine 向けの wheel（`musllinux`）** があるか手順 4 で確かめる（`--progress=plain` の記録に `Building wheel` が出たらソースから組まれている） |
-| Python | `python:<版>-slim` | tradingview の逆日歩の取り込み | Python の版を上げる。Alpine 化は実データの確認待ち（mcp-tradingview #551） |
+| Python | `python:<版>-alpine3.24` | tradingview の取り込み 3 本 | Python の版と alpine の版を上げる。依存に **Alpine 向けの wheel（`musllinux`）** があるか手順 4 で確かめる（`--progress=plain` の記録に `Building wheel` が出たらソースから組まれている） |
 | Python・digest 付き | `python:<版>-slim@sha256:…` | trade-moomoo | **digest も張り替える** |
 
 **浮動の名札（`golang:1.27.2-alpine`）を見つけたら明示に直す。** 中身の alpine が黙って変わる。
@@ -73,7 +72,7 @@ docker rmi upgrade-check-mediable
 | --- | --- | --- |
 | mediable | 実際と同じ引数で HLS を mp4 にまとめる（試験用の HLS を別のコンテナから配る） | 映像と音声の両方が入った mp4 ができる |
 | note | `tesseract --list-langs` と実際の画像 | `jpn` があり、読み取り結果が今と大きく変わらない。**日次同期はこのイメージを使わない**（自宅 Mac の Apple Vision で読む） |
-| tradingview の取り込み 3 本 | **今の土台と新しい土台で同じ日のデータを取り込む** | 出力が 1 バイトも違わない。逆日歩は moomoo の接続先が動いているときだけ実データ、止まっていれば単体テストと部品の読み込み |
+| tradingview の取り込み 3 本 | **今の土台と新しい土台で同じ日のデータを取り込む** | 出力が 1 バイトも違わない。逆日歩は moomoo の接続先が動いているときだけ実データ、止まっていれば単体テストと部品の読み込みまで。**逆日歩の出力には記録時刻（`captured_at`）が入る**ので、その列を除いて比べる。**`--user` を付けずにワークフローと同じ形で動かす**（付けると家フォルダが `/` になり、moomoo の部品が設定を書けず `Permission denied: '/.com.moomoo.OpenD'` で落ちる。土台の故障と取り違えない） |
 | Go の配布物 | 起動して版を出す・`--help` | 期待どおりの出力 |
 
 試験用の HLS は `ffmpeg -f lavfi -i testsrc=d=6 … -c:v libx264 -c:a aac -f hls` で作る。
@@ -166,7 +165,7 @@ done
 | --- | --- | --- | --- |
 | mediable（ffmpeg） | 749 MB | 196 MB | 同じ引数で同じ mp4。ffmpeg は 7.1 → 8.1 に上がる。**採用済み**（mcp-mediable #212） |
 | tradingview の取り込み 2 本（pdfplumber） | 309 MB | 198 MB | 出力が 1 バイトも違わない。**採用済み**（mcp-tradingview #550） |
-| 逆日歩の取り込み（moomoo の部品） | 470 MB | 360 MB | 部品の読み込みと単体テストは通る。**実データの確認待ち**（mcp-tradingview #551） |
+| 逆日歩の取り込み（moomoo の部品） | 470 MB | 360 MB | 実データ 432 銘柄が記録時刻を除いて一致。**採用済み**（mcp-tradingview #552） |
 | note（OCR） | 322 MB | 203 MB | **日本語が崩れる。** Alpine の学習データは大きい標準版で、文字の間に空白が入り数字が丸数字に化け、約 2.6 倍遅い |
 | note（OCR・学習データだけ Debian から） | 322 MB | 127 MB | ほぼ一致（16 枚中 5 枚が完全一致、残りも空白を除いて 9 割台） |
 
