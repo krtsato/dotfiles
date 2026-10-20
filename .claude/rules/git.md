@@ -51,7 +51,7 @@ Conventional Commits に従う。
 指摘はマージ前に 1 件ずつ仕分ける。対応しない指摘は、根拠を PR のコメントに残す。
 
 ```sh
-git diff origin/main...HEAD | codex exec -s read-only "この差分をレビューしてください" | tail -40
+git diff origin/main...HEAD | codex exec -s read-only "この差分をレビューしてください" | tail -n 100
 ```
 
 ## GitHub の操作
