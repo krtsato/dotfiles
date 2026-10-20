@@ -48,11 +48,12 @@ description: GitHub の変更反映ワークフローを最後まで実行する
    - `## Reference` の下には関連 Issue を記載する。Issue が明示されていない場合は、会話履歴、ブランチ名、PR 文脈、ローカル差分、GitHub の関連情報から探す。それでも見つからない場合は、`## Reference` 見出しだけ置き、項目は書かない。
    - Issue をまだ閉じる段階でない場合は `Closes ...` を使わず、必ず `## Reference` 配下のリンクにする。
    - PR body は簡潔かつ事実ベースにする。
-   - PR を open したら、Copilot を reviewer として必ず request する。PR 作成時に `gh pr create --reviewer @copilot ...` を使うか、作成後に `gh pr edit <PR番号> --add-reviewer @copilot` を実行する。
-   - PR 作成後に `gh pr view` で Copilot review request が入っていることを確認する。入っていない場合は再度 `gh pr edit <PR番号> --add-reviewer @copilot` を実行する。
+   - **リポジトリのオーナーが `krtsato` なら、Copilot を reviewer に request しない。** Copilot は GitHub Enterprise の共有枠で、個人のリポジトリで使うと他の人が使えなくなる。代わりに、コミット後の差分を `codex exec -s read-only` でレビューする。
+   - それ以外のリポジトリでは、PR を open したら Copilot を reviewer として request する。PR 作成時に `gh pr create --reviewer @copilot ...` を使うか、作成後に `gh pr edit <PR番号> --add-reviewer @copilot` を実行する。
+   - その場合は PR 作成後に `gh pr view` で Copilot review request が入っていることを確認する。入っていない場合は再度 `gh pr edit <PR番号> --add-reviewer @copilot` を実行する。
 
 5. Copilot / reviewer コメントをトリアージする:
-   - Copilot review の完了を待つ。Copilot が reviewer に入っていない場合は `gh pr edit <PR番号> --add-reviewer @copilot` で追加する。
+   - Copilot を request したリポジトリでは、Copilot review の完了を待つ。`krtsato` がオーナーのリポジトリでは codex のレビュー結果をトリアージの対象にする。
    - `gh pr view`、`gh pr checks`、`gh api`、GitHub MCP、または利用可能なレビューコメント取得ツールで review comment と conversation を確認する。
    - すべてのレビューコメントをエージェントがトリアージする。各コメントを次のどれかに分類する:
      - `対応必要`: バグ、仕様漏れ、実装品質、テスト不足、文言誤りなど、直すべき指摘。
@@ -63,7 +64,7 @@ description: GitHub の変更反映ワークフローを最後まで実行する
    - `対応不要` は理由を短く説明して返信し、resolve できる場合は resolve する。
    - `確認必要` はユーザーに短く確認する。確認なしに危険な仕様判断でマージしない。
    - トリアージ済みの review thread / conversation はすべて resolve する。resolve できない権限・UI 制約がある場合は、どのコメントが残っているかを明示する。
-   - 修正を push したあと、必要に応じて Copilot の re-review を依頼する。Copilot は push だけでは自動で再レビューしない場合がある。
+   - 修正を push したあと、必要に応じて再レビューを受ける。Copilot を request したリポジトリでは re-review を依頼する（push だけでは自動で再レビューしない場合がある）。`krtsato` がオーナーのリポジトリでは codex に差分を渡し直す。
 
 6. 安全にマージする:
    - `gh pr view` と `gh pr checks` で状態を確認する。
