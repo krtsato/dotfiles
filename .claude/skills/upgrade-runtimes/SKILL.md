@@ -223,6 +223,18 @@ done
 
 先頭が `.../mise/shims` でない、または「欠落」が出たら `references/environments.md` の手順で直す。
 
+**runner 自身の古い版も消す。** runner は版が上がるたびに `bin.<版>`・`externals.<版>` を新しく取ってきて
+`bin`・`externals` のリンクを付け替え、古い版と更新用の写し `_work/_update` を残す（1 台あたり 0.8〜0.9 GB。
+2026-10-22 に 5 台で約 4 GB）。**busy=false を確かめてから**、リンクが指していない版と `_work/_update` だけを消す。
+
+```bash
+for d in <上と同じ 5 つの runner フォルダ>; do
+  b=$(basename "$(readlink $d/bin)"); e=$(basename "$(readlink $d/externals)")
+  (cd $d && ls -d bin.* externals.* | grep -v -x -e "$b" -e "$e")   # 消す候補。確かめてから rm -rf
+  ls -d $d/_work/_update 2>/dev/null
+done
+```
+
 ### 5. 検証する
 
 | 何を | どう |
