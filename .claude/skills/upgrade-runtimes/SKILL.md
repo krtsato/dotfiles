@@ -235,7 +235,7 @@ done
 
 ```bash
 d=<runner フォルダ>   # 1 台ずつ
-(cd "$d" && ./svc.sh stop)
+(cd "$d" && ./svc.sh stop) || { echo "stop failed: $d"; exit 1; }   # 止まらなければ何も消さない
 b=$(basename "$(readlink "$d/bin")" 2>/dev/null); e=$(basename "$(readlink "$d/externals")" 2>/dev/null)
 if [ -n "$b" ] && [ -n "$e" ] && [ -d "$d/$b" ] && [ -d "$d/$e" ] \
    && [ "$(cd "$d" && ls -d bin.* | sort -V | tail -n 1)" = "$b" ] \
