@@ -225,13 +225,22 @@ done
 
 **runner 自身の古い版も消す。** runner は版が上がるたびに `bin.<版>`・`externals.<版>` を新しく取ってきて
 `bin`・`externals` のリンクを付け替え、古い版と更新用の写し `_work/_update` を残す（1 台あたり 0.8〜0.9 GB。
-2026-10-22 に 5 台で約 4 GB）。**busy=false を確かめてから**、リンクが指していない版と `_work/_update` だけを消す。
+2026-10-22 に 5 台で約 4 GB）。消すのは **リンクが指していない、指している版より古い**版と `_work/_update` だけ。
+
+| 条件 | なぜ |
+| --- | --- |
+| 夜間の実行の時間帯（1:30〜9:30）を避け、busy=false を確かめる | 更新は `_work/_update` を使う。仕事の合間の自己更新と重ねない |
+| `bin`・`externals` の**両方**のリンクが読め、指す先が実在する | 読めないと除外が空になり、**全版が候補に出る** |
+| 指している版より**新しい** `bin.*` があれば、その runner は触らない | 更新の途中で、これから切り替わる版の可能性がある |
 
 ```bash
 for d in <上と同じ 5 つの runner フォルダ>; do
-  b=$(basename "$(readlink $d/bin)"); e=$(basename "$(readlink $d/externals)")
-  (cd $d && ls -d bin.* externals.* | grep -v -x -e "$b" -e "$e")   # 消す候補。確かめてから rm -rf
-  ls -d $d/_work/_update 2>/dev/null
+  b=$(basename "$(readlink "$d/bin")" 2>/dev/null); e=$(basename "$(readlink "$d/externals")" 2>/dev/null)
+  if [ -z "$b" ] || [ -z "$e" ] || [ ! -d "$d/$b" ] || [ ! -d "$d/$e" ]; then echo "skip $d (link unreadable)"; continue; fi
+  newest=$(cd "$d" && ls -d bin.* | sort -V | tail -n 1)
+  [ "$newest" = "$b" ] || { echo "skip $d (newer $newest than $b: update in progress?)"; continue; }
+  (cd "$d" && ls -d bin.* externals.* | grep -v -x -e "$b" -e "$e")   # 消す候補。目で確かめてから rm -rf
+  ls -d "$d/_work/_update" 2>/dev/null
 done
 ```
 
