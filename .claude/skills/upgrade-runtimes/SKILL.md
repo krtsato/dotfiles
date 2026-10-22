@@ -229,19 +229,23 @@ done
 
 | 条件 | なぜ |
 | --- | --- |
-| 夜間の実行の時間帯（1:30〜9:30）を避け、busy=false を確かめる | 更新は `_work/_update` を使う。仕事の合間の自己更新と重ねない |
+| 夜間の実行の時間帯（1:30〜9:30）を避け、busy=false を確かめ、**その runner を `./svc.sh stop` で止めてから**消す | 更新は `_work/_update` を使う。確かめた後に自己更新が始まると、使用中の写しを消す |
 | `bin`・`externals` の**両方**のリンクが読め、指す先が実在する | 読めないと除外が空になり、**全版が候補に出る** |
-| 指している版より**新しい** `bin.*` があれば、その runner は触らない | 更新の途中で、これから切り替わる版の可能性がある |
+| `bin.*`・`externals.*` の**どちらにも**、指している版より新しいものが無い | 新しい版は、これから切り替わる途中の可能性がある |
 
 ```bash
-for d in <上と同じ 5 つの runner フォルダ>; do
-  b=$(basename "$(readlink "$d/bin")" 2>/dev/null); e=$(basename "$(readlink "$d/externals")" 2>/dev/null)
-  if [ -z "$b" ] || [ -z "$e" ] || [ ! -d "$d/$b" ] || [ ! -d "$d/$e" ]; then echo "skip $d (link unreadable)"; continue; fi
-  newest=$(cd "$d" && ls -d bin.* | sort -V | tail -n 1)
-  [ "$newest" = "$b" ] || { echo "skip $d (newer $newest than $b: update in progress?)"; continue; }
+d=<runner フォルダ>   # 1 台ずつ
+(cd "$d" && ./svc.sh stop)
+b=$(basename "$(readlink "$d/bin")" 2>/dev/null); e=$(basename "$(readlink "$d/externals")" 2>/dev/null)
+if [ -n "$b" ] && [ -n "$e" ] && [ -d "$d/$b" ] && [ -d "$d/$e" ] \
+   && [ "$(cd "$d" && ls -d bin.* | sort -V | tail -n 1)" = "$b" ] \
+   && [ "$(cd "$d" && ls -d externals.* | sort -V | tail -n 1)" = "$e" ]; then
   (cd "$d" && ls -d bin.* externals.* | grep -v -x -e "$b" -e "$e")   # 消す候補。目で確かめてから rm -rf
   ls -d "$d/_work/_update" 2>/dev/null
-done
+else
+  echo "skip $d"
+fi
+(cd "$d" && ./svc.sh start)   # 消した後に必ず戻し、GitHub 側で online を確かめる
 ```
 
 ### 5. 検証する
