@@ -1,12 +1,12 @@
 # 設定とコマンド
 
-runner は Bash スクリプト `sync.sh` を指し、Docker の起動と mount を担当する。同期 CLI はコンテナ内で動く Node.js プログラムを指す。config は案件設定、manifest は公開対象または限定更新の入力定義、変更案はその manifest を検証して得る実行前の結果である。本文は操作を「公開」「限定更新」と呼び、`publish` と `apply-patches` は対応する CLI コマンド名である。`labels` の `Tab` などは変更可能な表示値であり、用語の規則ではない。
+runner は Bash スクリプト `sync.sh` を指し、Docker の起動とマウントを担当する。同期 CLI はコンテナ内で動く Node.js プログラムを指す。config は案件設定、manifest は公開対象または限定更新の入力定義、変更案はその manifest を検証して得る実行前の結果である。本文は操作を「公開」「限定更新」と呼び、`publish` と `apply-patches` は対応する CLI コマンド名である。`labels` の `Tab` などは変更可能な表示値であり、用語の規則ではない。
 
 ## 設定ファイル
 
 同期 CLI は `--config=<path>` または `GOOGLE_DOCS_SYNC_CONFIG` で JSON 設定を受け取る。相対パスは config ファイルの親ディレクトリを基準に解決する。
 
-Docker runner へ渡す config は workspace 内へ置く。相対パスと workspace 内の絶対パスを受け付け、container 内の `/workspace` 配下へ変換する。workspace 外の config は mount されないため、書き込み前に拒否する。
+Docker runner へ渡す config は案件リポジトリ内へ置く。相対パスと案件リポジトリ内の絶対パスを受け付け、コンテナ内の `/workspace` 配下へ変換する。案件リポジトリ外の config はマウントされないため、書き込み前に拒否する。
 
 ```json
 {
@@ -34,7 +34,7 @@ Docker runner へ渡す config は workspace 内へ置く。相対パスと work
 
 ## Docker 実行
 
-Docker daemon を起動する。OAuth callback の既定ポート `127.0.0.1:8787` を使用できること。使用中なら `GOOGLE_OAUTH_CALLBACK_PORT` で空きポートを指定する。案件ディレクトリは原本の読み取りと build ・状態ファイルの生成のため読み書き可能として mount される。
+Docker デーモンを起動する。OAuth コールバックの既定ポート `127.0.0.1:8787` を使用できること。使用中なら `GOOGLE_OAUTH_CALLBACK_PORT` で空きポートを指定する。案件リポジトリは `generate` を含め、原本の読み取りと生成物・状態ファイルの保存のため読み書き可能としてマウントされる。
 
 案件リポジトリのルートで実行する。Claude では次を使用する。Codex では `.claude` を `.codex` に読み替えてよい。実行環境がスキルの絶対パスを示す場合は、そのパスを使用する。
 
@@ -61,7 +61,7 @@ Docker daemon を起動する。OAuth callback の既定ポート `127.0.0.1:878
 
 | Command | Google Docs への書き込み | 用途 |
 | --- | --- | --- |
-| `generate` | なし | manifest と preview を生成する |
+| `generate` | なし | manifest とプレビューを生成する |
 | `publish --new-document` | あり | 新規文書を作る |
 | `publish --files=<file> --create-missing-tabs` | あり | 存在しない新規タブを追加する |
 | `pull-comments` | なし | レビューコメントを取得する |
@@ -74,21 +74,21 @@ Docker daemon を起動する。OAuth callback の既定ポート `127.0.0.1:878
 
 ## 認証情報
 
-runner は既定でホストの `~/.config/gcloud/gdocs-sync` を `/credentials` として mount する。別の場所を使う場合は `GOOGLE_DOCS_SYNC_CREDENTIALS_DIR` を設定する。`GOOGLE_OAUTH_CREDENTIALS`、`GOOGLE_OAUTH_TOKEN`、コメント、編集、画像、PDF 用の各環境変数はコンテナ内の `/credentials/...` を指す。`stateDir` は公開状態の置き場であり、runner の認証情報の置き場ではない。
+runner は既定でホストの `~/.config/gcloud/gdocs-sync` を `/credentials` としてマウントする。別の場所を使う場合は `GOOGLE_DOCS_SYNC_CREDENTIALS_DIR` を設定する。`GOOGLE_OAUTH_CREDENTIALS`、`GOOGLE_OAUTH_TOKEN`、コメント、編集、画像、PDF 用の各環境変数はコンテナ内の `/credentials/...` を指す。`stateDir` は公開状態の置き場であり、runner の認証情報の置き場ではない。
 
-Google Cloud の対象プロジェクトで Google Docs API と Google Drive API を有効にし、loopback callback を使用できるデスクトップ用 OAuth client を用意する。
+Google Cloud の対象プロジェクトで Google Docs API と Google Drive API を有効にし、ループバックコールバックを使用できるデスクトップ用 OAuth クライアントを用意する。
 
-既定の認証ファイルは次のとおり。client は利用者が用意する OAuth client JSON、token は認証完了時に CLI が作成する。実値を文書や設定例へ転記しない。
+既定の認証ファイルは次のとおり。クライアントは利用者が用意する OAuth クライアント JSON、トークンは認証完了時に CLI が作成する。実値を文書や設定例へ転記しない。
 
-| client ファイル | 作成される token | 用途 |
+| クライアントファイル | 作成されるトークン | 用途 |
 | --- | --- | --- |
 | `client.json` | `token.json` | 新規公開 |
 | `comments-client.json` | `comments-token.json` | コメント取得 |
 | `comments-client.json` | `edit-token.json` | 限定更新 |
 | `client.json` | `pdf-token.json` | 画像同期と PDF 出力 |
 
-既存の認証ファイルと権限を先に確認する。初回 OAuth では CLI が表示した URL をホストのブラウザで開く。Docker runner は callback port を host loopback だけへ公開し、取得した token を credentials mount 上へ保存する。認証が必要な場合は利用環境の質問ツールで完了を確認し、callback 完了後に処理を再開する。
+既存の認証ファイルと権限を先に確認する。初回 OAuth では CLI が表示した URL をホストのブラウザで開く。Docker runner はコールバックポートをホストループバックだけへ公開し、取得したトークンを認証情報マウント上へ保存する。認証が必要な場合は利用環境の質問ツールで完了を確認し、コールバック完了後に処理を再開する。
 
-## Docker image の整理
+## Docker イメージの整理
 
-runner は配置パスごとに `google-docs-sync:<チェックサム>` のタグを使用する。配置を削除した後は、使用中のコンテナがないことと対象タグを確認し、不要なタグだけ `docker image rm <tag>` で削除する。共有タグや他の image を一括削除しない。
+runner は配置パスごとに `google-docs-sync:<チェックサム>` のタグを使用する。配置を削除した後は、使用中のコンテナがないことと対象タグを確認し、不要なタグだけ `docker image rm <tag>` で削除する。共有タグや他のイメージを一括削除しない。
