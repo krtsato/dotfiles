@@ -145,6 +145,26 @@ docker images --format '{{.Repository}}:{{.Tag}} {{.Size}} {{.CreatedSince}}' | 
 | 古い土台（上げる前の `golang`・`python`・`golangci-lint` の名札） | 起動中の MCP サーバーのイメージ |
 | 名前の外れたイメージ（`docker image prune -f`） | ボリューム |
 
+**古い土台は版上げのたびに必ず消す**（持ち主の指示・2026-10-23）。どの Dockerfile の `FROM` にも
+残っていない土台の名札を出し、1 つずつ確かめてから名前で消す。
+
+```bash
+cd ~/dev/me
+used=$(for r in mcp-tradingview mcp-invest-knowledge mcp-mediable mcp-note mcp-youtube trade-moomoo; do
+  git -C "$r" grep -h -E '^FROM ' -- 'Dockerfile*' '**/Dockerfile*'
+done | awk '{print $2}' | sed 's/@.*//' | sort -u)
+docker images --format '{{.Repository}}:{{.Tag}}' \
+  | grep -E '^(golang|python|gcr\.io/distroless/[^:]+|debian|alpine):' | grep -v -x -F "$used"
+# 候補ごとに: 使っているコンテナが無いことを確かめてから消す（-f を付けない）
+docker ps -a --filter ancestor=<名札> --format '{{.Names}}'
+docker image rm <名札>
+```
+
+**`docker image prune -a` で一括にしない。** 仕事のリポのイメージや、awa 側の作業が使う土台まで消える。
+候補には「古い版」だけでなく「同じ版の別の種類」も出る（2026-10-23 の `python:3.15.0-slim` は、
+取り込みが alpine 版へ移った後に確認用として残っていたもの）。awa 側で使っていないかは
+`grep -rl <名札> ~/go/src/github.com/awa --include='Dockerfile*' --include='*.y*ml'` で確かめる。
+
 ビルドの中間物をまとめて消す `docker builder prune -af` は、**自宅 Mac の runner がビルド中でないとき**だけ使う
 （下で 1 件も出ないことを確かめる）。
 
