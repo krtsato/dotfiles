@@ -62,11 +62,14 @@ shift
 # Credentials live outside the repository so one copy serves every checkout.
 # Only this directory is mounted, not the whole gcloud config, so unrelated
 # service-account keys stay out of the container.
+temporary_credentials_dir=
 credentials_dir=${GOOGLE_DOCS_SYNC_CREDENTIALS_DIR:-$HOME/.config/gcloud/gdocs-sync}
 if [[ ! -d $credentials_dir ]]; then
   # generate never calls Google, so it stays usable before the first login.
   if [[ $command == generate ]]; then
-    credentials_dir=$(mktemp -d)
+    temporary_credentials_dir=$(mktemp -d)
+    credentials_dir=$temporary_credentials_dir
+    trap 'rmdir "$temporary_credentials_dir" || printf "Warning: temporary credentials directory remains: %s\n" "$temporary_credentials_dir" >&2' EXIT
   else
     printf 'Credentials directory not found: %s\n' "$credentials_dir" >&2
     exit 1

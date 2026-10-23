@@ -1,6 +1,6 @@
 # 設定とコマンド
 
-runner は Bash スクリプト `sync.sh` を指し、Docker の起動と mount を担当する。同期 CLI はコンテナ内で動く Node.js プログラムを指す。config は案件設定、manifest は公開対象または限定更新の入力定義、変更案はその manifest を検証して得る実行前の結果である。
+runner は Bash スクリプト `sync.sh` を指し、Docker の起動と mount を担当する。同期 CLI はコンテナ内で動く Node.js プログラムを指す。config は案件設定、manifest は公開対象または限定更新の入力定義、変更案はその manifest を検証して得る実行前の結果である。本文は操作を「公開」「限定更新」と呼び、`publish` と `apply-patches` は対応する CLI コマンド名である。`labels` の `Tab` などは変更可能な表示値であり、用語の規則ではない。
 
 ## 設定ファイル
 
@@ -65,16 +65,18 @@ Docker daemon を起動する。OAuth callback の既定ポート `127.0.0.1:878
 | `publish --new-document` | あり | 新規文書を作る |
 | `publish --files=<file> --create-missing-tabs` | あり | 存在しない新規タブを追加する |
 | `pull-comments` | なし | レビューコメントを取得する |
-| `apply-patches --manifest=<file>` | なし | 変更案 を検証する |
+| `apply-patches --manifest=<file>` | なし | 変更案を検証する |
 | `apply-patches --manifest=<file> --apply` | あり | 限定更新を反映する |
 | `apply-patches --manifest=<file> --verify` | なし | 反映済み内容を再検証する |
-| `sync-images` | なし | 画像差し替えの変更案 を検証する |
+| `sync-images` | なし | 画像差し替えの変更案を検証する |
 | `sync-images --apply` | あり | 対象画像だけ差し替える |
 | `export-pdf` | 一時コピーのみ | 元文書を変えず PDF を出力する |
 
 ## 認証情報
 
 runner は既定でホストの `~/.config/gcloud/gdocs-sync` を `/credentials` として mount する。別の場所を使う場合は `GOOGLE_DOCS_SYNC_CREDENTIALS_DIR` を設定する。`GOOGLE_OAUTH_CREDENTIALS`、`GOOGLE_OAUTH_TOKEN`、コメント、編集、画像、PDF 用の各環境変数はコンテナ内の `/credentials/...` を指す。`stateDir` は公開状態の置き場であり、runner の認証情報の置き場ではない。
+
+Google Cloud の対象プロジェクトで Google Docs API と Google Drive API を有効にし、loopback callback を使用できるデスクトップ用 OAuth client を用意する。
 
 既定の認証ファイルは次のとおり。client は利用者が用意する OAuth client JSON、token は認証完了時に CLI が作成する。実値を文書や設定例へ転記しない。
 
@@ -86,3 +88,7 @@ runner は既定でホストの `~/.config/gcloud/gdocs-sync` を `/credentials`
 | `client.json` | `pdf-token.json` | 画像同期と PDF 出力 |
 
 既存の認証ファイルと権限を先に確認する。初回 OAuth では CLI が表示した URL をホストのブラウザで開く。Docker runner は callback port を host loopback だけへ公開し、取得した token を credentials mount 上へ保存する。認証が必要な場合は利用環境の質問ツールで完了を確認し、callback 完了後に処理を再開する。
+
+## Docker image の整理
+
+runner は配置パスごとに `google-docs-sync:<チェックサム>` のタグを使用する。配置を削除した後は、使用中のコンテナがないことと対象タグを確認し、不要なタグだけ `docker image rm <tag>` で削除する。共有タグや他の image を一括削除しない。

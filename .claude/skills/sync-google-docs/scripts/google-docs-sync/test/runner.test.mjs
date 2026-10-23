@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { chmod, mkdtemp, mkdir, readFile, realpath, writeFile } from 'node:fs/promises';
+import { access, chmod, mkdtemp, mkdir, readFile, realpath, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -73,4 +73,15 @@ test('runner reports usage when filtering leaves no command', () => {
     assert.match(result.stderr, /^Usage:/);
     assert.doesNotMatch(result.stderr, /unbound variable/);
   }
+});
+
+
+test('runner removes the temporary credentials mount after generation', async () => {
+  const temporaryDirectory = await mkdtemp(path.join(os.tmpdir(), 'google-docs-sync-empty-auth-'));
+  const result = await runWithFakeDocker('generate', {
+    GOOGLE_DOCS_SYNC_CREDENTIALS_DIR: path.join(temporaryDirectory, 'missing'),
+  });
+  const mount = result.arguments.match(/\n([^\n]+):\/credentials\n/);
+  assert.ok(mount, 'expected a credentials mount');
+  await assert.rejects(access(mount[1]), { code: 'ENOENT' });
 });

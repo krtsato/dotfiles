@@ -37,7 +37,7 @@
 
 入力: 「承認済みの要件変更を Google Docs の該当箇所へ反映して」
 
-期待する出力: 対象と revision を固定した変更案、承認範囲への反映結果、コメント・書式の読み戻し結果。共有スキル `sync-google-docs` が利用できる場合の例:
+期待する出力: 対象と リビジョン を固定した変更案、承認範囲への反映結果、コメント・書式の読み戻し結果。共有スキル `sync-google-docs` が利用できる場合の例:
 
 ```bash
 ~/.claude/skills/sync-google-docs/scripts/sync.sh apply-patches --config=docs/config.json --manifest=docs/approved.json

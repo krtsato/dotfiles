@@ -6,8 +6,8 @@
 
 1. 「`docs/requirements` の Markdown を新しい Google Docs のタブへ同期して」
    - `generate` 後、新規文書向け `publish` を選ぶ。
-2. 「承認済み patch manifest を法人用 Google Docs へ限定反映して」
-   - 既存タブを全置換せず、変更案、revision、反映後内容を検証する。
+2. 「承認済み 限定更新 manifest を法人用 Google Docs へ限定反映して」
+   - 既存タブを全置換せず、変更案、リビジョン、反映後内容を検証する。
 3. 「Google Docs のレビューコメントを取得して原本との対応を一覧化して」
    - 読み取り専用の `pull-comments` を選ぶ。
 4. 「原本画像だけ Google Docs へ同期し、提出用 PDF も出力して」
@@ -30,7 +30,7 @@
 | --- | --- | --- |
 | Valid outputs | 見出し、表、リンク、画像を含む fixture を generate | manifest と preview の構造、順序、参照が一致する |
 | API calls succeed | 新規文書、限定更新、画像同期、PDF を API fixture で実行 | 対象 API だけが期待回数で呼ばれ、再取得検証が成功する |
-| Error handling | 既存タブ publish、重複対象、revision 不一致、権限不足 | 書き込み前または検証時に停止し、原因を示す |
+| Error handling | 既存タブへの公開、重複対象、リビジョン不一致、権限不足 | 書き込み前または検証時に停止し、原因を示す |
 | Edge cases | 未解決参照、同名タブ、曖昧コメント、画像数不一致 | 推測で補完せず、対象と不足情報を報告する |
 
 ## Forward test
