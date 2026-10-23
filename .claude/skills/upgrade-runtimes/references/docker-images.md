@@ -157,11 +157,12 @@ docker images --format '{{.Repository}}:{{.Tag}}' \
         ~/dev/me ~/go/src/github.com/awa >/dev/null 2>&1 || rc=$?
       case $rc in 1) echo "unused $img" ;; 0) ;; *) echo "SEARCH-FAILED($rc) $img" ;; esac
     done
-# 版を変数で組み立てている FROM（例: FROM python:${PYTHON_VERSION}-slim）は文字列では見つからない。
-# 1 行でも出たら、その土台の種類（python など）の候補は消さずに残す
-grep -rniE --exclude-dir=node_modules --exclude-dir=.git --include='Dockerfile*' --include='*.Dockerfile' \
-  '^[[:space:]]*FROM[[:space:]]+(--[^[:space:]]+[[:space:]]+)*[^-[:space:]][^[:space:]]*[$]' \
-  ~/dev/me ~/go/src/github.com/awa
+# 版を変数で組み立てている FROM（例: FROM python:${V}-slim、FROM ${BASE}）は文字列では見つからない。
+# ファイル名を絞らずに探し、出た行を目で見る。土台の種類（python など）に当たる行があれば、その種類の候補は残す。
+# 読めない場所のエラーが画面に出たら、その回は何も消さない
+grep -rniIE --exclude-dir=node_modules --exclude-dir=.git '^[[:space:]]*FROM[[:space:]].*[$]' \
+  ~/dev/me ~/go/src/github.com/awa \
+  | grep -vE 'FROM[[:space:]]+--platform=[$][{]?(BUILD|TARGET)PLATFORM[}]?[[:space:]]+[^$]*$'
 # unused の名札ごとに: 使っているコンテナが無いことを確かめてから消す（-f を付けない）
 docker ps -a --filter ancestor=<名札> --format '{{.Names}}'
 docker image rm <名札>
@@ -170,7 +171,8 @@ docker image rm <名札>
 | 決めごと | なぜ |
 | --- | --- |
 | `FROM` 行を解析せず、**名札の文字列をどこかに書いているか**で決める | `from` の小文字、`ARG BASE=…` からの `FROM ${BASE}`、`FROM --platform=…` を行の解析で拾い切れない。文字列で探せばこれらは拾える |
-| **版を変数で組み立てる `FROM` が 1 行でもあれば、その種類の候補は残す** | `ARG V=3.15.0` と `FROM python:${V}-slim` は名札の文字列をどこにも含まない。文字列の検索が唯一見落とす書き方なので、別の検索で見張る（2026-10-23 時点では awa の `zero/*` の 2 行だけで、土台の種類には当たらない） |
+| **版を変数で組み立てる `FROM` が 1 行でもあれば、その種類の候補は残す** | `ARG V=3.15.0` と `FROM python:${V}-slim` は名札の文字列をどこにも含まない。ファイル名を絞らず別の検索で見張る。2026-10-23 時点の出力は 4 行で、うち 2 行は SQL、残り 2 行は awa の `zero/*` で、土台の種類には当たらない |
+| 抜け道を塞ぎ切ることは目指さない | 改行で続ける `FROM` などは拾えない。**消すのは公開の土台だけ**で、見落として消しても次のビルドで取り直されるだけ（失うのはダウンロードの時間）。取り直せない手元のビルドを消す一括の片付けとは損失の大きさが違う |
 | 探す範囲は **`~/dev/me` 全体**（他のリポ・別の worktree・未追跡のファイルを含む）と **`~/go/src/github.com/awa`** | 一覧に書いたリポだけを探すと、一覧に無いリポだけが使う土台が候補に出る |
 | 探す処理が失敗したら（終了コード 2）**その名札は消さない** | 読めなかった場所に使用箇所があるかもしれない。`SEARCH-FAILED` は「使われていない」ではなく「分からない」 |
 | `:latest` は候補にしない | `FROM python` のように名札を書かない参照は文字列では見つからない |
