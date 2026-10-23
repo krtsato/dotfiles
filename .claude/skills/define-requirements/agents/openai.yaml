@@ -1,0 +1,4 @@
+interface:
+  display_name: "要件定義"
+  short_description: "要件の抽出・構造化・レビュー反映・整合性確認を一貫支援"
+  default_prompt: "Use $define-requirements to structure, review, and refine requirements without over-specifying implementation details."

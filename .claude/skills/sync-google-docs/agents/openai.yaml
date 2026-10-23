@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sync Google Docs"
+  short_description: "Markdown と Google Docs を Docker で安全に同期する"
+  default_prompt: "Use $sync-google-docs to safely generate or sync this repository’s Markdown documents with Google Docs."
