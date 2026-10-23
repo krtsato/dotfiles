@@ -1,0 +1,23 @@
+{
+  "name": "google-docs-sync",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "generate": "node bin/google-docs-sync.mjs generate",
+    "publish": "node bin/google-docs-sync.mjs publish",
+    "pull-comments": "node bin/google-docs-sync.mjs pull-comments",
+    "apply-patches": "node bin/google-docs-sync.mjs apply-patches",
+    "sync-images": "node bin/google-docs-sync.mjs sync-images",
+    "export-pdf": "node bin/google-docs-sync.mjs export-pdf",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "googleapis": "173.0.0",
+    "marked": "18.0.7",
+    "pdf-lib": "1.17.1",
+    "pdfjs-dist": "5.4.149"
+  }
+}
