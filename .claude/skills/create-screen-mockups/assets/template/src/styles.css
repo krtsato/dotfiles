@@ -91,7 +91,7 @@ button { font: inherit; color: inherit; }
 .t-caption { font-size: 13px; line-height: 20px; }
 .t-caption.small { font-size: 12px; line-height: 18px; }
 .t-figure { font-family: var(--font-plain); font-weight: 700; font-feature-settings: "palt", "tnum"; }
-.t-figure .yen, .t-figure small { font-size: .55em; font-weight: 500; margin-right: 2px; }
+.t-figure .yen, .t-figure small { font-size: max(.55em, 12px); font-weight: 500; margin-right: 2px; }
 .var { color: var(--on-surface-variant); }
 .num { font-variant-numeric: tabular-nums; }
 

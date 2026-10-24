@@ -5,7 +5,7 @@
 ## ブランド色と色一式
 
 ```sh
-python3 -I <skill>/scripts/brand-colors.py https://<client-site>/
+python3 -I <skill>/scripts/brand-colors.py https://<発注者のサイト>/
 ```
 
 既定は「有彩色で最も多く、ロゴの塗りと一致する色」。一致しない、サイトがない場合は、ロゴ画像の色か依頼者の指定を使う。決めた色を `<brand-hex>` とする。
