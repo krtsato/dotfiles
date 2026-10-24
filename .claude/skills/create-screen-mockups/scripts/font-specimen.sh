@@ -23,6 +23,8 @@ trap 'rm -rf "$TMP"' EXIT
 families=$(printf '%s\n' "$@" | sed 's/ /+/g; s/$/:wght@400;700/; s/^/family=/' | paste -sd'&' -)
 {
   echo "<!doctype html><meta charset=utf-8><link rel=stylesheet href=\"https://fonts.googleapis.com/css2?$families&display=block\">"
+  # Sizes mirror the type scale in DESIGN.md: 24 px headline, 14 px body, 12 px caption,
+  # 28 px figure; 11 px / 600 is only the label naming each font.
   echo '<style>body{margin:0;background:#fff;color:#171d1b;display:grid;grid-template-columns:repeat(3,1fr)}
   .c{padding:16px 20px;border:1px solid #dee4e1;font-feature-settings:"palt"} .n{font:600 11px system-ui;color:#65558f;margin-bottom:8px}
   .h{font-size:24px;font-weight:700;line-height:32px} .b{font-size:14px;line-height:22px;color:#3f4946} .s{font-size:12px;color:#3f4946}
@@ -34,7 +36,8 @@ families=$(printf '%s\n' "$@" | sed 's/ /+/g; s/$/:wght@400;700/; s/^/family=/' 
 rows=$(( ($# + 2) / 3 ))
 # 8 s of virtual time lets the web fonts finish loading before the screenshot;
 # 60 s caps the whole run in case the network stalls. 1050 px = 3 columns of 350 px;
-# each row of samples is 210 px tall, +20 px bottom margin.
+# each row of samples is 210 px tall, +20 px bottom margin. Scale 2 renders like a
+# 2x phone screen, so thin strokes and kana spacing are judged at the size users see.
 timeout 60 "$CHROME" --headless --disable-gpu --hide-scrollbars --force-device-scale-factor=2 \
   --virtual-time-budget=8000 --window-size=1050,$((rows * 210 + 20)) \
   --screenshot="$OUT" "file://$TMP/specimen.html" >/dev/null 2>&1 \

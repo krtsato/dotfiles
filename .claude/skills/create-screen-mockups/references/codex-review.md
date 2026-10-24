@@ -36,6 +36,7 @@ awk '/^codex$/{buf=""; f=1; next} f{buf=buf $0 "\n"} END{printf "%s", buf}' "$LO
 
 読むべきファイル:
 - <project-root>/DESIGN.md（A2UI v0.9.1 基本カタログ＋Material 3。「AI っぽく見せないための規則」あり）
+- <要求資料（提案書）>（範囲の根拠。要件書自体の過剰もここで照らす）
 - <要件書>（画面にない情報を足さないこと）
 - <確認事項>（未決の点の根拠）
 - <screens README>（画面一覧と未決の点）

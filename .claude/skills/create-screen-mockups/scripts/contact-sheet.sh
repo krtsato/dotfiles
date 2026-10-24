@@ -29,7 +29,7 @@ mkdir -p "$OUT"
 OUT="$(cd "$OUT" && pwd)"
 rm -f "$OUT"/sheet-*.png "$OUT"/sheet-*.html
 
-# 390 px = phone width at 1x; 4 phones + 3 gaps of 8 px = 1592 px.
+# 390x844 px = the base phone screen at 1x; 4 phones + 3 gaps of 8 px = 1592 px wide.
 n=0
 for ((i = 0; i < ${#files[@]}; i += 4)); do
   html="$OUT/sheet-$n.html"

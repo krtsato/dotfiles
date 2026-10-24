@@ -14,6 +14,7 @@ THRESHOLD = {"text": 4.5, "graphic": 3.0}
 
 
 def luminance(hex_color):
+    # Relative luminance as defined by WCAG 2.x (sRGB linearisation and Rec. 709 weights).
     h = hex_color.lstrip("#")
     channels = [int(h[i:i + 2], 16) / 255 for i in (0, 2, 4)]
     channels = [c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4 for c in channels]
