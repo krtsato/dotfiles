@@ -1,7 +1,7 @@
 ---
 name: create-screen-mockups
 description: 要件定義書・要件概要書から、モバイルアプリの画面例（モックアップ）を、編集できる HTML/CSS/JS の原本と PNG の一式で作る。A2UI の部品カタログと Material 3 に沿い、企業サイトから決めたブランド色で色一式を生成し、DESIGN.md、要求資料（提案書）にない要件・UI を足していないかの範囲の点検、画面一覧と未決の点の README、codex によるレビューの反映までを扱う。「要件から画面デザインのモックアップ画像を作って」「screens が AI くさいので作り直して」「画面例を codex にレビューさせて直して」「DESIGN.md を作って」の時に使う。Do NOT use for アプリ本体（Flutter など）の実装・修正、要件定義書そのものの作成、スライド作成、ロゴなど単発の画像生成、Figma の編集。
-compatibility: macOS、Google Chrome（headless で PNG を書き出す）、coreutils の timeout、curl、python3、node と npm（色一式の生成、markdownlint-cli2）。Google Fonts と npm registry へのネットワーク接続。codex CLI（ログイン済み）はレビュー工程だけで使い、無ければ自己点検に切り替える。
+compatibility: macOS、Google Chrome（headless で PNG を書き出す）、coreutils の timeout、curl、python3、node と npm（色一式の生成、照合、markdownlint-cli2）。Google Fonts と npm registry へのネットワーク接続。codex CLI（ログイン済み）はレビュー工程だけで使い、無ければ自己点検に切り替える。
 ---
 
 # 画面例の作成
@@ -48,7 +48,7 @@ compatibility: macOS、Google Chrome（headless で PNG を書き出す）、cor
 | Google Chrome | `ls "/Applications/Google Chrome.app"` | 別の Chromium 系を `CHROME=<path>` で指定 |
 | timeout | `which timeout` | `brew install coreutils` |
 | curl | `curl --version` | 書体とアイコンのフォントの取得で使う。OS の標準で入っている版でよい |
-| node / npm | `node --version` | mise などで導入。色一式の生成と markdownlint で使う |
+| node / npm | `node --version` | mise などで導入。色一式の生成・照合・markdownlint で使う |
 | markdownlint-cli2 | `npx markdownlint-cli2 --help`（1 行目に版が出る） | npm があれば npx が取得する |
 | python3 | `python3 --version` | 標準で入っている版でよい |
 | codex CLI | `codex --version` と `codex login status` | レビュー工程を自己点検に切り替え、未実施と報告 |
@@ -78,7 +78,7 @@ compatibility: macOS、Google Chrome（headless で PNG を書き出す）、cor
 
 ### ステップ2: ブランド色を決める
 
-`references/color-and-type.md` を読み、企業サイトから `brand-colors.py` で種の色（既定は、有彩色で最も多くロゴの塗りと一致する色）を決め、`m3-palette.sh` で色一式を生成し、`contrast.py` で読みやすさを確かめる。状態の色は新しく作らず、役割色に割り当てる。
+`references/color-and-type.md` を読み、製品を出す企業（発注者）のサイトから `brand-colors.py` で種の色（既定は、有彩色で最も多くロゴの塗りと一致する色）を決め、`m3-palette.sh` で色一式を生成し、`contrast.py` で読みやすさを確かめる。状態の色は新しく作らず、役割色に割り当てる。
 
 ### ステップ3: 書体を決める
 

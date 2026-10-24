@@ -47,7 +47,7 @@ ICONS=$(
     grep -oE '(icon|trailing|leading|nav) ?[:=] ?"[a-z0-9_]+"' "$SRC/app.js" || true
     grep -oE 'Fab\("[^"]+", "[a-z0-9_]+"' "$SRC/app.js" || true
     grep -oE '\["[a-z]+", "[^"]+", "[a-z0-9_]+"\]' "$SRC/app.js" || true
-    grep -oE '\["[^"]+", "[a-z0-9_]+"\],' "$SRC/app.js" || true
+    grep -oE '\["[^"]+", "[a-z0-9_]+"\],?' "$SRC/app.js" || true
   } | sed -E 's/.*"([a-z0-9_]+)"\]?,?$/\1/' | { grep -E '^[a-z0-9_]+$' || true; } | sort -u | paste -sd, -
 )
 [ -n "$ICONS" ] || { echo "no icon names found in app.js" >&2; exit 1; }
