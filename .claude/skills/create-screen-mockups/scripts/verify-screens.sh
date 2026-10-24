@@ -83,11 +83,15 @@ if [ -s "$TMP/ids" ]; then
   fi
 fi
 
-# Requirement numbers must never be rendered on screen.
-# Comment lines (// ...) are not rendered, so they are ignored.
+# Requirement numbers must never be rendered on screen. Comments are not rendered, so
+# strip /* ... */ blocks and // comments (only after line start or whitespace, which
+# keeps "https://" in strings) before searching. Blocks keep their newlines so the
+# reported line numbers still match app.js.
+perl -0pe 's{/\*.*?\*/}{ (my $c = $&) =~ s/[^\n]//g; $c }gse; s{(^|[ \t])//[^\n]*}{$1}gm' \
+  "$DIR/src/app.js" > "$TMP/code.js"
 LABELS='要件 ?No|要求 ?No|要件番号'
-if grep -nE "$LABELS" "$DIR/src/app.js" | grep -vE '^[0-9]+:[[:space:]]*//' >/dev/null; then
-  echo "FAIL  requirement numbers appear in src/app.js:"; grep -nE "$LABELS" "$DIR/src/app.js" | grep -vE '^[0-9]+:[[:space:]]*//' | sed 's/^/      /'; fail=1
+if grep -nE "$LABELS" "$TMP/code.js" >/dev/null; then
+  echo "FAIL  requirement numbers appear in src/app.js:"; grep -nE "$LABELS" "$TMP/code.js" | sed 's/^/      /'; fail=1
 else
   echo "OK    no requirement numbers in screen text"
 fi
@@ -96,7 +100,7 @@ fi
 if [ -n "$IDS_FILE" ]; then
   leaked=()
   while IFS= read -r id; do
-    grep -nF -- "$id" "$DIR/src/app.js" | grep -vE '^[0-9]+:[[:space:]]*//' >/dev/null && leaked+=("$id")
+    grep -qF -- "$id" "$TMP/code.js" && leaked+=("$id")
   done < "$TMP/ids"
   if [ "${#leaked[@]}" -eq 0 ]; then
     echo "OK    no listed ids in screen text"
