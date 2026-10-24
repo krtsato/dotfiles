@@ -4,7 +4,7 @@
 # Usage: src/capture.sh [screen-id ...]
 #   With no arguments all screens are exported.
 #
-# Output: ../<file>.png (docs/requirements/screens/) at 390x844, device scale 2.
+# Output: ../<file>.png (the parent of src/) at 390x844, device scale 2.
 set -euo pipefail
 
 CHROME="${CHROME:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}"

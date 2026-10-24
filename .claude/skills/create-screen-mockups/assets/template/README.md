@@ -1,13 +1,13 @@
 # 画面例
 
-<!-- Replace every <...> placeholder. verify-screens.sh reads the rows that start with | `NN-name.png` | and expects the 3 columns PNG / 画面 / 主な要件 No.; keep them. -->
+<!-- Replace every <...> placeholder. verify-screens.sh reads the rows that start with | `NN-name.png` | and expects the 3 columns PNG / 画面 / 主な要件 No.; keep them. Separate several ids in one cell with 、. -->
 
 <製品名> の画面例です。要件を関係者と擦り合わせるための**たたき台**であり、画面例にある項目・操作は合意済みの要件ではありません。
 
 | 項目 | 内容 |
 | --- | --- |
 | 対象 | <要件書へのリンク> の要件 No. <最初>〜<最後> |
-| 基準端末 | スマートフォン縦向き 390×844。PNG は 2 倍の 780×1688 |
+| 基準画面 | スマートフォン縦向き 390×844。PNG は 2 倍の 780×1688 |
 | 枠組み | 部品は A2UI v0.9.1 の基本カタログ、見た目は Material 3。詳細は <DESIGN.md へのリンク> |
 | 作成日 | <YYYY 年 M 月 D 日> |
 
@@ -66,6 +66,6 @@ flowchart LR
 ## 注意点
 
 - 人名・場所の名前・住所・電話番号・金額はすべて架空です。
-- 写真は図形で描いた仮の画像です。
-- 画面内に要件 No.・要求 No. は表示しません。対応は上の表で示します。
+- 画像は図形で描いた仮のものです。
+- 画面内に要件番号・要求資料の番号は表示しません。対応は上の表で示します。
 - 画面例は 1 画面に収まる範囲だけを描いています。下にある項目はスクロールして表示する想定です。

@@ -1,9 +1,9 @@
 // Screen mockup source. Copy of the create-screen-mockups template.
 //
 // Content is composed only from helpers named after the A2UI v0.9.1 basic catalog
-// (Text, Icon, Image, Row, Column, List, Card, Tabs, Modal, Divider, Button,
+// (Text, Icon, Image, Row, Column, List, Card, Tabs, Divider, Button,
 // TextField, CheckBox, ChoicePicker, DateTimeInput) plus the app extension catalog
-// declared in DESIGN.md (StatusLabel, NoticeBanner, PhotoGrid, ...). The app shell
+// declared in DESIGN.md (StatusLabel and NoticeBanner as examples). The app shell
 // (top app bar, navigation bar, FAB, sheets) uses Material 3 host components.
 //
 // `?screen=<id>` picks a screen; `&shot=1` hides the viewer navigation for capture.
@@ -44,9 +44,10 @@ const ChoicePicker = (options, { variant = "multipleSelection", displayStyle = "
     return `<div class="seg">${options.map(([l, on, n]) => `<span class="${on ? "on" : ""}">${on ? Icon("check") : ""}${l}${n !== undefined ? ` <small>${n}</small>` : ""}</span>`).join("")}</div>`;
   return options.map(([l, on]) => `<div class="opt"><span class="radio ${on ? "on" : ""}"></span>${l}</div>`).join("");
 };
-const Segmented = (options) => ChoicePicker(options, { variant: "mutuallyExclusive", displayStyle: "chips" });
 const Tabs = (labels, on) => `<div class="tabs">${labels.map((l) => `<span class="${l === on ? "on" : ""}"><b>${l}</b></span>`).join("")}</div>`;
 const List = (items) => `<div class="list">${items.join("")}</div>`;
+// ListItem and KV build rows inside List only; Subhead is a section heading placed
+// right before a List. None of them is a separate catalog component.
 // Material 3 list item. `over` is an overline row, `sup`/`sup2` supporting lines.
 const ListItem = ({ lead = "", over = "", head = "", sup = "", sup2 = "", trail = "", cls = "", headCls = "" }) =>
   `<div class="li ${cls}">${lead}<div class="main">${over ? `<div class="over">${over}</div>` : ""}<div class="head ${headCls}">${head}</div>${sup ? `<div class="sup">${sup}</div>` : ""}${sup2 ? `<div class="sup2">${sup2}</div>` : ""}</div>${trail ? `<div class="trail">${trail}</div>` : ""}</div>`;
@@ -64,54 +65,11 @@ const StatusLabel = (k, lg = false) =>
 const NoticeBanner = (text, action = "表示", cls = "") =>
   `<div class="banner ${cls}">${Icon("warning", "fill")}<span class="main">${text}</span><button class="textbtn">${action}</button></div>`;
 
-// Fictional room photos: one-point perspective with varied walls, floor, window and door.
-const WALL = ["#ece7df", "#e4e6e3", "#efeae2", "#e2ddd3", "#e9e9e6", "#f0ebe3"];
-const FLOOR = ["#b48a62", "#9c8670", "#c8b496", "#8a7765", "#d6cdbf", "#a68b6c"];
-const shade = (hex, k) => {
-  const n = parseInt(hex.slice(1), 16);
-  const c = [n >> 16, (n >> 8) & 255, n & 255].map((v) => Math.max(0, Math.min(255, Math.round(v * k))));
-  return `rgb(${c.join(",")})`;
-};
-const room = (i) => {
-  const w = WALL[i % WALL.length], f = FLOOR[(i * 5 + 1) % FLOOR.length];
-  const x1 = 22 + ((i * 7) % 14), x2 = x1 + 42 + ((i * 3) % 12), y1 = 18 + ((i * 5) % 10), y2 = 58 + ((i * 3) % 10);
-  const win = i % 3 !== 1
-    ? `<rect x="${x1 + 8}" y="${y1 + 6}" width="${(x2 - x1) * 0.45}" height="${(y2 - y1) * 0.5}" fill="#dfeef3"/><rect x="${x1 + 8}" y="${y1 + 6}" width="${(x2 - x1) * 0.45}" height="${(y2 - y1) * 0.5}" fill="none" stroke="#fff" stroke-width="1.4"/><line x1="${x1 + 8 + (x2 - x1) * 0.225}" y1="${y1 + 6}" x2="${x1 + 8 + (x2 - x1) * 0.225}" y2="${y1 + 6 + (y2 - y1) * 0.5}" stroke="#fff" stroke-width="1"/>`
-    : "";
-  const door = i % 2 === 0
-    ? `<polygon points="${x2 + 4},${y1 + 10} ${x2 + 14},${y1 + 4} ${x2 + 14},${y2 + 12} ${x2 + 4},${y2 + 3}" fill="${shade(w, 0.86)}" stroke="${shade(w, 0.75)}" stroke-width=".6"/>`
-    : "";
-  const fixture = i % 4 === 3
-    ? `<rect x="${x1 + 4}" y="${y2 - 14}" width="${(x2 - x1) * 0.6}" height="14" fill="#f7f7f5"/><rect x="${x1 + 4}" y="${y2 - 15}" width="${(x2 - x1) * 0.6}" height="2" fill="#cfd2d0"/>`
-    : "";
-  return `<svg class="room" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
-    <polygon points="0,0 100,0 ${x2},${y1} ${x1},${y1}" fill="${shade(w, 1.03)}"/>
-    <polygon points="0,0 ${x1},${y1} ${x1},${y2} 0,100" fill="${shade(w, 0.9)}"/>
-    <polygon points="100,0 ${x2},${y1} ${x2},${y2} 100,100" fill="${shade(w, 0.95)}"/>
-    <rect x="${x1}" y="${y1}" width="${x2 - x1}" height="${y2 - y1}" fill="${w}"/>
-    <polygon points="0,100 ${x1},${y2} ${x2},${y2} 100,100" fill="${f}"/>
-    <polygon points="0,100 ${x1},${y2} ${x1 + 6},${y2} 18,100" fill="${shade(f, 1.06)}" opacity=".5"/>
-    <line x1="${x1}" y1="${y2}" x2="${x2}" y2="${y2}" stroke="${shade(w, 0.8)}" stroke-width="1"/>
-    ${win}${door}${fixture}
-  </svg>`;
-};
-const Image = (i, cls = "", inner = "") => `<div class="ph ${cls}">${room(i)}${inner}</div>`;
-const PhotoGrid = (n, { selected = null, start = 0 } = {}) =>
-  `<div class="pgrid">${Array.from({ length: n }, (_, k) => {
-    const i = k + start;
-    if (!selected) return Image(i);
-    const on = selected.includes(k);
-    return Image(i, on ? "on" : "", `<span class="sel">${on ? Icon("check") : ""}</span>`);
-  }).join("")}</div>`;
-const SignaturePad = () => `<div class="sigpad">
-  ${Button("書き直す", { variant: "borderless" })}
-  <div class="base"></div><div class="lbl">署名</div>
-  <svg viewBox="0 0 240 110" fill="none" stroke="#1f2a44" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 74c10-30 22-46 28-40s-14 46-6 48 22-40 30-38-6 30 2 32 14-24 22-22 0 22 8 22 18-30 26-30-8 32 2 32 20-26 30-26 4 22 14 22 18-12 26-14"/><path d="M58 44c22 2 42-2 58-7"/></svg>
-</div>`;
-const StageTrack = (steps) =>
-  `<div class="track">${steps.map(([s, l, d]) => `<div class="stp ${s}"><div class="bar"></div><b>${l}</b>${d}</div>`).join("")}</div>`;
-const Metric = (label, value, unit, cls = "") =>
-  `<div class="metric ${cls}"><div class="lbl">${label}</div><div class="val">${value}<small>${unit}</small></div></div>`;
+// A2UI Image as a neutral placeholder; replace with the project's own artwork if needed.
+const Image = (cls = "", inner = "") => `<div class="ph ${cls}">${Icon("image")}${inner}</div>`;
+
+// Add project-specific components here only after declaring them in the extension
+// catalog of DESIGN.md (e.g. a photo grid or a signature pad, if the requirements ask).
 
 // ---------- Material 3 shell ----------
 const statusbar = (cls = "") => `<div class="statusbar ${cls}"><span>9:41</span><span class="sys"><svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><span class="batt"><i></i></span></span></div>`;
@@ -119,9 +77,9 @@ const AppBar = (title, { nav = "arrow_back", acts = "", cls = "" } = {}) =>
   `<div class="appbar ${cls}">${nav ? IconButton(nav, "on-surface") : ""}<div class="title">${title}</div><div class="acts">${acts}</div></div>`;
 const LargeAppBar = (title, { sub = "", acts = "" } = {}) =>
   `<div class="appbar-large"><div class="top" ${acts ? "" : 'style="height:16px"'}>${acts}</div><h1 class="t-display">${title}</h1>${sub ? `<div class="sub t-body-m var">${sub}</div>` : ""}</div>`;
+// One navigation set per kind of app user; rename and add sets to match the requirements.
 const NAV = {
-  sales: [["home", "ホーム", "home"], ["cases", "案件", "work"], ["settings", "設定", "settings"]],
-  admin: [["dashboard", "集計", "dashboard"], ["cases", "案件", "work"], ["timeline", "タイムライン", "view_timeline"], ["master", "マスタ", "groups"], ["settings", "設定", "settings"]],
+  main: [["home", "ホーム", "home"], ["list", "一覧", "list"], ["settings", "設定", "settings"]],
 };
 const NavBar = (role, on) =>
   `<nav class="navbar">${NAV[role].map(([k, l, i]) => `<a class="${k === on ? "on" : ""}"><span class="ind">${Icon(i)}</span>${l}</a>`).join("")}</nav>`;
@@ -149,12 +107,13 @@ const Item = (c) => ListItem({
 const S = {};
 
 // Top-level tab screen: large title, list, slim notice after the main content.
+// The search bar is only an example; keep it only if the requirements ask for search.
 S.home = () => screen({
   top: `<div style="padding:8px 16px 0"><div class="searchbar">${Icon("search")}<span class="hint">検索</span><span class="avatar">例</span></div></div>`,
   body: `${LargeAppBar("今日の予定", { sub: "10月24日（土）・3 件" })}
     ${List(ITEMS.map(Item))}
     <div class="mt8">${NoticeBanner("確認が必要な項目が<b>2</b>件", "表示", "slim")}</div>`,
-  bottom: NavBar("sales", "home"),
+  bottom: NavBar("main", "home"),
   homeCls: "low",
 });
 
@@ -162,16 +121,16 @@ S.home = () => screen({
 S.detail = () => screen({
   top: `${AppBar("場所の例 A", { acts: IconButton("more_vert"), cls: "compact" })}
     <div style="padding:0 16px 12px">${Text("h1", ITEMS[0].name)}
-      ${Row(`${StatusLabel("doing", true)}<span class="flex1"></span>${Button("ステータスを変更", { variant: "default", icon: "swap_horiz" })}`, "mt4")}</div>
-    ${Tabs(["概要", "写真", "書類"], "概要")}`,
-  body: `${Subhead("場所")}${List([KV("住所", "東京都〇〇区 1 丁目", IconButton("map"))])}
-    ${Subhead("金額")}${List([KV("金額", '<span class="t-figure" style="font-size:20px"><span class="yen">¥</span>123,456</span>')])}`,
-  bottom: NavBar("sales", "cases"),
+      ${Row(`${StatusLabel("doing", true)}<span class="flex1"></span>${Button("状態を変更", { variant: "default", icon: "swap_horiz" })}`, "mt4")}</div>
+    ${Tabs(["概要", "履歴"], "概要")}`,
+  body: `${Subhead("場所")}${List([KV("住所", "東京都〇〇区 1 丁目")])}
+    ${Subhead("金額")}${List([KV("合計", '<span class="t-figure" style="font-size:20px"><span class="yen">¥</span>123,456</span>')])}`,
+  bottom: NavBar("main", "list"),
   homeCls: "low",
 });
 
 // Exclusive choice in a bottom sheet (ChoicePicker mutuallyExclusive + checkbox -> radio list).
-S["detail-sheet"] = () => S.detail().replace(/<\/div>$/, `${Scrim()}${Sheet("ステータスを変更",
+S["detail-sheet"] = () => S.detail().replace(/<\/div>$/, `${Scrim()}${Sheet("状態を変更",
   ChoicePicker([["未対応", false], ['進行中<span class="t-caption var" style="margin-left:8px">現在</span>', false], ["完了", true]], { variant: "mutuallyExclusive", displayStyle: "checkbox" }),
   `${Button("キャンセル", { variant: "borderless" })}${Button("完了に変更", { variant: "primary" })}`)}</div>`);
 
@@ -186,11 +145,12 @@ S.form = () => screen({
 });
 
 // ---------- Registry ----------
-// [group, screen id, PNG file name, label]. capture.sh and verify-screens.sh read these lines.
+// [group, screen id, PNG file name, label]. capture.sh and verify-screens.sh read screens
+// by this one-line shape, so no other line may have the shape ["a", "b", "c", "d"].
 const SCREENS = [
   ["例", "home", "01-home", "ホーム"],
   ["例", "detail", "02-detail", "詳細"],
-  ["例", "detail-sheet", "03-detail-sheet", "ステータス変更"],
+  ["例", "detail-sheet", "03-detail-sheet", "状態の変更"],
   ["例", "form", "04-form", "新規登録"],
 ];
 
@@ -219,5 +179,5 @@ try {
   });
 } catch (e) {
   document.body.dataset.render = "error";
-  document.getElementById("app").innerHTML = `<pre style="padding:16px;color:#ba1a1a;white-space:pre-wrap">render error: ${e.message}</pre>`;
+  document.getElementById("app").innerHTML = `<pre style="padding:16px;color:var(--error);white-space:pre-wrap">render error: ${e.message}</pre>`;
 }

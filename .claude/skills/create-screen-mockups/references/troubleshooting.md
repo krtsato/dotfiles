@@ -5,7 +5,7 @@
 ## Error: 画面のアイコンが `search` などの英単語で表示される
 
 **Cause**: アイコンのフォントは使う名前だけを含む部分集合で、新しい名前が入っていない。
-**Solution**: `<screens-dir>/src/fetch-assets.sh` を実行して書き出し直す。`Icon("name")`・`IconButton("name")`・`icon:`/`trailing:`/`leading:`/`nav:`（既定値の `nav = "name"` を含む）・`Fab("..", "name")` 以外の書き方で名前を渡していると拾われないので、その書き方に揃える。
+**Solution**: `<screens-dir>/src/fetch-assets.sh` を実行して書き出し直す。`Icon("name")`・`IconButton("name")`・`icon:`/`trailing:`/`leading:`/`nav:`（既定値の `nav = "name"` を含む）・`Fab("..", "name")`・`NAV` と `STATUS` の表の行（`["key", "ラベル", "name"]` / `["ラベル", "name"]`）以外の書き方で名前を渡していると拾われないので、その書き方に揃える。`NAV` の表のキーは英小文字だけにする（数字やハイフンを含むと拾われない）。
 
 ## Error: `capture.sh` が `failed: NN-name.png (data-render="error")` を出す
 
@@ -16,6 +16,11 @@
 
 **Cause**: 画面の番号や名前を変えた後に古い PNG が残っている、または書き出しに失敗した画面がある。
 **Solution**: `rm <screens-dir>/*.png` の後に `capture.sh` で全画面を書き出す。
+
+## Error: `verify-screens.sh` が `requirements not mapped to any screen` を出す
+
+**Cause**: README の画面一覧の「主な要件 No.」の欄に、その番号が書かれていない。区切りが「、」以外（`,`・`・`）、数字の番号が 3 桁でない（`7`）、`--ids` のファイルと README で番号の書き方が違う、のどれかが多い。
+**Solution**: 本当に対応する画面がないなら、画面を足すか、要件書の範囲外であることを依頼者と確認する。書き方の違いなら、README を「、」区切り・要件書と同じ書き方にそろえる。
 
 ## Error: codex の結果が「No prompt provided」や「Not inside a trusted directory」
 

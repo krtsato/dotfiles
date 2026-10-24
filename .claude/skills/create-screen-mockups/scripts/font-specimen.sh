@@ -13,9 +13,9 @@ OUT="${1:?usage: font-specimen.sh <out.png> \"Font A\" ...}"
 shift
 [ "$#" -gt 0 ] || { echo "give at least one font family" >&2; exit 1; }
 CHROME="${CHROME:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}"
-HEAD="${SAMPLE_HEAD:-定期点検・設備の交換}"
-BODY="${SAMPLE_BODY:-サンプルビル 3 階 301}"
-CAPTION="${SAMPLE_CAPTION:-東京都千代田区 1 丁目・担当者の例}"
+HEAD="${SAMPLE_HEAD:-項目名の例}"
+BODY="${SAMPLE_BODY:-場所の例 1 階}"
+CAPTION="${SAMPLE_CAPTION:-市区町村 1 丁目・担当者の例}"
 FIGURE="${SAMPLE_FIGURE:-¥123,456}"
 
 TMP="$(mktemp -d)"
@@ -23,11 +23,11 @@ trap 'rm -rf "$TMP"' EXIT
 families=$(printf '%s\n' "$@" | sed 's/ /+/g; s/$/:wght@400;700/; s/^/family=/' | paste -sd'&' -)
 {
   echo "<!doctype html><meta charset=utf-8><link rel=stylesheet href=\"https://fonts.googleapis.com/css2?$families&display=block\">"
-  # Sizes mirror the type scale in DESIGN.md: 24 px headline, 14 px body, 12 px caption,
+  # Sizes mirror the type scale in DESIGN.md: 24 px headline, 14 px body, 13 px caption,
   # 28 px figure; 11 px / 600 is only the label naming each font.
-  echo '<style>body{margin:0;background:#fff;color:#171d1b;display:grid;grid-template-columns:repeat(3,1fr)}
-  .c{padding:16px 20px;border:1px solid #dee4e1;font-feature-settings:"palt"} .n{font:600 11px system-ui;color:#65558f;margin-bottom:8px}
-  .h{font-size:24px;font-weight:700;line-height:32px} .b{font-size:14px;line-height:22px;color:#3f4946} .s{font-size:12px;color:#3f4946}
+  echo '<style>body{margin:0;background:#fff;color:#1d1d1d;display:grid;grid-template-columns:repeat(3,1fr)}
+  .c{padding:16px 20px;border:1px solid #dddddd;font-feature-settings:"palt"} .n{font:600 11px system-ui;color:#666666;margin-bottom:8px}
+  .h{font-size:24px;font-weight:700;line-height:32px} .b{font-size:14px;line-height:22px;color:#444444} .s{font-size:13px;color:#444444}
   .m{font-size:28px;font-weight:700;margin-top:6px}</style><body>'
   for f in "$@"; do
     echo "<div class=c style=\"font-family:'$f'\"><div class=n>$f</div><div class=h>$HEAD</div><div class=b>$BODY</div><div class=s>$CAPTION</div><div class=m>$FIGURE</div></div>"
