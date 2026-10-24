@@ -55,7 +55,8 @@ if [ -n "$FIRST" ] && [ -n "$LAST" ]; then
   missing=()
   for n in $(seq "$FIRST" "$LAST"); do
     num=$(printf '%03d' "$n")
-    grep -qE "^\| \`.*(\| |、)$num(、| \|)" "$DIR/README.md" || missing+=("$num")
+    # Only screen rows (| `NN-name.png` | ... |) count; file-description rows do not.
+    grep -qE "^\| \`[0-9]{2}-[a-z0-9-]+\.png\` \|.*(\| |、)$num(、| \|)" "$DIR/README.md" || missing+=("$num")
   done
   if [ "${#missing[@]}" -eq 0 ]; then
     echo "OK    requirements $(printf '%03d' "$FIRST")-$(printf '%03d' "$LAST") all mapped"

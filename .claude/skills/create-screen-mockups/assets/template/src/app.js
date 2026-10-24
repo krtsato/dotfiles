@@ -198,8 +198,11 @@ const SCREENS = [
 // Unknown or missing ?screen= falls back to the first registered screen.
 // body[data-render] tells capture.sh whether the screen really rendered:
 // "ok" only after the screen function ran and every web font loaded.
+// In capture mode (shot=1) a requested id without a function is an error, so a
+// different screen is never saved under the requested PNG name.
 const fallback = SCREENS.length ? SCREENS[0][1] : null;
-const id = S[params.get("screen")] ? params.get("screen") : fallback;
+const requested = params.get("screen");
+const id = shot && requested ? requested : S[requested] ? requested : fallback;
 if (shot) document.body.classList.add("shot");
 const nav = SCREENS.reduce((acc, [g, sid, , label], i) => {
   const head = i === 0 || SCREENS[i - 1][0] !== g ? `<h2>${g}</h2>` : "";
