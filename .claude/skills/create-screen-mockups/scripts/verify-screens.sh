@@ -91,7 +91,7 @@ node - "$DIR/src/app.js" > "$TMP/code.js" <<'JS'
 const src = require("fs").readFileSync(process.argv[2], "utf8");
 let out = "", i = 0;
 const stack = []; // open quotes; "}" marks a ${...} inside a template literal
-const blank = (s) => s.replace(/[^\n]/g, " ");
+const blank = (s) => s.replace(/[^\n\r\u2028\u2029]/g, " ");
 while (i < src.length) {
   const c = src[i], top = stack[stack.length - 1];
   if (top === "'" || top === '"' || top === "`") {
@@ -100,7 +100,8 @@ while (i < src.length) {
     else if (top === "`" && c === "$" && src[i + 1] === "{") { stack.push("}"); out += "${"; i += 2; continue; }
     out += c; i++; continue;
   }
-  if (c === "/" && src[i + 1] === "/") { const j = src.indexOf("\n", i); const e = j < 0 ? src.length : j; out += blank(src.slice(i, e)); i = e; continue; }
+  // A line comment ends at any JS line terminator: LF, CR, U+2028 or U+2029.
+  if (c === "/" && src[i + 1] === "/") { const m = /[\n\r\u2028\u2029]/.exec(src.slice(i)); const e = m ? i + m.index : src.length; out += blank(src.slice(i, e)); i = e; continue; }
   if (c === "/" && src[i + 1] === "*") { const j = src.indexOf("*/", i + 2); const e = j < 0 ? src.length : j + 2; out += blank(src.slice(i, e)); i = e; continue; }
   if (c === "'" || c === '"' || c === "`") stack.push(c);
   else if (c === "{" && (top === "}" || top === "{")) stack.push("{");
