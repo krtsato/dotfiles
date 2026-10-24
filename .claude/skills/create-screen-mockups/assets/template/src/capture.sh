@@ -29,6 +29,12 @@ if [ "${#entries[@]}" -eq 0 ]; then
   exit 1
 fi
 
+# Every requested id must exist, so a typo is reported instead of silently skipped.
+for want in "$@"; do
+  printf '%s\n' "${entries[@]}" | grep -q "^$want|" \
+    || { echo "unknown screen id: $want (see SCREENS in app.js)" >&2; exit 1; }
+done
+
 failed=0
 count=0
 for entry in "${entries[@]}"; do

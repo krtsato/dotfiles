@@ -1,6 +1,6 @@
 # 画面例
 
-<!-- Replace every <...> placeholder. Keep the table headers: verify-screens.sh reads them. -->
+<!-- Replace every <...> placeholder. verify-screens.sh reads the rows that start with | `NN-name.png` |. -->
 
 <製品名> の画面例です。要件を関係者と擦り合わせるための**たたき台**であり、画面例にある項目・操作は合意済みの要件ではありません。
 
