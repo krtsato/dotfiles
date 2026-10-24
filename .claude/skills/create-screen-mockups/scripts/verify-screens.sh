@@ -84,11 +84,31 @@ if [ -s "$TMP/ids" ]; then
 fi
 
 # Requirement numbers must never be rendered on screen. Comments are not rendered, so
-# strip /* ... */ blocks and // comments (only after line start or whitespace, which
-# keeps "https://" in strings) before searching. Blocks keep their newlines so the
-# reported line numbers still match app.js.
-perl -0pe 's{/\*.*?\*/}{ (my $c = $&) =~ s/[^\n]//g; $c }gse; s{(^|[ \t])//[^\n]*}{$1}gm' \
-  "$DIR/src/app.js" > "$TMP/code.js"
+# blank them out first. A small scanner tells strings, template literals (with ${...})
+# and comments apart, which regexes cannot; newlines are kept so line numbers match.
+# Regex literals are read as code, so a quote inside one (/"/) would confuse it.
+node - "$DIR/src/app.js" > "$TMP/code.js" <<'JS'
+const src = require("fs").readFileSync(process.argv[2], "utf8");
+let out = "", i = 0;
+const stack = []; // open quotes; "}" marks a ${...} inside a template literal
+const blank = (s) => s.replace(/[^\n]/g, " ");
+while (i < src.length) {
+  const c = src[i], top = stack[stack.length - 1];
+  if (top === "'" || top === '"' || top === "`") {
+    if (c === "\\") { out += src.slice(i, i + 2); i += 2; continue; }
+    if (c === top) stack.pop();
+    else if (top === "`" && c === "$" && src[i + 1] === "{") { stack.push("}"); out += "${"; i += 2; continue; }
+    out += c; i++; continue;
+  }
+  if (c === "/" && src[i + 1] === "/") { const j = src.indexOf("\n", i); const e = j < 0 ? src.length : j; out += blank(src.slice(i, e)); i = e; continue; }
+  if (c === "/" && src[i + 1] === "*") { const j = src.indexOf("*/", i + 2); const e = j < 0 ? src.length : j + 2; out += blank(src.slice(i, e)); i = e; continue; }
+  if (c === "'" || c === '"' || c === "`") stack.push(c);
+  else if (c === "{" && (top === "}" || top === "{")) stack.push("{");
+  else if (c === "}" && (top === "}" || top === "{")) stack.pop();
+  out += c; i++;
+}
+process.stdout.write(out);
+JS
 LABELS='要件 ?No|要求 ?No|要件番号'
 if grep -nE "$LABELS" "$TMP/code.js" >/dev/null; then
   echo "FAIL  requirement numbers appear in src/app.js:"; grep -nE "$LABELS" "$TMP/code.js" | sed 's/^/      /'; fail=1
