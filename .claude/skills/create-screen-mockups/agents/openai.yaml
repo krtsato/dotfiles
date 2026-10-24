@@ -1,0 +1,4 @@
+interface:
+  display_name: "画面例の作成"
+  short_description: "要件からモバイルアプリの画面例を A2UI と Material 3 で作り、点検・レビュー・照合まで行う"
+  default_prompt: "Use $create-screen-mockups to build requirement-driven mobile screen mockups with editable HTML/CSS/JS sources and exported PNGs."
