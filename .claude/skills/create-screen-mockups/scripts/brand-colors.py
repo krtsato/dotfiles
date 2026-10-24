@@ -34,7 +34,8 @@ def normalize(token):
             h = "".join(c * 2 for c in h)
         return "#" + h.upper() if len(h) == 6 else None
     nums = re.findall(r"[\d.]+%?", token)
-    if len(nums) < 3:
+    # Template strings such as rgb(${c.r},...) in inline JS yield "." or "": skip them.
+    if len(nums) < 3 or not all(re.fullmatch(r"(\d+(\.\d+)?|\.\d+)%?", n) for n in nums):
         return None
     if len(nums) == 4:
         alpha = float(nums[3].rstrip("%")) / (100 if nums[3].endswith("%") else 1)

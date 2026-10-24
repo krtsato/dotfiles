@@ -66,8 +66,9 @@ if [ -n "$FIRST" ] && [ -n "$LAST" ]; then
 fi
 
 # Requirement numbers must never be rendered on screen.
-if grep -nE '要件 ?No|要求 ?No' "$DIR/src/app.js" >/dev/null; then
-  echo "FAIL  requirement numbers appear in src/app.js:"; grep -nE '要件 ?No|要求 ?No' "$DIR/src/app.js" | sed 's/^/      /'; fail=1
+# Comment lines (// ...) are not rendered, so they are ignored.
+if grep -nE '要件 ?No|要求 ?No' "$DIR/src/app.js" | grep -vE '^[0-9]+:[[:space:]]*//' >/dev/null; then
+  echo "FAIL  requirement numbers appear in src/app.js:"; grep -nE '要件 ?No|要求 ?No' "$DIR/src/app.js" | grep -vE '^[0-9]+:[[:space:]]*//' | sed 's/^/      /'; fail=1
 else
   echo "OK    no requirement numbers in screen text"
 fi

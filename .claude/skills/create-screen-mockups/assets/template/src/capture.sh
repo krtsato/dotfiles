@@ -29,6 +29,16 @@ if [ "${#entries[@]}" -eq 0 ]; then
   exit 1
 fi
 
+# Every requested id must exist, so a typo is reported instead of silently skipped.
+# Compare as plain strings: an id like "det.il" must not match "detail".
+for want in "$@"; do
+  found=0
+  for entry in "${entries[@]}"; do
+    [ "${entry%%|*}" = "$want" ] && { found=1; break; }
+  done
+  [ "$found" -eq 1 ] || { echo "unknown screen id: $want (see SCREENS in app.js)" >&2; exit 1; }
+done
+
 failed=0
 count=0
 for entry in "${entries[@]}"; do

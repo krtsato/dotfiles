@@ -165,7 +165,7 @@ S.detail = () => screen({
       ${Row(`${StatusLabel("doing", true)}<span class="flex1"></span>${Button("ステータスを変更", { variant: "default", icon: "swap_horiz" })}`, "mt4")}</div>
     ${Tabs(["概要", "写真", "書類"], "概要")}`,
   body: `${Subhead("場所")}${List([KV("住所", "東京都〇〇区 1 丁目", IconButton("map"))])}
-    ${Subhead("金額")}${List([KV("金額", '<span class="t-figure" style="font-size:20px"><span class="yen">¥</span>120,000</span>')])}`,
+    ${Subhead("金額")}${List([KV("金額", '<span class="t-figure" style="font-size:20px"><span class="yen">¥</span>123,456</span>')])}`,
   bottom: NavBar("sales", "cases"),
   homeCls: "low",
 });
