@@ -5,7 +5,7 @@
 #
 # Usage: contact-sheet.sh <png-dir> <out-dir> [png-name ...]
 #   contact-sheet.sh docs/requirements/screens /tmp/sheets
-#   contact-sheet.sh docs/requirements/screens /tmp/sheets 02-home 06-case-detail
+#   contact-sheet.sh docs/requirements/screens /tmp/sheets 02-detail 03-detail-sheet
 #
 # Output: <out-dir>/sheet-0.png, sheet-1.png, ... (old sheets are removed first)
 set -euo pipefail

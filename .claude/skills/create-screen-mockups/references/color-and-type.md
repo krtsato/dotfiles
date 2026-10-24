@@ -26,10 +26,10 @@ python3 -I <skill>/scripts/contrast.py "<on-primary>:<primary>" "<on-surface>:<s
 
 ## 書体
 
-既定は **IBM Plex Sans JP** の 1 書体（人間的な形で業務用に落ち着く。英数字が同じ一族でそろう）。依頼者が書体に注文を付けたときだけ書体見本で比べる。
+既定は **IBM Plex Sans JP** の 1 書体（人間的な形で、落ち着いた用途に合う。英数字が同じ一族でそろう）。書体見本で比べる条件は SKILL.md のステップ3に従う。
 
 ```sh
-SAMPLE_HEAD="<実際の項目名>" SAMPLE_BODY="<実際の場所名>" \
+SAMPLE_HEAD="<実際の項目名>" SAMPLE_BODY="<実際の本文>" SAMPLE_CAPTION="<実際の補足>" \
   <skill>/scripts/font-specimen.sh /tmp/specimen.png "IBM Plex Sans JP" "Noto Sans JP" "BIZ UDPGothic" "M PLUS 2"
 ```
 

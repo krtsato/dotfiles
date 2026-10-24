@@ -4,8 +4,8 @@
 # Usage: src/fetch-assets.sh
 #   Typeface and weights come from src/font.conf (FONT, FONT_WEIGHTS).
 #
-# - The typeface is subset to the characters that appear in app.js and
-#   index.html, so re-run this after adding new text.
+# - The typeface is subset to the characters that appear in app.js,
+#   index.html and styles.css, so re-run this after adding new text.
 # - The icon font is subset to the icon names used in app.js, so re-run this
 #   after using a new icon.
 # - Everything is downloaded into a temporary directory and checked first; the
@@ -29,7 +29,7 @@ FONT="${env_font:-${FONT:-IBM Plex Sans JP}}"
 FONT_WEIGHTS="${env_weights:-${FONT_WEIGHTS:-400;500;700}}"
 
 # Every distinct character in the sources (plus ASCII printable), URL-encoded.
-TEXT=$(python3 -I - "$SRC/app.js" "$SRC/index.html" <<'PY'
+TEXT=$(python3 -I - "$SRC/app.js" "$SRC/index.html" "$SRC/styles.css" <<'PY'
 import sys, urllib.parse
 chars = set(chr(c) for c in range(0x20, 0x7f))
 for path in sys.argv[1:]:
