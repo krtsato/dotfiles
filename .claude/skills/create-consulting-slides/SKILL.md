@@ -34,8 +34,9 @@ allowed-tools:
 Start visual authoring only after the decision objective, evidence map, and storyboard are
 coherent; restructuring after slides exist costs far more than fixing the storyboard.
 
-Preserve the user's facts and approved structure. Label estimates, assumptions, and unknowns as
-such, because readers of a consulting deck treat unlabeled numbers as sourced.
+Preserve the user's facts and approved structure. Label estimates, assumptions, and unknowns, and
+never turn them into sourced facts, even in summary slides: readers of a consulting deck treat
+any unlabeled claim as sourced.
 
 Report completion only after every slide has been exported, rendered, and visually inspected. A
 successful API call or file save does not show overflow, overlap, or missing fonts.
