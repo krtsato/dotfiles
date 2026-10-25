@@ -131,7 +131,7 @@ grep -E '^\[[0-9]+:[0-9]{2}' "$src" > "$W/transcript.txt"
 強制終了するまでの猶予（秒）。
 
 ```bash
-timeout --kill-after=30 1800 claude -p --model claude-opus-4-8 --output-format text \
+timeout --kill-after=30 1800 claude -p --model claude-opus-5-5 --output-format text \
   < "$W/prompt.md" > "$W/revised.md"
 ```
 
