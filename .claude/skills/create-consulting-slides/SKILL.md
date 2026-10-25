@@ -31,17 +31,17 @@ allowed-tools:
 
 ## Important
 
-CRITICAL: Do not start visual authoring until the decision objective, evidence map, and
-storyboard are coherent.
+Start visual authoring only after the decision objective, evidence map, and storyboard are
+coherent; restructuring after slides exist costs far more than fixing the storyboard.
 
-CRITICAL: Preserve the user's facts and approved structure. Label estimates, assumptions, and
-unknowns; never turn them into sourced facts.
+Preserve the user's facts and approved structure. Label estimates, assumptions, and unknowns as
+such, because readers of a consulting deck treat unlabeled numbers as sourced.
 
-CRITICAL: Do not report completion until every slide has been exported, rendered, and visually
-inspected. A successful API call or file save is not visual proof.
+Report completion only after every slide has been exported, rendered, and visually inspected. A
+successful API call or file save does not show overflow, overlap, or missing fonts.
 
-CRITICAL: Use native editable text, shapes, tables, and charts for business content. Use raster
-images only when the source itself is photographic or illustrative.
+Use native editable text, shapes, tables, and charts for business content so the user can edit
+it later. Use raster images only when the source itself is photographic or illustrative.
 
 ## 目次
 
