@@ -194,13 +194,21 @@
     "server-dev@awa-plugins": true,
     "write-postmortem@awa-plugins": true,
     "document-dev@awa-plugins": true,
-    "discord@claude-plugins-official": true
+    "discord@claude-plugins-official": true,
+    "common@ysys": true,
+    "pdm@ysys": true
   },
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
       "source": {
         "source": "github",
         "repo": "anthropics/claude-plugins-official"
+      }
+    },
+    "ysys": {
+      "source": {
+        "source": "github",
+        "repo": "yoyogi-systems/claude-marketplace"
       }
     }
   },
