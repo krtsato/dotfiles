@@ -7,10 +7,10 @@ description: >-
   自宅 Mac の runner（self-hosted）の PATH を点検する。「Go を上げて」「Python を上げて」
   「actions の版を上げて」「golangci-lint を上げて」「手元と CI で lint の結果が違う」
   「runner が古い」「定期実行が版のせいで落ちた」「Docker イメージの版を上げて」
-  「使われない Docker イメージを消して」のような
+  「使われない Docker イメージを消して」「最新の Opus にして」のような
   リクエストで使用。扱うファイルは `go.mod` / `.github/workflows/*.yaml` / `Dockerfile*` /
   `mise.toml` / `.golangci.yml` / runner の `.path` の 6 種類と、**手元に入れた `golangci-lint`
-  の実行ファイル**。Docker の名前の点検で見つかった `Makefile` と `*.sh` の `docker build` /
+  の実行ファイル**、スクリプトとワークフローが呼ぶ **Claude のモデル ID**。Docker の名前の点検で見つかった `Makefile` と `*.sh` の `docker build` /
   `docker run` の行も直す。Do NOT use for: 依存ライブラリ
   （`go.mod` の require 行）の更新、アプリのコード変更、runner の新規登録、
   GitHub の機械専用リポの作業。
@@ -51,6 +51,7 @@ compatibility: >-
 | runner の PATH 点検 | 「runner が古い」「`xcrun` の警告が出る」 | 4 | `.path` の先頭が shims になり、陳腐化が起きなくなった状態 |
 | Docker の土台の版上げ・片付け | 「docker image の版を上げて」「使われないイメージを消して」「ディスクが圧迫されている」 | 1・3・5・6（詳細は `references/docker-images.md`） | 土台の名札が最新で明示され、中の道具が動き、名前の無いイメージが溜まらない状態 |
 | lint の版上げ・版ずれ | 「golangci-lint を上げて」「手元と CI で lint の結果が違う」「設定が読めないと言われる」 | 1・3・5 | CI の `version:` と手元の実行ファイルが同じ版に揃った状態 |
+| Claude のモデルの版上げ | 「最新の Opus にして」「使っているモデルを上げて」、または他の版上げのついで | `references/claude-models.md` の手順 1〜4 | スクリプトとワークフローが呼ぶモデルが、同じ系統の最新になった状態 |
 
 ## この作業が難しい理由
 
@@ -290,6 +291,7 @@ fi
 | **MCP サーバーの `docker run` に `--name` を足す** | 2 つの会話が同時に起動すると 2 つ目が「名前が使用中」で落ちる。`--rm` なので自動の名前は残らない |
 | **自宅 Mac の runner がビルド中に `docker builder prune -af` する** | 並行するビルドが次に使う中間物を消す。ワークフローでは `--filter until=24h` を付ける |
 | **名札を推測で書く** | `alpine3.25` のように存在しない組み合わせがある。`docker manifest inspect` で確かめる |
+| **Claude のモデルの系統を版上げのついでに変える**（Opus → Sonnet 等） | 費用と品質の釣り合いは持ち主が選んだもの。版上げは同じ系統の中だけ |
 | 版だけ上げて動作確認しない | 版の問題は**ビルドではなく実行時**に出る |
 
 ## 成功基準
@@ -314,6 +316,7 @@ fi
 - [ ] `go build` と `go test` が通る
 - [ ] `mise x -- golangci-lint run ./...` が通る（CI 任せにしない）
 - [ ] 自宅 Mac の runner のワークフローを 1 本実際に走らせた
+- [ ] Claude のモデル ID と共著者の表記を `references/claude-models.md` の手順で洗い出し、同じ系統の最新で呼べることを確かめた
 - [ ] リポごとに PR を出した
 - [ ] マージ後、どこにも書かれていない古い土台イメージを名前で消した（探す処理が失敗した名札は残した）
 
