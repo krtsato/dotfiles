@@ -38,8 +38,15 @@ human() { awk -v k="$1" 'BEGIN {printf (k >= 1048576 ? "%.1f GB" : "%.0f MB"), (
 avail() { df -k / | awk 'NR == 2 {print $4}'; }
 skip() { echo "  skip: $*"; skipped=1; }
 section() { echo "=== $1"; }
+# True when something under $1 changed within AGE_DAYS, or when that cannot be
+# told (find failed): an unreadable entry is kept, never taken for old.
+recent() {
+  local out
+  out=$(find "$1" -maxdepth "$2" -mtime -"$AGE_DAYS" -print -quit 2>/dev/null) || return 0
+  [ -n "$out" ]
+}
 # Report freed space from df, which also counts clones and hard links correctly.
-freed() { echo "  freed $(human $(($(avail) - $1)))"; }
+freed() { local k=$(($(avail) - $1)); [ "$k" -gt 0 ] || k=0; echo "  freed $(human "$k")"; }
 
 # A process's Claude Code session, shown as its folder and terminal.
 session_of() {
@@ -87,13 +94,25 @@ fi
 
 if want npx; then
   section "npx packages untouched for $AGE_DAYS days ($NPX_DIR)"
+  # In use = named in a process's arguments, or open / the working directory
+  # of any process (a server started as "node server.js" inside the package).
   # shellcheck disable=SC2009  # the package path is in the arguments, which pgrep cannot print
-  inuse=" $(ps -axo command= | grep -oE "$NPX_DIR/[0-9a-f]+" | sort -u | xargs -n1 basename 2>/dev/null | tr '\n' ' ') "
+  args=$(ps -axo command= | grep -oE "$NPX_DIR/[^/[:space:]]+")
+  open_files=$(lsof -Fn 2>/dev/null | sed -n 's/^n//p')
+  if [ -z "$open_files" ]; then
+    skip "lsof listed no open files, so packages in use cannot be told apart"
+    want_npx=0
+  else
+    want_npx=1
+  fi
+  inuse=" $(printf '%s\n%s\n' "$args" "$open_files" | grep -oE "$NPX_DIR/[^/[:space:]]+" \
+    | sort -u | xargs -n1 basename 2>/dev/null | grep -v '^\[' | tr '\n' ' ') "  # drop this grep's own pattern
   old=()
   for d in "$NPX_DIR"/*/; do
+    [ "$want_npx" = 1 ] || break
     [ -d "$d" ] || continue
     d=${d%/}
-    [ -n "$(find "$d" -maxdepth 2 -mtime -"$AGE_DAYS" -print -quit 2>/dev/null)" ] && continue
+    recent "$d" 2 && continue
     case $inuse in *" ${d##*/} "*) continue ;; esac
     old+=("$d")
   done
@@ -109,7 +128,7 @@ if want xcode; then
     old=()
     for d in "$DERIVED"/*/; do
       [ -d "$d" ] || continue
-      [ -n "$(find "$d" -maxdepth 3 -mtime -"$AGE_DAYS" -print -quit 2>/dev/null)" ] || old+=("${d%/}")
+      recent "$d" 3 || old+=("${d%/}")
     done
     echo "  ${#old[@]} of $(find "$DERIVED" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' '), $(human "$(kb ${old[@]+"${old[@]}"})")"
     if [ "$apply" = 1 ] && [ "${#old[@]}" -gt 0 ]; then s=$(avail); rm -rf "${old[@]}"; freed "$s"; fi
@@ -162,6 +181,15 @@ if want runner; then
       for t in ${targets[@]+"${targets[@]}"}; do echo "    ${t#"$d"/}"; done
       if [ "$apply" = 1 ] && [ "${#targets[@]}" -gt 0 ]; then
         (cd "$d" && ./svc.sh stop >/dev/null) || { skip "$name: svc.sh stop failed"; continue; }
+        # Re-check once stopped: a job or a self-update may have begun after the
+        # checks above. Anything different means the list is stale; remove nothing.
+        if pgrep -f "$d/bin[^ ]*/Runner.Worker" >/dev/null \
+           || [ "$(basename "$(readlink "$d/bin")")" != "$b" ] || [ "$(basename "$(readlink "$d/externals")")" != "$e" ] \
+           || [ "$(newest bin)" != "$b" ] || [ "$(newest externals)" != "$e" ]; then
+          skip "$name: changed while stopping; nothing removed"
+          (cd "$d" && ./svc.sh start >/dev/null) || skip "$name: svc.sh start failed; start it by hand"
+          continue
+        fi
         s=$(avail); rm -rf "${targets[@]}"; freed "$s"
         (cd "$d" && ./svc.sh start >/dev/null) || skip "$name: svc.sh start failed; start it by hand"
       fi
