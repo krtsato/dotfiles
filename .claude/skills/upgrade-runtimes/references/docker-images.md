@@ -148,22 +148,21 @@ docker images --format '{{.Repository}}:{{.Tag}} {{.Size}} {{.CreatedSince}}' | 
 
 **古い土台は版上げのたびに必ず消す**（持ち主の指示・2026-10-23）。手元にある土台の名札を 1 つずつ、
 **個人のリポ全体と awa 側の両方**で文字列として探し、どこにも出てこないものだけを消す。
+探すのは `scripts/find-unused-base-images.sh`（`rg` が要る。`brew install ripgrep`）。約 39 GB を読んで 1 分かからない。
 
 ```bash
-docker images --format '{{.Repository}}:{{.Tag}}' \
-  | grep -E '^(golang|python|node|golangci/golangci-lint|gcr\.io/distroless/[^:]+|debian|alpine):' | grep -v ':latest$' \
-  | while read -r img; do
-      rc=0
-      grep -rIlF --exclude-dir=node_modules --exclude-dir=.git -e "$img" \
-        ~/dev/me ~/go/src/github.com/awa >/dev/null 2>&1 || rc=$?
-      case $rc in 1) echo "unused $img" ;; 0) ;; *) echo "SEARCH-FAILED($rc) $img" ;; esac
-    done
-# 版を変数で組み立てている FROM（例: FROM python:${V}-slim、FROM ${BASE}）は文字列では見つからない。
-# ファイル名を絞らずに探し、出た行を目で見る。土台の種類（python など）に当たる行があれば、その種類の候補は残す。
-# 読めない場所のエラーが画面に出たら、その回は何も消さない
-grep -rniIE --exclude-dir=node_modules --exclude-dir=.git '^[[:space:]]*FROM[[:space:]].*[$]' \
-  ~/dev/me ~/go/src/github.com/awa \
-  | grep -vE 'FROM[[:space:]]+--platform=[$][{]?(BUILD|TARGET)PLATFORM[}]?[[:space:]]+[^$]*$'
+~/.claude/skills/upgrade-runtimes/scripts/find-unused-base-images.sh
+```
+
+| 出力 | 意味 | すること |
+| --- | --- | --- |
+| `used <名札>` | どこかに名札が書かれている | 消さない |
+| `unused <名札>` | どこにも書かれていない | 下の手順で消してよい |
+| `held <名札> <ファイル>` | 名札は書かれていないが、その種類の土台を変数で組み立てる `FROM`（`FROM python:${V}-slim`）がある | 消さない |
+| `check-by-eye <ファイル>: <行>` | 土台を丸ごと変数にした `FROM ${BASE}` がある。何を使うか文字列では分からない | **読んで確かめるまで何も消さない** |
+| 終了コード 2（`SEARCH-FAILED`） | 読めない場所があった | **その回は何も消さない** |
+
+```bash
 # unused の名札ごとに: 使っているコンテナが無いことを確かめてから消す（-f を付けない）
 docker ps -a --filter ancestor=<名札> --format '{{.Names}}'
 docker image rm <名札>
@@ -172,10 +171,14 @@ docker image rm <名札>
 | 決めごと | なぜ |
 | --- | --- |
 | `FROM` 行を解析せず、**名札の文字列をどこかに書いているか**で決める | `from` の小文字、`ARG BASE=…` からの `FROM ${BASE}`、`FROM --platform=…` を行の解析で拾い切れない。文字列で探せばこれらは拾える |
-| **版を変数で組み立てる `FROM` が 1 行でもあれば、その種類の候補は残す** | `ARG V=3.15.0` と `FROM python:${V}-slim` は名札の文字列をどこにも含まない。ファイル名を絞らず別の検索で見張る。2026-10-23 時点の出力は 4 行で、うち 2 行は SQL、残り 2 行は awa の `zero/*` で、土台の種類には当たらない |
-| 抜け道を塞ぎ切ることは目指さない | 改行で続ける `FROM` などは拾えない。**消すのは公開の土台だけ**で、見落として消しても次のビルドで取り直されるだけ（失うのはダウンロードの時間）。取り直せない手元のビルドを消す一括の片付けとは損失の大きさが違う |
+| **版を変数で組み立てる `FROM` が 1 行でもあれば、その種類の候補は残す**（`held`） | `ARG V=3.15.0` と `FROM python:${V}-slim` は名札の文字列をどこにも含まない。`Dockerfile` かどうかは**名前でなく中身**で決める（空行・コメント・`ARG` を除いた最初の命令が `FROM`）。SQL の `FROM ${table}` や、文書に引用された `FROM` を拾わないため。2026-10-31 時点で `held`・`check-by-eye` は 0 件（awa の `zero/*` は土台の種類に当たらない） |
+| 抜け道を塞ぎ切ることは目指さない | 改行で続ける `FROM` は `check-by-eye` に出すが、Compose やシェルで変数から組み立てるイメージ名、digest だけの参照（`python@sha256:…`）、runner の作業コピー（元のリポを探すので不要）は追わない。**消すのは公開の土台だけ**で、見落として消しても次のビルドで取り直されるだけ（失うのはダウンロードの時間）。取り直せない手元のビルドを消す一括の片付けとは損失の大きさが違う |
 | 探す範囲は **`~/dev/me` 全体**（他のリポ・別の worktree・未追跡のファイルを含む）と **`~/go/src/github.com/awa`** | 一覧に書いたリポだけを探すと、一覧に無いリポだけが使う土台が候補に出る |
-| 探す処理が失敗したら（終了コード 2）**その名札は消さない** | 読めなかった場所に使用箇所があるかもしれない。`SEARCH-FAILED` は「使われていない」ではなく「分からない」 |
+| 探す処理が失敗したら（終了コード 2）**その回は何も消さない** | 読めなかった場所に使用箇所があるかもしれない。`SEARCH-FAILED` は「使われていない」ではなく「分からない」 |
+| **全名札を 1 回で探す**。名札ごとに全体を読み直さない | 以前は名札 1 つごとに約 39 GB を `grep -r` で読み直し、1 つで 10 分を超えた（2026-10-31） |
+| `grep -r` でなく `rg` を使う | `grep -r` は通信用の特殊なファイル（`.codex/ipc/ipc.sock`）を開こうとして毎回失敗し、全名札が `SEARCH-FAILED` になっていた。`rg` は特殊なファイルを読み飛ばす |
+| 1 回目で「どれかの名札を含むファイル」に絞り、2 回目で名札ごとに確かめる | 1 回の `-o` で済ませると、一方が他方を含む名札（`node:24` と `node:24.22.1`）で片方しか報告されず、使っている方が `unused` に出る（2026-10-31 に実測） |
+| **会話の記録**（`.claude/projects`・`.claude/file-history`・`.codex/sessions`）は探さない | 会話で名前が出ただけで「使われている」になり、一度話題にした土台が永久に消せなくなる。plugin の `Dockerfile` は実際に組み立てるので探す |
 | `:latest` は候補にしない | `FROM python` のように名札を書かない参照は文字列では見つからない |
 | `docker image rm` に `-f` を付けない | 使っているコンテナがあれば Docker が拒否する。これが最後の安全網 |
 
