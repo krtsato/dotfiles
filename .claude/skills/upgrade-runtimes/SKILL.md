@@ -261,6 +261,25 @@ fi
 (cd "$d" && ./svc.sh start)   # 消した後に必ず戻し、GitHub 側で online を確かめる
 ```
 
+**runner が取ってきた古い Go も消す。** `actions/setup-go` は版を上げるたびに `_work/_tool/go/<版>` を
+新しく取ってきて、古い版を消さない（1 版 約 0.25 GB。2026-10-31 に 5 台で計 15 版・約 4 GB 溜まっていた）。
+残すのは**そのリポのワークフローの `go-version` に書かれた版だけ**。`1.27` のような省略・matrix・`go-version-file` があれば、どの版が要るか決まらないので消さない。条件は上と同じ（時間帯・busy=false・止めてから）。
+
+```bash
+r=<リポ>; d=<runner フォルダ>; t=$d/_work/_tool/go   # 1 台ずつ
+specs=$(grep -rhE '^[[:space:]]*go-version(-file)?:' ~/dev/me/$r/.github/workflows | sed -E "s/^[^:]*:[[:space:]]*//; s/[\"' ]//g")
+# 1.27 / ${{ matrix.go }} / go-version-file のように版が確定しない指定が 1 つでもあれば何も消さない
+if [ -z "$specs" ] || grep -rqE '^[[:space:]]*go-version-file:' ~/dev/me/$r/.github/workflows \
+   || echo "$specs" | grep -qvxE '[0-9]+\.[0-9]+\.[0-9]+'; then echo "unresolved go-version in $r"; exit 1; fi
+keep=$(echo "$specs" | sort -u)
+(cd "$d" && ./svc.sh stop) || { echo "stop failed: $d"; exit 1; }
+for v in $(ls "$t"); do echo "$keep" | grep -qxF "$v" || rm -rf "${t:?}/$v"; done
+(cd "$d" && ./svc.sh start)
+ls "$t"   # keep の版だけが残る
+```
+
+消しすぎても、次の実行が必要な版を取り直すだけ（数十秒）。
+
 ### 5. 検証する
 
 | 何を | どう |
