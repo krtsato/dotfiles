@@ -28,7 +28,7 @@ Claude Code が読み書きするファイルの置き場と役割。**直す前
 | 種類 | 効き方 |
 | --- | --- |
 | 指示（`CLAUDE.md`・`rules/`） | 全体と各リポジトリのものが**全部あわせて**読み込まれる。どちらかが勝つのではない |
-| 設定（`settings.json` の項目） | 同じ項目は 手元（`.claude/settings.local.json`）＞ プロジェクト（`.claude/settings.json`）＞ 全体（`~/.claude/settings.json`）の順に勝つ。許可の一覧などのリストは足し合わされる |
+| 設定（`settings.json` の項目） | 同じ項目は 手元（`.claude/settings.local.json`）＞ プロジェクト（`.claude/settings.json`）＞ 全体（`~/.claude/settings.json`）の順に勝つ。許可の一覧（`permissions.allow` など）のリストは足し合わされる（`fallbackModel`・`modelPicker` など一部の項目は別の決まり） |
 | MCP サーバー | 各リポジトリの `.mcp.json` が全体（`~/.claude.json`）より優先される |
 
 ## git で管理するもの — dotfiles の .claude
@@ -66,12 +66,12 @@ Claude Code は、決まった置き場を `cleanupPeriodDays`（既定 30 日�
 
 | ファイル・フォルダ | 中身 | 片付け |
 | --- | --- | --- |
-| `projects/<作業フォルダ>/*.jsonl` | 会話の記録 | 30 日で自動 |
+| `projects/<作業フォルダ>/*.jsonl` | 会話の記録 | 30 日で自動。ただし Claude Desktop・Cowork で始めた（最後に続けた）会話は既定で期限なし（`desktopSessionCleanupPeriodDays` で期限を付けられる） |
 | `projects/<作業フォルダ>/<会話>/subagents/`・`tool-results/` | サブエージェントの記録・大きな取得物 | 30 日で自動（会話の記録と一緒に） |
 | `plans/` | 計画のファイル | 30 日で自動 |
 | `file-history/` | 編集前の退避（巻き戻し用） | 30 日で自動 |
 | `tasks/`・`session-env/`・`shell-snapshots/`・`paste-cache/`・`debug/`・`usage-data/` | 作業の一覧・一時的な状態・大きな貼り付け・記録 | 30 日で自動 |
-| `backups/` | `~/.claude.json` の書き換え前の写し | 新しい 5 つを残して自動 |
+| `backups/` | `~/.claude.json` の書き換え前の写し | 新しい 5 つと、読めなかった版の写しを残して自動 |
 | `projects/<作業フォルダ>/memory/` | 自動の記憶（`MEMORY.md` が索引。毎回先頭 200 行か 25 KB まで読まれる） | 自動では消えない（永続が目的） |
 | `jobs/`・`daemon/` | バックグラウンドの会話の状態 | **消さない**（公式が残すよう指定） |
 | `sessions/` | 動いている会話の目印 | 会話の終了時に自動 |
