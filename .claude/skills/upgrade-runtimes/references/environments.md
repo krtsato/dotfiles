@@ -52,14 +52,18 @@ mise は Go と terraform を**版番号つきのパス**で PATH に入れる�
 
 ```bash
 # 1 台ぶん。全台は skill が回す
-d=~/dev/me/<repo>/actions-runners   # note と seeking-alpha はさらに 1 階層下
+d="$HOME/dev/me/<repo>/actions-runners"   # note と seeking-alpha はさらに 1 階層下
 cp "$d/.path" "$d/.path.bak-$(date +%Y%m%d-%H%M%S)"
 # 実在するディレクトリだけ残し、shims を先頭に置く
-tr ':' '\n' < "$d/.path" | awk -v s=~/.local/share/mise/shims 'BEGIN{print s} $0!=s' \
+tr ':' '\n' < "$d/.path" | awk -v s="$HOME/.local/share/mise/shims" 'BEGIN{print s} $0!=s' \
   | while IFS= read -r e; do [ -n "$e" ] && [ -d "$e" ] && printf '%s:' "$e"; done \
   | sed 's/:$//' > "$d/.path.new" && mv "$d/.path.new" "$d/.path"
+[ "$(cut -d: -f1 "$d/.path")" = "$HOME/.local/share/mise/shims" ] || echo "shims is not first: $d"
 (cd "$d" && ./svc.sh stop && ./svc.sh start)
 ```
+
+**`~` でなく `$HOME` と書く。** `awk -v s=~/...` の `~` は bash では展開されるが、Claude Code の zsh では展開されず、
+次の行の `[ -d "$e" ]` で落ちて **shims の行が黙って消える**（2026-10-31 に実測）。
 
 **効いたことの確認**: run のログから `/usr/bin/xcrun` の警告が消える。
 `/usr/bin/xcrun` は**ディレクトリでなく実行ファイル**なのに PATH に入っており、毎回

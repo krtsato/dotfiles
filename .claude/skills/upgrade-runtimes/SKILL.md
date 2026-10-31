@@ -74,6 +74,10 @@ compatibility: >-
 
 ## 手順
 
+**手順のコマンドは素の bash で流す**（Claude Code からは `bash -c '…'`）。Claude Code のシェルは zsh で、
+`grep`・`find` も別の道具に差し替わっている。隠しフォルダを飛ばす、`-mtime` 以外の日付の書き方が通らない、
+`~` が展開されない位置がある、と結果が変わる（2026-10-31 に 4 回踏んだ）。
+
 ### 1. 上げる対象を洗い出す
 
 版が書かれている場所を全部拾う。**1 か所でも漏らすと、ビルドは通るのに CI だけ古い版**になる。
@@ -87,8 +91,7 @@ for r in mcp-tradingview mcp-invest-knowledge mcp-mediable mcp-note \
   grep -rnE "^go |go-version:|python-version:|node-version:|\"node\"[[:space:]]*:|uses: .*@|version: v?[0-9]|^FROM " "$r" \
     --include='go.mod' --include='*.yaml' --include='*.yml' --include='package.json' \
     --include='mise.toml' --include='Dockerfile*' --include='.golangci.yml' \
-    --exclude-dir=node_modules 2>/dev/null \
-    | grep -vE "actions-runners|\.worktrees"
+    --exclude-dir=node_modules --exclude-dir=actions-runners --exclude-dir=.worktrees 2>/dev/null
 done
 ```
 
@@ -196,9 +199,9 @@ golangci-lint version       # 走る版を必ず確かめる
 検証（手順 5）では `mise x --` を付ける。
 
 ```text
-/Users/s11639/go/bin/golangci-lint                    ← v1 系が先頭
-/Users/s11639/.local/share/mise/installs/...2.14.0/   ← mise が持つ正しい版
-/Users/s11639/.local/share/mise/shims/golangci-lint
+$HOME/go/bin/golangci-lint                    ← v1 系が先頭
+$HOME/.local/share/mise/installs/...2.14.0/   ← mise が持つ正しい版
+$HOME/.local/share/mise/shims/golangci-lint
 ```
 
 直し方は **`~/go/bin` の方を消す**（mise 側は触らない）。

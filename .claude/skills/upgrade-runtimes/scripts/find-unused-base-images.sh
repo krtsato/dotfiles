@@ -33,7 +33,8 @@ tags=$(mktemp)
 files=$(mktemp)
 var_from=$(mktemp)
 err=$(mktemp)
-trap 'rm -f "$tags" "$files" "$var_from" "$err"' EXIT
+live=$(mktemp)
+trap 'rm -f "$tags" "$files" "$var_from" "$err" "$live"' EXIT
 
 # A Dockerfile's first instruction, after blank lines, comments and ARG
 # (including its continuation lines), is always FROM. That tells a Dockerfile by
@@ -56,7 +57,10 @@ fail() {
 
 docker images --format '{{.Repository}}:{{.Tag}}' \
   | grep -E "^($families):" | grep -v ':latest$' | sort -u > "$tags"
-[ -s "$tags" ] || exit 0
+if [ ! -s "$tags" ]; then
+  echo "no base-image tags to check"
+  exit 0
+fi
 
 # Pass 1: read every file once and keep those that contain any tag.
 # rg skips sockets and pipes, which made a plain grep -r fail on every run.
@@ -66,7 +70,8 @@ case $rc in 0 | 1) ;; *) fail "$rc" ;; esac
 
 # FROM lines whose image is built from a variable never contain the tag text,
 # and a FROM continued with a backslash has no image on its own line.
-# Runner work copies are skipped: they hold the Go toolchain's own sources.
+# Runner work copies are skipped in this search only: they hold the Go
+# toolchain's own sources, whose FROM lines are never built here.
 rc=0
 rg --no-ignore --hidden -H -N --null -i "${globs[@]}" -g '!actions-runners' \
   -e '^[[:space:]]*FROM[[:space:]]+(--platform=[^[:space:]]+[[:space:]]+)?[^[:space:]]*[$]' \
@@ -103,6 +108,22 @@ done < "$var_from"
 # Pass 2: check each tag against the few files from pass 1. A single -o pass
 # cannot do this: when one tag contains another (node:24, node:24.22.1),
 # rg reports only one of them at a position and the other would look unused.
+# A file can vanish between the passes (a worktree removed meanwhile). It
+# holds no use any more, so drop it instead of failing the whole run.
+while IFS= read -r -d '' f; do
+  if [ -e "$f" ]; then
+    printf '%s\0' "$f"
+    continue
+  fi
+  # -e is also false when a parent is unreadable; only a real ENOENT is safe to drop.
+  msg=$(LC_ALL=C stat -- "$f" 2>&1)
+  case $msg in
+    *"No such file or directory"*) ;;
+    *) printf '%s\n' "$msg" >&2; fail 2 ;;
+  esac
+done < "$files" > "$live"
+cp "$live" "$files"
+
 # Results are printed only after every search has succeeded, so an error in
 # this pass can never leave an "unused" line behind.
 results=()
