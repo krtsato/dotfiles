@@ -1,15 +1,15 @@
 ---
 name: upgrade-runtimes
 description: >-
-  `~/dev/me` 配下の 9 リポ（mcp-tradingview / mcp-invest-knowledge / mcp-mediable /
-  mcp-note / mcp-seeking-alpha / mcp-youtube / mcp-notebooklm / trade-moomoo / watcher）で、Go・Python・
-  GitHub Actions のステップ・Docker イメージなど**固定された版を上げる**。あわせて
+  `~/dev/me` 配下の 11 リポ（mcp-tradingview / mcp-invest-knowledge / mcp-mediable /
+  mcp-note / mcp-seeking-alpha / mcp-youtube / mcp-notebooklm / trade-moomoo / watcher /
+  securerc / mdreview）で、Go・Python・Node・GitHub Actions のステップ・Docker イメージなど**固定された版を上げる**。あわせて
   自宅 Mac の runner（self-hosted）の PATH を点検する。「Go を上げて」「Python を上げて」
   「actions の版を上げて」「golangci-lint を上げて」「手元と CI で lint の結果が違う」
   「runner が古い」「定期実行が版のせいで落ちた」「Docker イメージの版を上げて」
   「使われない Docker イメージを消して」「最新の Opus にして」のような
   リクエストで使用。扱うファイルは `go.mod` / `.github/workflows/*.yaml` / `Dockerfile*` /
-  `mise.toml` / `.golangci.yml` / runner の `.path` の 6 種類と、**手元に入れた `golangci-lint`
+  `mise.toml` / `.golangci.yml` / `package.json`（`engines`）/ runner の `.path` の 7 種類と、**手元に入れた `golangci-lint`
   の実行ファイル**、スクリプトとワークフローが呼ぶ **Claude のモデル ID**。Docker の名前の点検で見つかった `Makefile` と `*.sh` の `docker build` /
   `docker run` の行も直す。Do NOT use for: 依存ライブラリ
   （`go.mod` の require 行）の更新、アプリのコード変更、runner の新規登録、
@@ -81,11 +81,13 @@ compatibility: >-
 ```bash
 cd ~/dev/me
 for r in mcp-tradingview mcp-invest-knowledge mcp-mediable mcp-note \
-         mcp-seeking-alpha mcp-youtube mcp-notebooklm trade-moomoo watcher; do
+         mcp-seeking-alpha mcp-youtube mcp-notebooklm trade-moomoo watcher \
+         securerc mdreview; do
   echo "== $r"
-  grep -rnE "^go |go-version:|python-version:|uses: .*@|version: v?[0-9]|^FROM " "$r" \
-    --include='go.mod' --include='*.yaml' --include='*.yml' \
-    --include='mise.toml' --include='Dockerfile*' --include='.golangci.yml' 2>/dev/null \
+  grep -rnE "^go |go-version:|python-version:|node-version:|\"node\": |uses: .*@|version: v?[0-9]|^FROM " "$r" \
+    --include='go.mod' --include='*.yaml' --include='*.yml' --include='package.json' \
+    --include='mise.toml' --include='Dockerfile*' --include='.golangci.yml' \
+    --exclude-dir=node_modules 2>/dev/null \
     | grep -vE "actions-runners|\.worktrees"
 done
 ```
@@ -96,13 +98,15 @@ done
 ```bash
 cd ~/dev/me
 for r in */; do r=${r%/}; [ -d "$r/.git" ] || continue
-  grep -rqsE "^go |go-version|python-version|^FROM (golang|python)" "$r" \
+  grep -rqsE "^go |go-version|python-version|node-version|^FROM (golang|python|node)" "$r" \
     --include=go.mod --include='*.yml' --include='*.yaml' --include='Dockerfile*' \
-    --exclude-dir=.worktrees --exclude-dir=actions-runners --exclude-dir=node_modules --exclude-dir=.claude && echo "$r"
+    --exclude-dir=.worktrees --exclude-dir=actions-runners --exclude-dir=node_modules --exclude-dir=.claude --exclude-dir=.codex && echo "$r"
 done
 ```
 
-2026-10-12 時点の出力は上の一覧と同じ 9 リポ。Node だけを使うリポ（blogs・securerc・mdreview）は対象外。
+2026-10-31 時点の出力は上の一覧の 11 リポと blogs。**blogs は対象外**（持ち主が対象に選んでいない）。
+`.codex` を除くのは、codex が取り込んだ他人の部品（git の管理外）の `go.mod`・`Dockerfile` が dotfiles に当たるため。
+Node のリポ（securerc・mdreview）は 2026-10-31 に持ち主の指示で対象に加えた。
 
 `actions-runners/` と `.worktrees/` は**作業コピーであって正本ではない**ので必ず除外する
 （含めて数えると件数が倍になる）。
@@ -118,7 +122,7 @@ done
 **3 層目は洗い出しの grep に出てこない**ので、手順 3 で別途揃える。
 
 **ファイル名の `*` を展開させない。** zsh は一致しない `*` を見つけるとその行を丸ごと中断するので、
-`Dockerfile` を持たないリポ（seeking-alpha・watcher）が**黙って 1 件も出ない**。
+`Dockerfile` を持たないリポ（seeking-alpha・watcher・securerc）が**黙って 1 件も出ない**。
 ファイルの絞り込みは `--include` に任せる。
 
 ### 2. `runs-on` で仕分ける
@@ -140,6 +144,13 @@ grep -rn "runs-on" ~/dev/me/*/.github/workflows/*.y*ml | grep -v actions-runners
 どちらも `Dockerfile` も `mise.toml` も無く、版が書かれているのは `go.mod` の `go` 行・`go-version`・
 `golangci-lint-action` の `version` の 3 か所。
 
+**Node のリポも自宅 Mac の runner を持たない。** 手順 4 は要らない。
+
+| リポ | 実行環境 | 版が書かれている場所 |
+| --- | --- | --- |
+| securerc | GitHub の機械（`ubuntu-latest`）だけ | ワークフローの `node-version`・`package.json` の `engines.node` |
+| mdreview | ワークフローが無い（手元の Docker で動く） | `Dockerfile` の `FROM node:…`・`package.json` の `engines.node` |
+
 ### 3. 版を書き換える
 
 **同じ版を指す場所は同時に直す。**
@@ -151,6 +162,7 @@ grep -rn "runs-on" ~/dev/me/*/.github/workflows/*.y*ml | grep -v actions-runners
 | 3 | `Dockerfile*` の `FROM`。**手順は `references/docker-images.md`**（分類・名札の実在確認・中の道具の確認・名前の付け方・片付け）。**digest 付き（trade-moomoo）は digest も張り替える**。alpine は `golang:<版>-alpine3.24` のように**明示する**（浮動の名札は中身が黙って変わる） |
 | 4 | `golangci-lint-action` の `version`（action 自体の `@v9` とは別物） |
 | 5 | **手元の `golangci-lint` を 4 と同じ版に入れ直す**（下記） |
+| 6 | Node のリポ（securerc・mdreview）: ワークフローの `node-version` と `Dockerfile` の `FROM node:<版>-alpine<alpine の版>`。**偶数の LTS の版**にし、alpine の版も明示する（浮動の名札を見つけたら明示に直す）。`package.json` の `engines.node` の下限が、実際に使う版より新しくなっていないことも確かめる |
 
 #### Go を上げたら golangci-lint も上げる
 
@@ -254,6 +266,7 @@ fi
 | 何を | どう |
 | --- | --- |
 | ビルドとテスト | 各 Go リポで `mise x -- go build ./... && mise x -- go test ./...`。**素の `go` を使わない**——作業中のシェルの PATH が古い Go のフォルダを直接指していることがあり（2026-10-20、1.27.2 のリポを 1.27.1 で走らせて偽の失敗が出た） |
+| Node のビルドとテスト | securerc は `mise x node@<版> -- sh -c 'npm ci && npm run typecheck && npm test'`、mdreview は `mise x node@<版> -- sh -c 'npm ci && npm run build && npm test'`。上げた先の版で走らせる |
 | Docker の土台 | `references/docker-images.md` の手順 4。新しい土台で全 `Dockerfile*` を**名前を付けて**ビルドし、中の道具を動かしてから名前ごと消す。取り込みは**今の土台と同じ日のデータで出力を比べる** |
 | Docker の片付け | `references/docker-images.md` の手順 5・6。名前の無いビルド・`--rm` の無い起動が無いこと、毎日作り直すワークフローに片付けの手順があること、手元の `docker system df` の前後 |
 | lint | **手元で `mise x -- golangci-lint run ./...`**。走らせる前に `mise x -- golangci-lint version` が CI の `version:` と同じことを確かめる。`~/dev/me` 配下で実行する（外では版が決まらず `No version is set`） |
@@ -314,6 +327,7 @@ fi
 - [ ] **手元の `mise x -- golangci-lint version` が CI の `version:` と一致することを確かめた**
 - [ ] runner の `.path` を点検した
 - [ ] `go build` と `go test` が通る
+- [ ] Node のリポ（securerc・mdreview）で、上げた先の版の `npm test` が通る
 - [ ] `mise x -- golangci-lint run ./...` が通る（CI 任せにしない）
 - [ ] 自宅 Mac の runner のワークフローを 1 本実際に走らせた
 - [ ] Claude のモデル ID と共著者の表記を `references/claude-models.md` の手順で洗い出し、同じ系統の最新で呼べることを確かめた

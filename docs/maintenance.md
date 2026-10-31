@@ -1,6 +1,6 @@
 # 定型保守 — 版上げと runner の手入れ
 
-`~/dev/me` 配下の 9 リポと、それらを動かす自宅 Mac（self-hosted runner）の保守手順。
+`~/dev/me` 配下の 11 リポ（Go・Python の 9 リポと、Node の securerc・mdreview）と、それらを動かす自宅 Mac（self-hosted runner）の保守手順。
 **版を上げるときに壊れやすい所**と、**揃っていないが揃えてはいけない所**を書く。
 
 実行手順は skill `upgrade-runtimes` にある。**運用に必要な事実（見分け方・手順の元になる
