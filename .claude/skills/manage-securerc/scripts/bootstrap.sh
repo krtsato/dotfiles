@@ -16,6 +16,8 @@ fail() {
 check_config_permissions() {
   [ -f "$config" ] || return 0
 
+  # BSD/macOS stat first. GNU stat treats -f as "file system status" and exits
+  # non-zero for this format (checked with gstat), so it falls through to -c.
   if config_mode=$(stat -f '%Lp' "$config" 2>/dev/null); then
     :
   elif config_mode=$(stat -c '%a' "$config" 2>/dev/null); then

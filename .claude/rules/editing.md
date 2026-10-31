@@ -23,4 +23,4 @@ npx markdownlint-cli2 --config ~/dev/me/dotfiles/.markdownlint.yaml <file>
 
 ## Bash
 
-ダッシュで始まる引用文字列（`echo "---"`）は許可の確認が出る。区切りには `echo ===` を使う。
+ダッシュで始まる引用文字列（`echo "---"`）は許可の確認が出る。区切りには `echo '==='` を使う（引用符なしの `echo ===` は zsh で `== not found` になる）。
