@@ -1,0 +1,6 @@
+# Only the settings the owner edits are tracked. Everything else in
+# ~/.config/herdr-app (view state, installed mods, bundled frames, release
+# note media) is written by the app and stays out of git.
+*
+!.gitignore
+!settings.json
