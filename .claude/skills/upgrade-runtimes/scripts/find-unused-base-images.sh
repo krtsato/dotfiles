@@ -41,7 +41,7 @@ trap 'rm -f "$tags" "$files" "$var_from" "$err"' EXIT
 # quote a FROM line.
 # Exit 0 yes, 1 no, anything else means the file could not be read.
 is_dockerfile() {
-  awk '{ l = tolower($0); sub(/^[ \t]+/, "", l) }
+  awk '{ l = tolower($0); sub(/\r$/, "", l); sub(/^[ \t]+/, "", l) }
        cont { cont = (l ~ /\\[ \t]*$/); next }
        l == "" || l ~ /^#/ { next }
        l ~ /^arg[ \t]/ { cont = (l ~ /\\[ \t]*$/); next }
@@ -64,11 +64,13 @@ rc=0
 rg --no-ignore --hidden -F -l -0 "${globs[@]}" -f "$tags" -- "$@" > "$files" || rc=$?
 case $rc in 0 | 1) ;; *) fail "$rc" ;; esac
 
-# FROM lines whose image is built from a variable never contain the tag text.
+# FROM lines whose image is built from a variable never contain the tag text,
+# and a FROM continued with a backslash has no image on its own line.
 # Runner work copies are skipped: they hold the Go toolchain's own sources.
 rc=0
 rg --no-ignore --hidden -H -N --null -i "${globs[@]}" -g '!actions-runners' \
-  '^[[:space:]]*FROM[[:space:]]+(--platform=[^[:space:]]+[[:space:]]+)?[^[:space:]]*[$]' \
+  -e '^[[:space:]]*FROM[[:space:]]+(--platform=[^[:space:]]+[[:space:]]+)?[^[:space:]]*[$]' \
+  -e '^[[:space:]]*FROM[[:space:]].*\\[[:space:]]*$' \
   -- "$@" > "$var_from" || rc=$?
 case $rc in 0 | 1) ;; *) fail "$rc" ;; esac
 
@@ -78,6 +80,12 @@ while IFS= read -r -d '' path && IFS= read -r line; do
   rc=0
   is_dockerfile "$path" || rc=$?
   case $rc in 0) ;; 1) continue ;; *) fail "$rc" ;; esac
+  line=${line%$'\r'}
+  if [[ $line =~ \\[[:space:]]*$ ]]; then
+    # FROM continued on the next line: the image is not on this one.
+    checks+=("check-by-eye $path: $line")
+    continue
+  fi
   # The image name, with the registry prefix Docker drops from local tags.
   token=$(printf '%s\n' "$line" \
     | sed -E 's/^[[:space:]]*[Ff][Rr][Oo][Mm][[:space:]]+(--platform=[^[:space:]]+[[:space:]]+)?//; s/[[:space:]].*//' \
