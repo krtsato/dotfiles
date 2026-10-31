@@ -31,7 +31,7 @@ grep -rn --include='Dockerfile*' --exclude-dir=.worktrees --exclude-dir=actions-
 | 実行用・道具入り | `debian:trixie-slim` | note（MCP server の日本語 OCR） | 世代名を上げる。**中の道具の版も変わる**ので手順 4 が必須 |
 | Python | `python:<版>-alpine3.24` | tradingview の取り込み 3 本 | Python の版と alpine の版を上げる。依存に **Alpine 向けの wheel（`musllinux`）** があるか手順 4 で確かめる（`--progress=plain` の記録に `Building wheel` が出たらソースから組まれている） |
 | Python・digest 付き | `python:<版>-slim@sha256:…` | trade-moomoo | **digest も張り替える** |
-| Node | `node:<版>-alpine<alpine の版>` | mdreview | 偶数の LTS の版にする。2026-10-31 時点は浮動の `node:22-alpine` で、**次に上げるときに alpine の版を明示する** |
+| Node | `node:<版>-alpine<alpine の版>` | mdreview | 偶数の LTS の版にする。alpine の版も明示する（2026-10-31 に `node:22-alpine` から `node:26-alpine3.24` へ。mdreview #9） |
 
 **浮動の名札（`golang:1.27.2-alpine`）を見つけたら明示に直す。** 中身の alpine が黙って変わる。
 2026-10-20 時点で中身は既に 3.24.2 で、明示は「上げる」ではなく「黙って変わらないようにする」作業だった。

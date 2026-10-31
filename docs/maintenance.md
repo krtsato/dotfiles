@@ -32,10 +32,10 @@
 | `.github/workflows/*.yaml` の `go-version` | Go 8 リポ | 自宅 Mac の runner でも `actions/setup-go` を使う |
 | `.github/workflows/*.yaml` の `python-version` | **GitHub の機械のみ** | 自宅 Mac の runner に足さない |
 | `.github/workflows/*.yaml` の `uses: <action>@<版>` | 全リポ | `checkout@v7` 等 |
-| `golangci-lint-action` の `version` | Go 8 リポ | action の版（`v9`）と lint 本体の版（`v2.15.0`）は別。2026-10 の版上げは mcp の 7 リポだけで、watcher は `v7`・`v2.14.0` のまま |
-| `Dockerfile*` の `FROM` | 6 リポ | **固定の仕方が 2 通り**（下記）。watcher と mcp-notebooklm は配布物を作らないので無い |
+| `golangci-lint-action` の `version` | Go 8 リポ | action の版（`v9`）と lint 本体の版（`v2.15.0`）は別。2026-10-31 に watcher も揃えた（watcher #46） |
+| `Dockerfile*` の `FROM` | 7 リポ（Go 5・trade-moomoo・mdreview） | **固定の仕方が 2 通り**（下記）。watcher と mcp-notebooklm は配布物を作らないので無い |
 | `mise.toml` の `[tools]` | invest-knowledge のみ | 自宅 Mac の版を決める |
-| `.golangci.yml` | Go 8 リポ | 全リポでバイト単位に同一 |
+| `.golangci.yml` | Go 8 リポ | 設定は全リポで同じ。版を書いたコメント行だけ watcher が古い（v2.14.0） |
 
 ## 揃っていないが、揃えてはいけないもの
 
@@ -83,7 +83,7 @@ for r in <repos>; do (cd ~/dev/me/$r && echo "$r: $($GL run --config ~/dev/me/mc
 | 何を | いつ | どうやって |
 | --- | --- | --- |
 | 定期実行の失敗通知 | 毎朝 | Slack に来る。`notify-failures.yaml` が全リポにある |
-| 停滞の検知 | 毎日 | `health-check.yaml`（tradingview / invest-knowledge / mediable）。**新しい定期ワークフローを足したら manifest への追記が要る** |
+| 停滞の検知 | 毎日 | `scripts/health-check.sh` と `scripts/health-check-manifest.json`（tradingview / invest-knowledge / mediable）。**新しい定期ワークフローを足したら manifest への追記が要る** |
 | Docker の掃除 | 毎回の同期で自動 | tradingview の取り込み 3 本が `always()` で prune する。note の同期は 2026-10-20 から Docker を使わない |
 | 止められた digest の下書き | 失敗を調べるとき | `~/.config/mcp-invest-knowledge/withheld-drafts`（14 日 / 50 件） |
 
