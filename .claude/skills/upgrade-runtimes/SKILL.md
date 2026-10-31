@@ -15,7 +15,7 @@ description: >-
   （`go.mod` の require 行）の更新、アプリのコード変更、runner の新規登録、
   上の 11 リポ以外のリポの作業。
 compatibility: >-
-  macOS + Homebrew + mise 環境を前提。`gh` CLI（認証済み）、`go`、`docker`、
+  macOS + Homebrew + mise 環境を前提。`gh` CLI（認証済み）、`go`、`docker`、`rg`（ripgrep）、
   `npx markdownlint-cli2` が要る。自宅 Mac の runner が 5 台登録済みであること。
 ---
 
@@ -332,7 +332,7 @@ fi
 - [ ] 自宅 Mac の runner のワークフローを 1 本実際に走らせた（同上）
 - [ ] Claude のモデル ID と共著者の表記を `references/claude-models.md` の手順で洗い出し、同じ系統の最新で呼べることを確かめた
 - [ ] リポごとに PR を出した
-- [ ] マージ後、どこにも書かれていない古い土台イメージを名前で消した（探す処理が失敗した名札は残した）
+- [ ] マージ後、どこにも書かれていない古い土台イメージを名前で消した（`scripts/find-unused-base-images.sh` の `unused` だけ。失敗・`held`・`check-by-eye` が出た回は確かめてから）
 
 ## Troubleshooting
 
