@@ -233,7 +233,8 @@ for d in ~/dev/me/mcp-note/actions-runners/magazine-sync \
          ~/dev/me/mcp-tradingview/actions-runners; do
   echo "== $d"
   cut -d: -f1 "$d/.path"; echo   # 先頭だけ見れば shims が先頭かを判定できる
-  tr ':' '\n' < "$d/.path" | while read -r e; do [ -n "$e" ] && [ ! -d "$e" ] && echo "   欠落 $e"; done
+  # .path has no trailing newline: without the echo, read drops the last entry
+  { tr ':' '\n' < "$d/.path"; echo; } | while IFS= read -r e; do [ -n "$e" ] && [ ! -d "$e" ] && echo "   欠落 $e"; done
 done
 ```
 
