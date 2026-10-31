@@ -87,16 +87,18 @@ compatibility: >-
 
 ### ステップ1: 指摘を取り出す
 
-PR 本文の表から抽出する。**本文の形式が 2 種類ある**ので両方に対応する。
+PR 本文の表から抽出する。**本文の形式が 2 種類ある**ので `<details>` の有無で分岐する
+（両方を順に実行すると、新形式でも折りたたまれた初回監査の指摘まで拾う）。
 
 ```bash
-# 新形式（4 列・初回監査を <details> で折りたたむ。残存指摘の表が <details> の前）
-gh pr view "$PR" --json body --jq '.body' | sed -n '/^## Codex/,/^<details>/p' \
-  | grep -E '^\| (高|中|低) \|' > "$W/findings.txt"
-
-# 旧形式（3 列・<details> なし。セクション末尾まで）
-gh pr view "$PR" --json body --jq '.body' | sed -n '/^## Codex/,$p' \
-  | grep -E '^\| (高|中|低) \|' > "$W/findings.txt"
+body="$(gh pr view "$PR" --json body --jq '.body')"
+if printf '%s\n' "$body" | sed -n '/^## Codex/,$p' | grep -q '^<details>'; then
+  # 新形式（4 列・初回監査を <details> で折りたたむ。残存指摘の表が <details> の前）
+  printf '%s\n' "$body" | sed -n '/^## Codex/,/^<details>/p'
+else
+  # 旧形式（3 列・<details> なし。セクション末尾まで）
+  printf '%s\n' "$body" | sed -n '/^## Codex/,$p'
+fi | grep -E '^\| (高|中|低) \|' > "$W/findings.txt" || true
 
 # 抽出件数を必ず表示する（0 件は「指摘なし」の正当な状態。止めずに件数で気づけるようにする）
 echo "抽出した指摘: $(wc -l < "$W/findings.txt" | tr -d ' ') 件"
