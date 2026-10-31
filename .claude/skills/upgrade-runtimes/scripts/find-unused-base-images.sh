@@ -70,7 +70,7 @@ case $rc in 0 | 1) ;; *) fail "$rc" ;; esac
 rc=0
 rg --no-ignore --hidden -H -N --null -i "${globs[@]}" -g '!actions-runners' \
   -e '^[[:space:]]*FROM[[:space:]]+(--platform=[^[:space:]]+[[:space:]]+)?[^[:space:]]*[$]' \
-  -e '^[[:space:]]*FROM[[:space:]].*\\[[:space:]]*$' \
+  -e '^[[:space:]]*FROM[[:space:]].*[\\`][[:space:]]*\r?$' \
   -- "$@" > "$var_from" || rc=$?
 case $rc in 0 | 1) ;; *) fail "$rc" ;; esac
 
@@ -81,8 +81,9 @@ while IFS= read -r -d '' path && IFS= read -r line; do
   is_dockerfile "$path" || rc=$?
   case $rc in 0) ;; 1) continue ;; *) fail "$rc" ;; esac
   line=${line%$'\r'}
-  if [[ $line =~ \\[[:space:]]*$ ]]; then
-    # FROM continued on the next line: the image is not on this one.
+  if [[ $line =~ [\\\`][[:space:]]*$ ]]; then
+    # FROM continued on the next line (\ or, under "# escape=`", a backtick):
+    # the image is not on this one.
     checks+=("check-by-eye $path: $line")
     continue
   fi
