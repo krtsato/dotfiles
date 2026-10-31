@@ -254,9 +254,15 @@
       }
     },
     "aws-mcp": {
-      "command": "uvx",
+      "command": "docker",
       "args": [
-        "mcp-proxy-for-aws@latest",
+        "run",
+        "--rm",
+        "--interactive",
+        "--pull=always",
+        "--volume",
+        "${HOME}/.aws:/app/.aws:ro",
+        "public.ecr.aws/mcp-proxy-for-aws/mcp-proxy-for-aws:latest",
         "https://aws-mcp.us-east-1.api.aws/mcp",
         "--metadata",
         "AWS_REGION=ap-northeast-1"
