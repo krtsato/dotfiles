@@ -90,14 +90,20 @@ compatibility: >-
 PR 本文の表から抽出する。**本文の形式が 2 種類ある**ので両方に対応する。
 
 ```bash
-# 新形式（4 列・初回監査を <details> で折りたたむ）
+# 新形式（4 列・初回監査を <details> で折りたたむ。残存指摘の表が <details> の前）
 gh pr view "$PR" --json body --jq '.body' | sed -n '/^## Codex/,/^<details>/p' \
-  | grep -E '^\| (高|中|低) \|'
+  | grep -E '^\| (高|中|低) \|' > "$W/findings.txt"
 
 # 旧形式（3 列・<details> なし。セクション末尾まで）
 gh pr view "$PR" --json body --jq '.body' | sed -n '/^## Codex/,$p' \
-  | grep -E '^\| (高|中|低) \|'
+  | grep -E '^\| (高|中|低) \|' > "$W/findings.txt"
+
+# 抽出件数を必ず表示する（0 件は「指摘なし」の正当な状態。止めずに件数で気づけるようにする）
+echo "抽出した指摘: $(wc -l < "$W/findings.txt" | tr -d ' ') 件"
 ```
+
+0 件は正当にあり得る（再監査で残存なし。`references/evaluations.md` の「指摘 0 件」）。
+ただし本文の形式が想定外でも 0 件になるので、**件数を見て PR 本文と食い違わないか確かめる**。
 
 ### ステップ2: 元字幕を引く
 
@@ -106,7 +112,13 @@ gh pr view "$PR" --json body --jq '.body' | sed -n '/^## Codex/,$p' \
 
 ```bash
 vid="$(sed -nE 's#^> 動画:.*(youtu\.be/|watch\?v=)([A-Za-z0-9_-]{11}).*#\2#p' "$digest" | sed -n 1p)"
-src="$(grep -l -F "$vid" ~/dev/me/mcp-mediable/captions/normalized/*.md | sed -n 1p)"
+# 空の vid は全ファイルに一致して先頭の字幕を黙って選ぶ。11 文字でなければ止める
+[ "${#vid}" -eq 11 ] || { echo "video id が 11 文字でない: '$vid'" >&2; exit 1; }
+matches="$(grep -l -F "$vid" ~/dev/me/mcp-mediable/captions/normalized/*.md || true)"
+n="$(printf '%s' "$matches" | grep -c . || true)"
+[ "$n" -ne 0 ] || { echo "元字幕が見つからない: $vid" >&2; exit 1; }
+[ "$n" -eq 1 ] || { echo "元字幕が複数ある ($n 件): $vid" >&2; printf '%s\n' "$matches" >&2; exit 1; }
+src="$matches"
 grep -E '^\[[0-9]+:[0-9]{2}' "$src" > "$W/transcript.txt"
 ```
 
@@ -131,7 +143,8 @@ grep -E '^\[[0-9]+:[0-9]{2}' "$src" > "$W/transcript.txt"
 強制終了するまでの猶予（秒）。
 
 ```bash
-timeout --kill-after=30 1800 claude -p --model claude-opus-5-5 --output-format text \
+T="$(command -v timeout || command -v gtimeout)" || { echo "timeout も gtimeout も無い" >&2; exit 1; }
+"$T" --kill-after=30 1800 claude -p --model claude-opus-5-5 --output-format text \
   < "$W/prompt.md" > "$W/revised.md"
 ```
 
@@ -151,8 +164,11 @@ fi
 
 ```bash
 # 1) 出所行が一字一句同じか
-grep -Fxq "$(grep -m1 '^> 動画:' "$W/current.md")" "$W/revised.md" || fail
-grep -Fxq "$(grep -m1 '^> 出典:' "$W/current.md")" "$W/revised.md" || fail
+# 比べる文字列が空だと grep -Fx が空行に一致してゲートが通るので、空なら失敗させる
+for tag in '動画' '出典'; do
+  line="$(grep -m1 "^> $tag:" "$W/current.md")"
+  [ -n "$line" ] && grep -Fxq -- "$line" "$W/revised.md" || fail
+done
 
 # 2) 保護フィールドが不変か（published_at は derive-check を素通りする）
 fm() { sed -n "2,/^---$/{s/^$2:[[:space:]]*//p;}" "$1" | sed -n 1p; }
