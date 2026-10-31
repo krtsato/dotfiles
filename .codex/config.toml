@@ -76,10 +76,6 @@ note.env = { NOTE_COOKIES = "dummy..." }
 stripe.enabled = true
 stripe.url = "https://mcp.stripe.com"
 
-# Codex
-codex.enabled = true
-codex.command = "codex"
-codex.args = ["mcp-server"]
 
 # AWA
 "awa-doc".enabled = true
