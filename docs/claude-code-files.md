@@ -23,7 +23,13 @@ Claude Code が読み書きするファイルの置き場と役割。**直す前
 | `~/.claude.json` | しない | Claude Code の全体の状態と、**MCP サーバーの正本**。認証の値を含む |
 | 各リポジトリの `CLAUDE.md`・`AGENTS.md`・`.claude/`・`.mcp.json` | リポジトリごと | そのリポジトリだけに効く指示と設定 |
 
-どれが効いているかの優先は「近いものが勝つ」。各リポジトリの設定が `~/.claude` の全体の設定より優先される。
+効き方は種類で違う（Claude Code の公式の説明書 <https://code.claude.com/docs/en/settings>・<https://code.claude.com/docs/en/memory>）。
+
+| 種類 | 効き方 |
+| --- | --- |
+| 指示（`CLAUDE.md`・`rules/`） | 全体と各リポジトリのものが**全部あわせて**読み込まれる。どちらかが勝つのではない |
+| 設定（`settings.json` の項目） | 同じ項目は 手元（`.claude/settings.local.json`）＞ プロジェクト（`.claude/settings.json`）＞ 全体（`~/.claude/settings.json`）の順に勝つ。許可の一覧などのリストは足し合わされる |
+| MCP サーバー | 各リポジトリの `.mcp.json` が全体（`~/.claude.json`）より優先される |
 
 ## git で管理するもの — dotfiles の .claude
 
@@ -55,22 +61,26 @@ Claude Code が読み書きするファイルの置き場と役割。**直す前
 
 ## git で管理しないもの — Claude Code が作る記録
 
+Claude Code は、決まった置き場を `cleanupPeriodDays`（既定 30 日、`settings.json` では未設定）より古くなったら自動で消す
+（<https://code.claude.com/docs/en/claude-directory#cleaned-up-automatically>）。
+
 | ファイル・フォルダ | 中身 | 片付け |
 | --- | --- | --- |
-| `projects/<作業フォルダ>/*.jsonl` | 会話の記録 | 約 30 日で自動的に入れ替わる |
-| `projects/<作業フォルダ>/memory/` | 自動の記憶（`MEMORY.md` が索引） | 消さない（永続が目的） |
-| `projects/<作業フォルダ>/<会話>/subagents/`・`tool-results/` | サブエージェントの記録・道具が取得したファイル | skill `prune-agent-storage` |
-| `plans/` | 計画のファイル | skill `prune-agent-storage` |
-| `file-history/` | 編集前の退避 | skill `prune-agent-storage` |
-| `jobs/` | 会話ごとのバックグラウンドの作業の記録 | 自動では片付かない |
-| `plugins/` | 取り込んだプラグインの本体 | プラグインの管理に任せる |
-| `teams/`・`sessions/`・`tasks/` | 複数エージェントの作業、動いている会話の目印 | 自動 |
-| `history.jsonl` | 入力した依頼の履歴 | 自動では片付かない |
-| `cache/`・`telemetry/`・`usage-data/`・`stats-cache.json`・`shell-snapshots/` | Claude Code の内部の一時ファイル | Claude Code に任せる |
-| `remote-settings*`・`policy-limits*` | 組織から配られる設定と署名 | 触らない |
-| `settings.local.json` | **この Mac だけ**の設定（`settings.json` に重ねて効く） | — |
+| `projects/<作業フォルダ>/*.jsonl` | 会話の記録 | 30 日で自動 |
+| `projects/<作業フォルダ>/<会話>/subagents/`・`tool-results/` | サブエージェントの記録・大きな取得物 | 30 日で自動（会話の記録と一緒に） |
+| `plans/` | 計画のファイル | 30 日で自動 |
+| `file-history/` | 編集前の退避（巻き戻し用） | 30 日で自動 |
+| `tasks/`・`session-env/`・`shell-snapshots/`・`paste-cache/`・`debug/`・`usage-data/` | 作業の一覧・一時的な状態・大きな貼り付け・記録 | 30 日で自動 |
+| `backups/` | `~/.claude.json` の書き換え前の写し | 新しい 5 つを残して自動 |
+| `projects/<作業フォルダ>/memory/` | 自動の記憶（`MEMORY.md` が索引。毎回先頭 200 行か 25 KB まで読まれる） | 自動では消えない（永続が目的） |
+| `jobs/`・`daemon/` | バックグラウンドの会話の状態 | **消さない**（公式が残すよう指定） |
+| `sessions/` | 動いている会話の目印 | 会話の終了時に自動 |
+| `plugins/` | 取り込んだプラグイン | `claude plugin` に任せる。消さない |
+| `history.jsonl`・`stats-cache.json` | 入力した依頼の履歴・使用量の集計 | 自動では消えない |
+| `cache/`・`remote-settings*`・`policy-limits*` | Claude Code の内部の写し | 自動で取り直される。触らない |
+| `settings.local.json` | 下記 | — |
 
-`settings.local.json` は git で管理しないので、Mac を替えると引き継がれない。両方の Mac で効かせたいものは `settings.json` に書く。
+会話の記録は暗号化されていない。道具が読んだ値（`.env` の中身など）もそのまま残る。
 
 ## ~/.claude.json — 全体の状態と MCP サーバー
 
@@ -105,7 +115,7 @@ dotfiles の外にある 1 つのファイル。Claude Code がほぼ毎回書�
 | --- | --- | --- |
 | 全プロジェクトへの指示 | `CLAUDE.md`・`rules/` | dotfiles の PR |
 | 許可・自動の処理・プラグイン・モデル | `settings.json` | dotfiles の PR |
-| この Mac だけの例外 | `settings.local.json` | 手で直す（git 管理外） |
+| あるリポジトリで自分だけ変えたいこと | そのリポジトリの `.claude/settings.local.json` | 手で直す（git 管理外） |
 | 全体の MCP サーバー | `~/.claude.json` | `claude mcp add-json -s user`／`claude mcp remove -s user` |
 | あるリポジトリだけの MCP サーバー | そのリポジトリの `.mcp.json` | そのリポジトリの PR |
 | skill | `skills/<名前>/`（Codex でも使うなら `.codex/skills/` にリンクを足す） | dotfiles の PR |
@@ -127,6 +137,8 @@ dotfiles のリンクのはずがいつの間にか普通のファイルにな�
 
 | 対象 | 使うもの |
 | --- | --- |
-| 計画・サブエージェントの記録・取得物・編集前の退避 | skill `prune-agent-storage`（既定ではゴミ箱へ移す） |
+| 会話の記録・計画・退避・取得物など | 不要（30 日で自動。期間は `settings.json` の `cleanupPeriodDays`） |
+| あるプロジェクトの記録をまとめて消す | `claude purge <作業フォルダ> --dry-run` で確かめてから `claude purge <作業フォルダ>` |
 | uv・mise・npx・Xcode・runner・Docker の取り直せる置き場 | skill `prune-dev-caches` |
-| 会話の記録 | 不要（自動で入れ替わる） |
+
+skill `prune-agent-storage` は「計画などは自動では片付かない」前提で作られている。今の Claude Code では 30 日で自動的に消えるので、前提が合っているかを見直す必要がある。
