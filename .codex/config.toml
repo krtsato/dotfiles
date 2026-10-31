@@ -63,21 +63,18 @@ ysys.source = "https://github.com/yoyogi-systems/claude-marketplace.git"
 
 # github
 github.enabled = true
-github.command = "docker"
-github.args = ["run", "-i", "--rm", "-e", "GITHUB_PERSONAL_ACCESS_TOKEN", "ghcr.io/github/github-mcp-server"]
-github.env = { GITHUB_PERSONAL_ACCESS_TOKEN = "to_be_added..." }
+github.command = "sh"
+github.args = ["-c", "GITHUB_PERSONAL_ACCESS_TOKEN=$(gh auth token) exec docker run -i --rm -e GITHUB_PERSONAL_ACCESS_TOKEN ghcr.io/github/github-mcp-server"]
 
 # note
 note.enabled = true
 note.command = "docker"
 note.args = ["run", "-i", "--rm", "-e", "NOTE_COOKIES", "-e", "MAGAZINES_DIR=/magazines", "-v", "/Users/s11639/dev/me/mcp-note/magazines:/magazines", "mcp-note"]
-note.env = { NOTE_COOKIES = "to_be_added..." }
+note.env = { NOTE_COOKIES = "dummy..." }
 
 # stripe
 stripe.enabled = true
-stripe.command = "npx"
-stripe.args = ["-y", "@stripe/mcp"]
-stripe.env = { STRIPE_SECRET_KEY = "to_be_added..." }
+stripe.url = "https://mcp.stripe.com"
 
 # Codex
 codex.enabled = true
@@ -122,7 +119,7 @@ codex.args = ["mcp-server"]
 # simply-rag
 "simply-rag".enabled = true
 "simply-rag".url = "https://rag.simply.dev/search"
-"simply-rag".http_headers = { "x-api-key" = "to be added..." }
+"simply-rag".http_headers = { "x-api-key" = "dummy..." }
 
 # Canva
 canva.enabled = true
