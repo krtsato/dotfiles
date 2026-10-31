@@ -10,13 +10,14 @@ description: >-
   「使われない Docker イメージを消して」「最新の Opus にして」のような
   リクエストで使用。扱うファイルは `go.mod` / `.github/workflows/*.yaml` / `Dockerfile*` /
   `mise.toml` / `.golangci.yml` / `package.json`（`engines`）/ runner の `.path` の 7 種類と、**手元に入れた `golangci-lint`
-  の実行ファイル**、スクリプトとワークフローが呼ぶ **Claude のモデル ID**。Docker の名前の点検で見つかった `Makefile` と `*.sh` の `docker build` /
+  の実行ファイル**、スクリプトとワークフローが呼ぶ **Claude のモデル ID**。Docker の名札の点検で見つかった `Makefile` と `*.sh` の `docker build` /
   `docker run` の行も直す。Do NOT use for: 依存ライブラリ
   （`go.mod` の require 行）の更新、アプリのコード変更、runner の新規登録、
   上の 11 リポ以外のリポの作業。
 compatibility: >-
   macOS + Homebrew + mise 環境を前提。`gh` CLI（認証済み）、`go`、`docker`、`rg`（ripgrep）、
-  `npx markdownlint-cli2` が要る。自宅 Mac の runner が 5 台登録済みであること。
+  `npx markdownlint-cli2` が要る。Claude のモデルの版上げでは `claude` CLI（ログイン済み）、
+  `gtimeout`（`brew install coreutils`）、`python3` も使う。自宅 Mac の runner が 5 台登録済みであること。
 ---
 
 # 版を上げる
@@ -27,6 +28,9 @@ compatibility: >-
 | --- | --- |
 | 自宅 Mac の runner | self-hosted runner |
 | GitHub の機械 | GitHub ホスト（`ubuntu-latest` 等） |
+| 名札 | Docker イメージのタグ。土台（`golang:1.27.3-alpine3.24`）も、ビルドで `-t` に付ける確認用（`upgrade-check-*`）も名札と呼ぶ |
+| コンテナの名前 | `docker run --name` で付ける名前 |
+| 試し実行 | dry run（書き込みをしない実行） |
 
 以降はこの表の左側（平易な言い方）に統一する。コード中の実際の値（`self-hosted` 等）はそのまま書く。
 
@@ -37,7 +41,7 @@ compatibility: >-
 - [前提の確認](#前提の確認)
 - [手順](#手順)
 - [使用例](#使用例)
-- [禁止事項](#禁止事項)
+- [注意 — してはいけないこと](#注意--してはいけないこと)
 - [成功基準](#成功基準)
 - [実行チェックリスト](#実行チェックリスト)
 - [Troubleshooting](#troubleshooting)
@@ -47,10 +51,10 @@ compatibility: >-
 | 場面 | きっかけ | 使う手順番号 | 得られるもの |
 | --- | --- | --- | --- |
 | Go の版上げ | 「Go を 1.26 に上げて」等の依頼 | 1・2・3・5・6・7 | `go.mod`・workflow・Dockerfile の版が揃った状態 |
-| Python の版上げ | 「Python を上げて」「定期実行が版のせいで落ちた」 | 1・2・4・5・6 | 自宅 Mac の runner が新しい Python で動く状態（`mise.toml` が本体） |
+| Python の版上げ | 「Python を上げて」「定期実行が版のせいで落ちた」 | 1・2・4・5・6・7 | 自宅 Mac の runner が新しい Python で動く状態（`mise.toml` が本体） |
 | runner の PATH 点検 | 「runner が古い」「`xcrun` の警告が出る」 | 4 | `.path` の先頭が shims になり、陳腐化が起きなくなった状態 |
-| Docker の土台の版上げ・片付け | 「docker image の版を上げて」「使われないイメージを消して」「ディスクが圧迫されている」 | 1・3・5・6（詳細は `references/docker-images.md`） | 土台の名札が最新で明示され、中の道具が動き、名前の無いイメージが溜まらない状態 |
-| lint の版上げ・版ずれ | 「golangci-lint を上げて」「手元と CI で lint の結果が違う」「設定が読めないと言われる」 | 1・3・5 | CI の `version:` と手元の実行ファイルが同じ版に揃った状態 |
+| Docker の土台の版上げ・片付け | 「docker image の版を上げて」「使われないイメージを消して」「ディスクが圧迫されている」 | 1・3・5・6・7（詳細は `references/docker-images.md`） | 土台の名札が最新で明示され、中の道具が動き、名札の無いイメージが溜まらない状態 |
+| lint の版上げ・版ずれ | 「golangci-lint を上げて」「手元と CI で lint の結果が違う」「設定が読めないと言われる」 | 1・3・5・6・7 | CI の `version:` と手元の実行ファイルが同じ版に揃った状態 |
 | Claude のモデルの版上げ | 「最新の Opus にして」「使っているモデルを上げて」、または他の版上げのついで | `references/claude-models.md` の手順 1〜4 | スクリプトとワークフローが呼ぶモデルが、同じ系統の最新になった状態 |
 
 ## この作業が難しい理由
@@ -69,6 +73,7 @@ compatibility: >-
 | 全リポが最新か | `git -C ~/dev/me/<repo> status -sb` | behind 0・dirty 0 |
 | runner が動いているか | `gh api repos/krtsato/<repo>/actions/runners -q '.runners[]\|"\(.name) \(.status) busy=\(.busy)"'` | online・busy=false |
 | mise が持っている版 | `mise ls` | 上げたい版が入っている |
+| Claude の CLI（モデルの版上げのとき） | `claude --version` と `command -v gtimeout python3` | 版が出て、2 つとも見つかる |
 
 **busy=true の runner は触らない。** job を殺す。
 
@@ -162,93 +167,23 @@ grep -rn "runs-on" ~/dev/me/*/.github/workflows/*.y*ml | grep -v actions-runners
 | --- | --- |
 | 1 | `go.mod` の `go` 行と、全ワークフローの `go-version` |
 | 2 | `mise.toml`（invest-knowledge のみ）— 自宅 Mac の実際の版がここで決まる |
-| 3 | `Dockerfile*` の `FROM`。**手順は `references/docker-images.md`**（分類・名札の実在確認・中の道具の確認・名前の付け方・片付け）。**digest 付き（trade-moomoo）は digest も張り替える**。alpine は `golang:<版>-alpine3.24` のように**明示する**（浮動の名札は中身が黙って変わる） |
+| 3 | `Dockerfile*` の `FROM`。**手順は `references/docker-images.md`**（分類・名札の実在確認・中の道具の確認・名札の付け方・片付け）。**digest 付き（trade-moomoo）は digest も張り替える**。alpine は `golang:<版>-alpine3.24` のように**明示する**（浮動の名札は中身が黙って変わる） |
 | 4 | `golangci-lint-action` の `version`（action 自体の `@v9` とは別物） |
 | 5 | **手元の `golangci-lint` を 4 と同じ版に入れ直す**（下記） |
 | 6 | Node のリポ（securerc・mdreview）: ワークフローの `node-version` と `Dockerfile` の `FROM node:<版>-alpine<alpine の版>`。**偶数の LTS の版**にし、alpine の版も明示する（浮動の名札を見つけたら明示に直す）。`package.json` の `engines.node` の下限が、実際に使う版より新しくなっていないことも確かめる |
 
-#### Go を上げたら golangci-lint も上げる
+#### golangci-lint も揃える
 
-**Go の修正版を上げただけで、古い lint が標準ライブラリを読めなくなることがある。**
-2026-10-12、Go 1.27.1 → 1.27.2 で v2.13.2 が全 8 リポで型検査の誤りを出し、v2.14.0 で 0 件に戻った
-（下の Troubleshooting）。**Go を上げたら、lint を走らせて確かめてから PR にする。**
-
-#### 手元の golangci-lint を CI に揃える
-
-**版は mise が管理する。** `~/dev/me/mise.toml` に書いてあり、CI の `version:` と同じ値にする。
-
-```bash
-grep -rh -A2 'golangci-lint-action' ~/dev/me/*/.github/workflows/*.y*ml | grep 'version:'
-grep golangci ~/dev/me/mise.toml
-```
-
-両方が同じでなければ `mise.toml` を直して `mise install` する。
-
-#### 割り込んでいる実行ファイルを退ける
-
-**よくある故障はこちら。** `go install` で入った古い版が `~/go/bin` に居座り、
-**mise の shims より PATH で先に来る**。mise は正しい版を持っているのに、走るのは別物になる。
-
-```bash
-which -a golangci-lint      # 1 行目が ~/go/bin なら割り込まれている
-golangci-lint version       # 走る版を必ず確かめる
-```
-
-**割り込みの診断と、それを消した後の確認では、わざと `mise x --` を付けない。** エディタやフックが
-素の名前で呼んだときに実際に何が走るかを見るのが目的だから（この節と Troubleshooting の素の呼び出しはすべてこれ）。
-検証（手順 5）では `mise x --` を付ける。
-
-```text
-$HOME/go/bin/golangci-lint                    ← v1 系が先頭
-$HOME/.local/share/mise/installs/...2.14.0/   ← mise が持つ正しい版
-$HOME/.local/share/mise/shims/golangci-lint
-```
-
-直し方は **`~/go/bin` の方を消す**（mise 側は触らない）。
-
-```bash
-rm ~/go/bin/golangci-lint && golangci-lint version
-```
-
-**`go install github.com/golangci/...` で入れ直さない。** それが割り込みを作った原因で、
-同じ名前の実行ファイルを黙って上書きする。**手元の版の正本は mise。**
-
-**一時的に入れる場合も `GOBIN` を分けない理由にはならない。** 2026-10-02、別の作業で
-`GOBIN=<一時フォルダ> go install` したつもりが、それ以前に `~/go/bin` へ入れていた v1 系が
-残っていて割り込んでいた。**入れた覚えより `which -a` を信じる。**
-
-**見分け方は「手元 0 件・CI で指摘」。** 版が古いと新しい検査（`modernize` 系は v2 で追加）が
-そもそも走らないので、**手元が緑でも何の保証にもならない**。CI で初めて出たら、
-直す前に `golangci-lint version` を確かめる。
+**Go の修正版を上げただけで、古い lint が標準ライブラリを読めなくなることがある。** Go の版を上げる PR では、lint の版も同じ PR で上げ、
+手元の実行ファイルを CI の `version:` と同じ版にしてから PR にする。手順と、`~/go/bin` の古い版が割り込む故障の直し方は
+[references/golangci-lint.md](references/golangci-lint.md)。
 
 ### 4. runner の PATH を点検する
 
-`.path` は登録時の写しなので**版を上げると指し先が消える**。shims が先頭にあれば何もしなくてよい。
+版を上げると、runner の `.path`（登録時の写し）が指す先が消えることがある。先頭が mise の shims で欠落が無いかを点検し、
+崩れていれば直す。点検と直し方は [references/environments.md](references/environments.md) の「runner の前提」。
 
-```bash
-for d in ~/dev/me/mcp-note/actions-runners/magazine-sync \
-         ~/dev/me/mcp-seeking-alpha/actions-runners/alpha-picks-sync \
-         ~/dev/me/mcp-mediable/actions-runners \
-         ~/dev/me/mcp-invest-knowledge/actions-runners \
-         ~/dev/me/mcp-tradingview/actions-runners; do
-  echo "== $d"
-  cut -d: -f1 "$d/.path"; echo   # 先頭だけ見れば shims が先頭かを判定できる
-  # .path has no trailing newline: without the echo, read drops the last entry
-  { tr ':' '\n' < "$d/.path"; echo; } | while IFS= read -r e; do [ -n "$e" ] && [ ! -d "$e" ] && echo "   欠落 $e"; done
-done
-```
-
-先頭が `.../mise/shims` でない、または「欠落」が出たら `references/environments.md` の手順で直す。
-
-**runner の古い本体・更新用の写し・使っていない Go は `prune-dev-caches` で消す。** runner は版が上がるたびに
-`bin.<版>`・`externals.<版>`・`_work/_update` を残し、`actions/setup-go` は古い `_work/_tool/go/<版>` を消さない。
-片付けの条件（夜間の時間帯を避ける・busy=false・止めてから消して戻す・`go-version` が `x.y.z` でなければ Go を残す）は
-そのスクリプトが持つ。ここに手順を複製しない。
-
-```bash
-~/.claude/skills/prune-dev-caches/scripts/prune-dev-caches.sh --only runner          # 見るだけ
-~/.claude/skills/prune-dev-caches/scripts/prune-dev-caches.sh --only runner --apply  # 消す
-```
+runner の古い本体・更新用の写し・使っていない Go は、マージ後に手順 7 でまとめて消す。
 
 ### 5. 検証する
 
@@ -256,10 +191,10 @@ done
 | --- | --- |
 | ビルドとテスト | 各 Go リポで `mise x -- go build ./... && mise x -- go test ./...`。**素の `go` を使わない**——作業中のシェルの PATH が古い Go のフォルダを直接指していることがあり（2026-10-20、1.27.2 のリポを 1.27.1 で走らせて偽の失敗が出た） |
 | Node のビルドとテスト | securerc は `mise x node@<版> -- sh -c 'npm ci && npm run typecheck && npm test'`、mdreview は `mise x node@<版> -- sh -c 'npm ci && npm test'`。上げた先の版で走らせる。**mdreview の `npm run build` は Docker のイメージを作り直す**ので、新しい `FROM node` の確かめはこちらで行い、続けて `npm run start` でサイトが開くことを見る |
-| Docker の土台 | `references/docker-images.md` の手順 4。新しい土台で全 `Dockerfile*` を**名前を付けて**ビルドし、中の道具を動かしてから名前ごと消す。取り込みは**今の土台と同じ日のデータで出力を比べる** |
-| Docker の片付け | `references/docker-images.md` の手順 5・6。名前の無いビルド・`--rm` の無い起動が無いこと、毎日作り直すワークフローに片付けの手順があること、手元の `docker system df` の前後 |
+| Docker の土台 | `references/docker-images.md` の手順 4。新しい土台で全 `Dockerfile*` を**名札を付けて**ビルドし、中の道具を動かしてから名札ごと消す。取り込みは**今の土台と同じ日のデータで出力を比べる** |
+| Docker の片付け | `references/docker-images.md` の手順 5・6。名札の無いビルド・`--rm` の無い起動が無いこと、毎日作り直すワークフローに片付けの手順があること、手元の `docker system df` の前後 |
 | lint | **手元で `mise x -- golangci-lint run ./...`**。走らせる前に `mise x -- golangci-lint version` が CI の `version:` と同じことを確かめる。`~/dev/me` 配下で実行する（外では版が決まらず `No version is set`） |
-| **自宅 Mac の runner の実動作** | ワークフローを 1 本 `workflow_dispatch` で走らせる。**dry run は途中で止まることがある**ので、どのステップまで到達したかを必ず確認する |
+| **自宅 Mac の runner の実動作** | ワークフローを 1 本 `workflow_dispatch` で走らせる。**試し実行は途中で止まることがある**ので、どのステップまで到達したかを必ず確認する |
 | runner が新設定を読んだか | run のログから `/usr/bin/xcrun` の警告が消えたこと |
 
 ### 6. PR にする
@@ -267,11 +202,26 @@ done
 **1 PR = 1 リポ。** 横断でまとめない（1 つが赤いと全部止まる）。
 本文には「どの版から どの版へ」と「自宅 Mac の runner に影響があるか」を書く。
 
-### 7. 古い土台イメージを消す
+### 7. 版上げで溜まった物を消す
 
-**マージした後に必ず行う**（持ち主の指示・2026-10-23）。個人のリポ全体と awa 側の
-どこにも書かれていない土台の名札を手元から消す。手順は `references/docker-images.md` の「手元」。**名前で 1 つずつ消し、
-`docker image prune -a` で一括にしない**（仕事のリポや awa 側の作業のイメージまで消える）。
+**マージした後に必ず行う**（持ち主の指示）。版を上げると、使われなくなった物が 3 か所に残る。
+片付けは skill `prune-dev-caches` が持つ（使用中の確かめ方もそちら）。ここに手順を複製しない。
+
+| 溜まる物 | なぜ残るか |
+| --- | --- |
+| runner の古い本体・`_work/_update`・使っていない Go | runner は自己更新で旧版を残し、`actions/setup-go` は古い `_work/_tool/go/<版>` を消さない |
+| mise の古い版 | Go・Python を上げても、mise は前の版を消さない |
+| どこにも書かれていない Docker の土台 | `FROM` を上げても、手元のイメージは残る |
+
+```bash
+~/.claude/skills/prune-dev-caches/scripts/prune-dev-caches.sh --only runner,mise,docker          # 見るだけ
+~/.claude/skills/prune-dev-caches/scripts/prune-dev-caches.sh --only runner,mise,docker --apply  # 消す
+```
+
+`skip:` が出た種類は、その理由（夜間・runner が job を実行中など）を解いてから流し直す。
+**`check-by-eye` だけは流し直しても同じ理由で飛ぶ。** 出た `FROM` を読み、使っていないと確かめた名札を
+`docker image rm <名札>`（`-f` を付けない）で 1 つずつ手で消す。
+Docker の判定の中身と、`docker image prune -a` で一括にしない理由は `references/docker-images.md` の「手元」。
 最後に `docker system df` の前後を報告する。
 
 ## 使用例
@@ -281,7 +231,7 @@ done
 | 「mcp-tradingview の Go を 1.26 に上げて」 | 手順 1 の grep で対象を洗い出し、`go.mod` と全 workflow の `go-version` を書き換えて `mise x -- go build ./... && mise x -- go test ./...` を流す | ビルドとテストが通り、`go.mod` と全 workflow の版が一致する |
 | 「invest-knowledge の定期実行が Python の版で落ちた」 | `mise.toml` の版を上げ、自宅 Mac の runner のワークフローを `workflow_dispatch` で 1 本走らせる | run が成功し、run のログから `/usr/bin/xcrun` の警告が出ない |
 
-## 禁止事項
+## 注意 — してはいけないこと
 
 | してはいけないこと | なぜ |
 | --- | --- |
@@ -290,7 +240,7 @@ done
 | **busy な runner を再起動する** | 実行中の job を殺す |
 | **distroless と道具入りの土台（alpine・debian）を無理に揃える** | mediable は ffmpeg、note は日本語 OCR が要る。**理由があって分かれている** |
 | **`actions-runners/` 配下のファイルを正本として数える／編集する** | 作業コピー。正本はリポジトリ直下 |
-| **MCP サーバーの `docker run` に `--name` を足す** | 2 つの会話が同時に起動すると 2 つ目が「名前が使用中」で落ちる。`--rm` なので自動の名前は残らない |
+| **MCP サーバーの `docker run` に `--name` を足す** | 2 つの会話が同時に起動すると 2 つ目が「コンテナの名前が使用中」で落ちる。`--rm` なので自動で付いたコンテナの名前は残らない |
 | **自宅 Mac の runner がビルド中に `docker builder prune -af` する** | 並行するビルドが次に使う中間物を消す。ワークフローでは `--filter until=24h` を付ける |
 | **名札を推測で書く** | `alpine3.25` のように存在しない組み合わせがある。`docker manifest inspect` で確かめる |
 | **Claude のモデルの系統を版上げのついでに変える**（Opus → Sonnet 等） | 費用と品質の釣り合いは持ち主が選んだもの。版上げは同じ系統の中だけ |
@@ -312,7 +262,7 @@ done
 - [ ] 版が書かれている場所を洗い出した（作業コピーを除外して）
 - [ ] `runs-on` で自宅 Mac の runner と GitHub の機械を仕分けた
 - [ ] 版を書き換えた（go.mod / workflows / mise.toml / Dockerfile / lint）
-- [ ] Docker の土台は `references/docker-images.md` の手順で、名札の実在・中の道具・名前の付け方・片付けまで確かめた
+- [ ] Docker の土台は `references/docker-images.md` の手順で、名札の実在・中の道具・名札の付け方・片付けまで確かめた
 - [ ] **手元の `mise x -- golangci-lint version` が CI の `version:` と一致することを確かめた**（Go のリポを上げたとき）
 - [ ] runner の `.path` を点検した（自宅 Mac の runner を持つリポを上げたとき）
 - [ ] `go build` と `go test` が通る（Go のリポを上げたとき）
@@ -321,52 +271,11 @@ done
 - [ ] 自宅 Mac の runner のワークフローを 1 本実際に走らせた（同上）
 - [ ] Claude のモデル ID と共著者の表記を `references/claude-models.md` の手順で洗い出し、同じ系統の最新で呼べることを確かめた
 - [ ] リポごとに PR を出した
-- [ ] マージ後、どこにも書かれていない古い土台イメージを名前で消した（`scripts/find-unused-base-images.sh` の `unused` だけ。失敗・`held`・`check-by-eye` が出た回は確かめてから）
+- [ ] マージ後、`prune-dev-caches.sh --only runner,mise,docker --apply` を流し、`skip:` が出た種類は理由を解いて流し直した（`check-by-eye` は `FROM` を読んでから手で消した）
 
 ## Troubleshooting
 
-### `mkdir: /Users/runner: Permission denied`
-
-自宅 Mac の runner に `actions/setup-python` が入っている。**削除する**。Python の版は mise が決める。
-
-### 版を上げたのに古い版で動く
-
-`.path` が古い版のパスを指している。手順 4 で点検し、shims を先頭に置く。
-
-### `Unexpected error attempting to determine if executable file exists '/usr/bin/xcrun/git'`
-
-`/usr/bin/xcrun` が PATH に入っている（**ディレクトリでなく実行ファイル**）。害は無いがノイズになる。
-`.path` から実在しない項目を除くと消える。**新しい `.path` を読んだかどうかの目印**にもなる。
-
-### `you are using a configuration file for golangci-lint v2 with golangci-lint v1`
-
-**手元の実行ファイルが v1 系に入れ替わっている。** 設定ファイルは v2 の書式なので読めない。
-
-```bash
-which -a golangci-lint   # 1 行目が ~/go/bin なら割り込まれている
-rm ~/go/bin/golangci-lint
-golangci-lint version    # mise.toml の版に戻る
-```
-
-原因は別の作業での `go install`。**`~/go/bin` は mise の shims より PATH で先に来る**ので、
-mise が正しい版を持っていても走るのは古い方になる。**入れ直さず、割り込みを消す。**
-
-### `export data version 5 is greater than maximum supported version 4`
-
-**lint が新しい Go の標準ライブラリを読めない。** `could not import fmt` などの型検査の誤りが
-全ファイルで出る。コードの問題ではない。golangci-lint を新しい版に上げる（`mise latest golangci-lint`）。
-
-手元の `mise.toml` を直しても、**作業中のシェルの PATH は古い版のフォルダを直接指したまま**のことがある。
-`golangci-lint version` が古いままなら `mise x golangci-lint@<版> -- golangci-lint run ./...` で確かめる。
-
-### golangci-lint がローカルで動かない
-
-まず上の版ずれを疑う。**「CI に任せる」で済ませない**——提供マシンの枠を使い切っていると
-CI は実行そのものを受け付けず、**判定が一度も行われないまま緑に見える**ことがある
-（2 秒・0 ステップ・runner 名が空）。手元の検査は `go vet` が見つけられない指摘を拾うので、
-手元で走らせて確かめる。
-
-### 定期実行が「取り消し」で終わる
-
-打ち切り時間に当たっている。失敗ではないので通知が出ないことがある。
-`timeout-minutes` と実際の所要時間を比べる。
+| 症状 | 見る場所 |
+| --- | --- |
+| `mkdir: /Users/runner: Permission denied`・版を上げたのに古い版で動く・`/usr/bin/xcrun` の警告・定期実行が「取り消し」 | [references/troubleshooting.md](references/troubleshooting.md) |
+| golangci-lint の v1/v2 の設定違い・`export data version`・手元で lint が動かない | [references/golangci-lint.md](references/golangci-lint.md) の「よくある故障」 |
