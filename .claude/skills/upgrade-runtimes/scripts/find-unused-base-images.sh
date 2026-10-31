@@ -33,7 +33,8 @@ tags=$(mktemp)
 files=$(mktemp)
 var_from=$(mktemp)
 err=$(mktemp)
-trap 'rm -f "$tags" "$files" "$var_from" "$err"' EXIT
+live=$(mktemp)
+trap 'rm -f "$tags" "$files" "$var_from" "$err" "$live"' EXIT
 
 # A Dockerfile's first instruction, after blank lines, comments and ARG
 # (including its continuation lines), is always FROM. That tells a Dockerfile by
@@ -109,11 +110,19 @@ done < "$var_from"
 # rg reports only one of them at a position and the other would look unused.
 # A file can vanish between the passes (a worktree removed meanwhile). It
 # holds no use any more, so drop it instead of failing the whole run.
-live=$(mktemp)
 while IFS= read -r -d '' f; do
-  [ -e "$f" ] && printf '%s\0' "$f"
+  if [ -e "$f" ]; then
+    printf '%s\0' "$f"
+    continue
+  fi
+  # -e is also false when a parent is unreadable; only a real ENOENT is safe to drop.
+  msg=$(LC_ALL=C stat -- "$f" 2>&1)
+  case $msg in
+    *"No such file or directory"*) ;;
+    *) printf '%s\n' "$msg" >&2; fail 2 ;;
+  esac
 done < "$files" > "$live"
-mv "$live" "$files"
+cp "$live" "$files"
 
 # Results are printed only after every search has succeeded, so an error in
 # this pass can never leave an "unused" line behind.
