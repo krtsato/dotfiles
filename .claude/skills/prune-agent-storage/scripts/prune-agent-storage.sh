@@ -242,7 +242,7 @@ else
 fi
 echo
 
-if [ "${#candidates[@]}" -eq 0 ]; then
+if [ "${#units[@]}" -eq 0 ]; then
 	echo "片付けたファイル数: 0"
 	echo
 	echo "取り残されたファイルはありません。"
@@ -278,7 +278,7 @@ echo "=== 古い順の上位 10 件 ==="
 sorted=()
 while IFS= read -r line; do
 	sorted+=("$line")
-done < <(for f in "${candidates[@]}"; do
+done < <(for f in ${candidates+"${candidates[@]}"}; do
 	printf '%s\t%s\n' "$(stat -f '%m' "$f")" "$f"
 done | sort -n)
 shown=0
@@ -302,7 +302,7 @@ fi
 removed=0
 if [ "$MODE" = apply ]; then
 	dest="${TRASH_DIR:-$HOME/.Trash}/agent-prune-$(date '+%Y%m%d-%H%M%S')"
-	for f in "${candidates[@]}"; do
+	for f in ${candidates+"${candidates[@]}"}; do
 		# Keep the original layout so a restore is unambiguous.
 		rel="${f#"$CLAUDE_DIR"/}"
 		mkdir -p "$dest/$(dirname "$rel")"
@@ -311,7 +311,7 @@ if [ "$MODE" = apply ]; then
 	done
 	echo "移動先: $dest"
 else
-	for f in "${candidates[@]}"; do
+	for f in ${candidates+"${candidates[@]}"}; do
 		rm -f "$f"
 		removed=$((removed + 1))
 	done
