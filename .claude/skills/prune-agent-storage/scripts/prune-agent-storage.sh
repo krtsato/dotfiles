@@ -299,10 +299,46 @@ if [ "$MODE" = list ]; then
 	exit 0
 fi
 
+# Re-check right before touching anything: the transcript list above is a
+# snapshot, and a session may have started (or resumed) since. A unit whose
+# session now has a transcript, or that was written to in the last hour, is
+# left alone.
+sid_of() {
+	case "$1" in
+	file-history/*) printf '%s\n' "$1" | cut -d/ -f2 ;;
+	projects/*) printf '%s\n' "$1" | cut -d/ -f3 ;;
+	esac
+}
+still_orphan() {
+	local sid="$1" unit="$2" t
+	for t in "$CLAUDE_DIR"/projects/*/"$sid".jsonl; do
+		[ -e "$t" ] && return 1
+	done
+	[ -z "$(find "$unit" -type f -mmin -60 -print 2>/dev/null | head -n 1)" ]
+}
+kept_sids=" "
+for d in ${units[@]+"${units[@]}"}; do
+	rel_unit="${d#"$CLAUDE_DIR"/}"
+	sid="$(sid_of "$rel_unit")"
+	if ! still_orphan "$sid" "$d"; then
+		case "$kept_sids" in *" $sid "*) ;; *) kept_sids="$kept_sids$sid " ;; esac
+	fi
+done
+if [ "$kept_sids" != " " ]; then
+	echo "消す直前に会話の記録が現れた、または直近 60 分に更新された会話は残します:$kept_sids"
+fi
+skip_file() {
+	local s
+	s="$(sid_of "${1#"$CLAUDE_DIR"/}")"
+	case "$kept_sids" in *" $s "*) return 0 ;; esac
+	return 1
+}
+
 removed=0
 if [ "$MODE" = apply ]; then
 	dest="${TRASH_DIR:-$HOME/.Trash}/agent-prune-$(date '+%Y%m%d-%H%M%S')"
 	for f in ${candidates+"${candidates[@]}"}; do
+		skip_file "$f" && continue
 		# Keep the original layout so a restore is unambiguous.
 		rel="${f#"$CLAUDE_DIR"/}"
 		mkdir -p "$dest/$(dirname "$rel")"
@@ -312,6 +348,7 @@ if [ "$MODE" = apply ]; then
 	echo "移動先: $dest"
 else
 	for f in ${candidates+"${candidates[@]}"}; do
+		skip_file "$f" && continue
 		rm -f "$f"
 		removed=$((removed + 1))
 	done
@@ -319,7 +356,8 @@ fi
 
 # Drop directories left empty under each leftover unit; the session directory
 # itself too when nothing else is in it. Roots and live sessions are untouched.
-for d in "${units[@]}"; do
+for d in ${units[@]+"${units[@]}"}; do
+	skip_file "$d" && continue
 	find "$d" -depth -type d -empty -delete 2>/dev/null || true
 	case "${d#"$CLAUDE_DIR"/}" in
 	projects/*) rmdir "${d%/*}" 2>/dev/null || true ;;
