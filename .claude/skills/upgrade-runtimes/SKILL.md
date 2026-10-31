@@ -51,10 +51,10 @@ compatibility: >-
 | 場面 | きっかけ | 使う手順番号 | 得られるもの |
 | --- | --- | --- | --- |
 | Go の版上げ | 「Go を 1.26 に上げて」等の依頼 | 1・2・3・5・6・7 | `go.mod`・workflow・Dockerfile の版が揃った状態 |
-| Python の版上げ | 「Python を上げて」「定期実行が版のせいで落ちた」 | 1・2・4・5・6 | 自宅 Mac の runner が新しい Python で動く状態（`mise.toml` が本体） |
+| Python の版上げ | 「Python を上げて」「定期実行が版のせいで落ちた」 | 1・2・4・5・6・7 | 自宅 Mac の runner が新しい Python で動く状態（`mise.toml` が本体） |
 | runner の PATH 点検 | 「runner が古い」「`xcrun` の警告が出る」 | 4 | `.path` の先頭が shims になり、陳腐化が起きなくなった状態 |
-| Docker の土台の版上げ・片付け | 「docker image の版を上げて」「使われないイメージを消して」「ディスクが圧迫されている」 | 1・3・5・6（詳細は `references/docker-images.md`） | 土台の名札が最新で明示され、中の道具が動き、名札の無いイメージが溜まらない状態 |
-| lint の版上げ・版ずれ | 「golangci-lint を上げて」「手元と CI で lint の結果が違う」「設定が読めないと言われる」 | 1・3・5 | CI の `version:` と手元の実行ファイルが同じ版に揃った状態 |
+| Docker の土台の版上げ・片付け | 「docker image の版を上げて」「使われないイメージを消して」「ディスクが圧迫されている」 | 1・3・5・6・7（詳細は `references/docker-images.md`） | 土台の名札が最新で明示され、中の道具が動き、名札の無いイメージが溜まらない状態 |
+| lint の版上げ・版ずれ | 「golangci-lint を上げて」「手元と CI で lint の結果が違う」「設定が読めないと言われる」 | 1・3・5・6・7 | CI の `version:` と手元の実行ファイルが同じ版に揃った状態 |
 | Claude のモデルの版上げ | 「最新の Opus にして」「使っているモデルを上げて」、または他の版上げのついで | `references/claude-models.md` の手順 1〜4 | スクリプトとワークフローが呼ぶモデルが、同じ系統の最新になった状態 |
 
 ## この作業が難しい理由
@@ -218,7 +218,9 @@ runner の古い本体・更新用の写し・使っていない Go は、マー
 ~/.claude/skills/prune-dev-caches/scripts/prune-dev-caches.sh --only runner,mise,docker --apply  # 消す
 ```
 
-`skip:` が出た種類は、その理由（夜間・runner が job を実行中・`check-by-eye` など）を解いてから流し直す。
+`skip:` が出た種類は、その理由（夜間・runner が job を実行中など）を解いてから流し直す。
+**`check-by-eye` だけは流し直しても同じ理由で飛ぶ。** 出た `FROM` を読み、使っていないと確かめた名札を
+`docker image rm <名札>`（`-f` を付けない）で 1 つずつ手で消す。
 Docker の判定の中身と、`docker image prune -a` で一括にしない理由は `references/docker-images.md` の「手元」。
 最後に `docker system df` の前後を報告する。
 
@@ -269,7 +271,7 @@ Docker の判定の中身と、`docker image prune -a` で一括にしない理�
 - [ ] 自宅 Mac の runner のワークフローを 1 本実際に走らせた（同上）
 - [ ] Claude のモデル ID と共著者の表記を `references/claude-models.md` の手順で洗い出し、同じ系統の最新で呼べることを確かめた
 - [ ] リポごとに PR を出した
-- [ ] マージ後、`prune-dev-caches.sh --only runner,mise,docker --apply` を流し、`skip:` が出た種類は理由を解いて流し直した
+- [ ] マージ後、`prune-dev-caches.sh --only runner,mise,docker --apply` を流し、`skip:` が出た種類は理由を解いて流し直した（`check-by-eye` は `FROM` を読んでから手で消した）
 
 ## Troubleshooting
 
