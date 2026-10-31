@@ -13,7 +13,7 @@ description: >-
   の実行ファイル**、スクリプトとワークフローが呼ぶ **Claude のモデル ID**。Docker の名前の点検で見つかった `Makefile` と `*.sh` の `docker build` /
   `docker run` の行も直す。Do NOT use for: 依存ライブラリ
   （`go.mod` の require 行）の更新、アプリのコード変更、runner の新規登録、
-  GitHub の機械専用リポの作業。
+  上の 11 リポ以外のリポの作業。
 compatibility: >-
   macOS + Homebrew + mise 環境を前提。`gh` CLI（認証済み）、`go`、`docker`、
   `npx markdownlint-cli2` が要る。自宅 Mac の runner が 5 台登録済みであること。
@@ -84,7 +84,7 @@ for r in mcp-tradingview mcp-invest-knowledge mcp-mediable mcp-note \
          mcp-seeking-alpha mcp-youtube mcp-notebooklm trade-moomoo watcher \
          securerc mdreview; do
   echo "== $r"
-  grep -rnE "^go |go-version:|python-version:|node-version:|\"node\": |uses: .*@|version: v?[0-9]|^FROM " "$r" \
+  grep -rnE "^go |go-version:|python-version:|node-version:|\"node\"[[:space:]]*:|uses: .*@|version: v?[0-9]|^FROM " "$r" \
     --include='go.mod' --include='*.yaml' --include='*.yml' --include='package.json' \
     --include='mise.toml' --include='Dockerfile*' --include='.golangci.yml' \
     --exclude-dir=node_modules 2>/dev/null \
@@ -98,8 +98,8 @@ done
 ```bash
 cd ~/dev/me
 for r in */; do r=${r%/}; [ -d "$r/.git" ] || continue
-  grep -rqsE "^go |go-version|python-version|node-version|^FROM (golang|python|node)" "$r" \
-    --include=go.mod --include='*.yml' --include='*.yaml' --include='Dockerfile*' \
+  grep -rqsE "^go |go-version|python-version|node-version|\"node\"[[:space:]]*:|^FROM (golang|python|node)" "$r" \
+    --include=go.mod --include='*.yml' --include='*.yaml' --include='Dockerfile*' --include=package.json \
     --exclude-dir=.worktrees --exclude-dir=actions-runners --exclude-dir=node_modules --exclude-dir=.claude --exclude-dir=.codex && echo "$r"
 done
 ```
@@ -266,7 +266,7 @@ fi
 | 何を | どう |
 | --- | --- |
 | ビルドとテスト | 各 Go リポで `mise x -- go build ./... && mise x -- go test ./...`。**素の `go` を使わない**——作業中のシェルの PATH が古い Go のフォルダを直接指していることがあり（2026-10-20、1.27.2 のリポを 1.27.1 で走らせて偽の失敗が出た） |
-| Node のビルドとテスト | securerc は `mise x node@<版> -- sh -c 'npm ci && npm run typecheck && npm test'`、mdreview は `mise x node@<版> -- sh -c 'npm ci && npm run build && npm test'`。上げた先の版で走らせる |
+| Node のビルドとテスト | securerc は `mise x node@<版> -- sh -c 'npm ci && npm run typecheck && npm test'`、mdreview は `mise x node@<版> -- sh -c 'npm ci && npm test'`。上げた先の版で走らせる。**mdreview の `npm run build` は Docker のイメージを作り直す**ので、新しい `FROM node` の確かめはこちらで行い、続けて `npm run start` でサイトが開くことを見る |
 | Docker の土台 | `references/docker-images.md` の手順 4。新しい土台で全 `Dockerfile*` を**名前を付けて**ビルドし、中の道具を動かしてから名前ごと消す。取り込みは**今の土台と同じ日のデータで出力を比べる** |
 | Docker の片付け | `references/docker-images.md` の手順 5・6。名前の無いビルド・`--rm` の無い起動が無いこと、毎日作り直すワークフローに片付けの手順があること、手元の `docker system df` の前後 |
 | lint | **手元で `mise x -- golangci-lint run ./...`**。走らせる前に `mise x -- golangci-lint version` が CI の `version:` と同じことを確かめる。`~/dev/me` 配下で実行する（外では版が決まらず `No version is set`） |
@@ -310,9 +310,9 @@ fi
 ## 成功基準
 
 - 版を書いている場所が**全部**同じ値になっている（手順 1 の洗い出しで再確認）
-- 自宅 Mac の runner のワークフローを 1 本実際に走らせて成功している
-- runner の `.path` に欠落が無く、先頭が shims
-- 各リポの CI が green
+- 自宅 Mac の runner のワークフローを 1 本実際に走らせて成功している（自宅 Mac の runner を持つリポを上げたとき）
+- runner の `.path` に欠落が無く、先頭が shims（同上）
+- CI を持つリポの CI が green（mdreview は CI が無いので、手順 5 の手元の確かめで代える）
 - 手元に、どこにも書かれていない土台イメージが無い
 
 ## 実行チェックリスト
@@ -325,11 +325,11 @@ fi
 - [ ] 版を書き換えた（go.mod / workflows / mise.toml / Dockerfile / lint）
 - [ ] Docker の土台は `references/docker-images.md` の手順で、名札の実在・中の道具・名前の付け方・片付けまで確かめた
 - [ ] **手元の `mise x -- golangci-lint version` が CI の `version:` と一致することを確かめた**
-- [ ] runner の `.path` を点検した
+- [ ] runner の `.path` を点検した（自宅 Mac の runner を持つリポを上げたとき）
 - [ ] `go build` と `go test` が通る
 - [ ] Node のリポ（securerc・mdreview）で、上げた先の版の `npm test` が通る
 - [ ] `mise x -- golangci-lint run ./...` が通る（CI 任せにしない）
-- [ ] 自宅 Mac の runner のワークフローを 1 本実際に走らせた
+- [ ] 自宅 Mac の runner のワークフローを 1 本実際に走らせた（同上）
 - [ ] Claude のモデル ID と共著者の表記を `references/claude-models.md` の手順で洗い出し、同じ系統の最新で呼べることを確かめた
 - [ ] リポごとに PR を出した
 - [ ] マージ後、どこにも書かれていない古い土台イメージを名前で消した（探す処理が失敗した名札は残した）
