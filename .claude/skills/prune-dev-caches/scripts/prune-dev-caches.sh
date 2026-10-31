@@ -69,14 +69,25 @@ if want uv; then
   if [ ! -d "$UV_CACHE" ]; then
     echo "  nothing to prune"
   else
+    # The lock comes first: it decides everything and takes a second, while
+    # sizing a cache of a million small files takes far longer.
     holders=$(lsof -t "$UV_CACHE/.lock" 2>/dev/null | sort -u)
-    echo "  size $(human "$(kb "$UV_CACHE")")"
     if [ -n "$holders" ]; then
       skip "the cache is locked by:"
       for h in $holders; do echo "    pid $h: $(session_of "$h")"; done
       echo "    close those sessions (an MCP server started with uvx holds the lock for the whole session), then rerun"
     elif [ "$apply" = 1 ]; then
+      # freed() reads df, so the size is not needed here.
       s=$(avail); uv cache clean >/dev/null 2>&1 || skip "uv cache clean failed"; freed "$s"
+    else
+      echo "  measuring size..."
+      # uv cache size reads uv's own index (8 s for 1.3 million files against
+      # 37 s for du); fall back to du on a uv without that subcommand.
+      if bytes=$(uv cache size 2>/dev/null) && [ -n "$bytes" ]; then
+        echo "  size $(human $((bytes / 1024)))"
+      else
+        echo "  size $(human "$(kb "$UV_CACHE")")"
+      fi
     fi
   fi
 fi
