@@ -240,49 +240,15 @@ done
 
 先頭が `.../mise/shims` でない、または「欠落」が出たら `references/environments.md` の手順で直す。
 
-**runner 自身の古い版も消す。** runner は版が上がるたびに `bin.<版>`・`externals.<版>` を新しく取ってきて
-`bin`・`externals` のリンクを付け替え、古い版と更新用の写し `_work/_update` を残す（1 台あたり 0.8〜0.9 GB。
-2026-10-22 に 5 台で約 4 GB）。消すのは **リンクが指していない、指している版より古い**版と `_work/_update` だけ。
-
-| 条件 | なぜ |
-| --- | --- |
-| 夜間の実行の時間帯（1:30〜9:30）を避け、busy=false を確かめ、**その runner を `./svc.sh stop` で止めてから**消す | 更新は `_work/_update` を使う。確かめた後に自己更新が始まると、使用中の写しを消す |
-| `bin`・`externals` の**両方**のリンクが読め、指す先が実在する | 読めないと除外が空になり、**全版が候補に出る** |
-| `bin.*`・`externals.*` の**どちらにも**、指している版より新しいものが無い | 新しい版は、これから切り替わる途中の可能性がある |
+**runner の古い本体・更新用の写し・使っていない Go は `prune-dev-caches` で消す。** runner は版が上がるたびに
+`bin.<版>`・`externals.<版>`・`_work/_update` を残し、`actions/setup-go` は古い `_work/_tool/go/<版>` を消さない。
+片付けの条件（夜間の時間帯を避ける・busy=false・止めてから消して戻す・`go-version` が `x.y.z` でなければ Go を残す）は
+そのスクリプトが持つ。ここに手順を複製しない。
 
 ```bash
-d=<runner フォルダ>   # 1 台ずつ
-(cd "$d" && ./svc.sh stop) || { echo "stop failed: $d"; exit 1; }   # 止まらなければ何も消さない
-b=$(basename "$(readlink "$d/bin")" 2>/dev/null); e=$(basename "$(readlink "$d/externals")" 2>/dev/null)
-if [ -n "$b" ] && [ -n "$e" ] && [ -d "$d/$b" ] && [ -d "$d/$e" ] \
-   && [ "$(cd "$d" && ls -d bin.* | sort -V | tail -n 1)" = "$b" ] \
-   && [ "$(cd "$d" && ls -d externals.* | sort -V | tail -n 1)" = "$e" ]; then
-  (cd "$d" && ls -d bin.* externals.* | grep -v -x -e "$b" -e "$e")   # 消す候補。目で確かめてから rm -rf
-  ls -d "$d/_work/_update" 2>/dev/null
-else
-  echo "skip $d"
-fi
-(cd "$d" && ./svc.sh start)   # 消した後に必ず戻し、GitHub 側で online を確かめる
+~/.claude/skills/prune-dev-caches/scripts/prune-dev-caches.sh --only runner          # 見るだけ
+~/.claude/skills/prune-dev-caches/scripts/prune-dev-caches.sh --only runner --apply  # 消す
 ```
-
-**runner が取ってきた古い Go も消す。** `actions/setup-go` は版を上げるたびに `_work/_tool/go/<版>` を
-新しく取ってきて、古い版を消さない（1 版 約 0.25 GB。2026-10-31 に 5 台で計 15 版・約 4 GB 溜まっていた）。
-残すのは**そのリポのワークフローの `go-version` に書かれた版だけ**。`1.27` のような省略・matrix・`go-version-file` があれば、どの版が要るか決まらないので消さない。条件は上と同じ（時間帯・busy=false・止めてから）。
-
-```bash
-r=<リポ>; d=<runner フォルダ>; t=$d/_work/_tool/go   # 1 台ずつ
-specs=$(grep -rhE '^[[:space:]]*go-version(-file)?:' ~/dev/me/$r/.github/workflows | sed -E "s/^[^:]*:[[:space:]]*//; s/[\"' ]//g")
-# 1.27 / ${{ matrix.go }} / go-version-file のように版が確定しない指定が 1 つでもあれば何も消さない
-if [ -z "$specs" ] || grep -rqE '^[[:space:]]*go-version-file:' ~/dev/me/$r/.github/workflows \
-   || echo "$specs" | grep -qvxE '[0-9]+\.[0-9]+\.[0-9]+'; then echo "unresolved go-version in $r"; exit 1; fi
-keep=$(echo "$specs" | sort -u)
-(cd "$d" && ./svc.sh stop) || { echo "stop failed: $d"; exit 1; }
-for v in $(ls "$t"); do echo "$keep" | grep -qxF "$v" || rm -rf "${t:?}/$v"; done
-(cd "$d" && ./svc.sh start)
-ls "$t"   # keep の版だけが残る
-```
-
-消しすぎても、次の実行が必要な版を取り直すだけ（数十秒）。
 
 ### 5. 検証する
 
