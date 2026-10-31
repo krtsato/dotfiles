@@ -38,14 +38,14 @@ trap 'rm -f "$tags" "$files" "$var_from" "$err"' EXIT
 # A Dockerfile's first instruction, after blank lines, comments and ARG
 # (including its continuation lines), is always FROM. That tells a Dockerfile by
 # its content, whatever its name, from SQL ("FROM ${table}") or docs that only
-# quote a FROM line.
+# quote a FROM line. Python's "from x import y" is not a FROM.
 # Exit 0 yes, 1 no, anything else means the file could not be read.
 is_dockerfile() {
   awk '{ l = tolower($0); sub(/\r$/, "", l); sub(/^[ \t]+/, "", l) }
        cont { cont = (l ~ /[\\`][ \t]*$/); next }
        l == "" || l ~ /^#/ { next }
        l ~ /^arg[ \t]/ { cont = (l ~ /[\\`][ \t]*$/); next }
-       { found = (l ~ /^from[ \t]/); exit }
+       { found = (l ~ /^from[ \t]/ && l !~ /^from[ \t]+[^ \t]+[ \t]+import([ \t]|$)/); exit }
        END { exit !found }' "$1"
 }
 
