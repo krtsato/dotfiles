@@ -327,10 +327,19 @@ done
 if [ "$kept_sids" != " " ]; then
 	echo "消す直前に会話の記録が現れた、または直近 60 分に更新された会話は残します:$kept_sids"
 fi
+# Called for every file just before it is moved or deleted, so a session that
+# gets a transcript partway through the run is spared from that point on.
 skip_file() {
-	local s
+	local s t
 	s="$(sid_of "${1#"$CLAUDE_DIR"/}")"
 	case "$kept_sids" in *" $s "*) return 0 ;; esac
+	for t in "$CLAUDE_DIR"/projects/*/"$s".jsonl; do
+		if [ -e "$t" ]; then
+			kept_sids="$kept_sids$s "
+			echo "途中で会話の記録が現れたので残します: $s"
+			return 0
+		fi
+	done
 	return 1
 }
 
