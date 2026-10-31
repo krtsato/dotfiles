@@ -324,11 +324,11 @@ fi
 - [ ] `runs-on` で自宅 Mac の runner と GitHub の機械を仕分けた
 - [ ] 版を書き換えた（go.mod / workflows / mise.toml / Dockerfile / lint）
 - [ ] Docker の土台は `references/docker-images.md` の手順で、名札の実在・中の道具・名前の付け方・片付けまで確かめた
-- [ ] **手元の `mise x -- golangci-lint version` が CI の `version:` と一致することを確かめた**
+- [ ] **手元の `mise x -- golangci-lint version` が CI の `version:` と一致することを確かめた**（Go のリポを上げたとき）
 - [ ] runner の `.path` を点検した（自宅 Mac の runner を持つリポを上げたとき）
-- [ ] `go build` と `go test` が通る
+- [ ] `go build` と `go test` が通る（Go のリポを上げたとき）
 - [ ] Node のリポ（securerc・mdreview）で、上げた先の版の `npm test` が通る
-- [ ] `mise x -- golangci-lint run ./...` が通る（CI 任せにしない）
+- [ ] `mise x -- golangci-lint run ./...` が通る（CI 任せにしない）（Go のリポを上げたとき）
 - [ ] 自宅 Mac の runner のワークフローを 1 本実際に走らせた（同上）
 - [ ] Claude のモデル ID と共著者の表記を `references/claude-models.md` の手順で洗い出し、同じ系統の最新で呼べることを確かめた
 - [ ] リポごとに PR を出した
