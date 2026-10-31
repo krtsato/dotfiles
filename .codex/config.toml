@@ -76,7 +76,6 @@ note.env = { NOTE_COOKIES = "dummy..." }
 stripe.enabled = true
 stripe.url = "https://mcp.stripe.com"
 
-
 # AWA
 "awa-doc".enabled = true
 "awa-doc".command = "docker"
@@ -135,11 +134,6 @@ figma.env = { BRIDGE_PORT = "3000" }
 # Docbase
 docbase.enabled = true
 docbase.url = "https://mcp.docbase.io/mcp"
-
-# Analytics
-"ga4-analytics".enabled = true
-"ga4-analytics".command = "ga4-mcp-server"
-"ga4-analytics".env = { GOOGLE_APPLICATION_CREDENTIALS = "/Users/s11639/.config/gcloud/ga4-reader-key.json", GA4_PROPERTY_ID = "531043911" }
 
 # BigQuery
 bigquery.enabled = true
