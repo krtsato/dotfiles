@@ -32,14 +32,19 @@ globs=(-g '!node_modules' -g '!.git'
 tags=$(mktemp)
 files=$(mktemp)
 var_from=$(mktemp)
-trap 'rm -f "$tags" "$files" "$var_from"' EXIT
+err=$(mktemp)
+trap 'rm -f "$tags" "$files" "$var_from" "$err"' EXIT
 
-# A Dockerfile's first instruction, after blank lines, comments and ARG, is
-# always FROM. That tells a Dockerfile by its content, whatever its name, from
-# SQL ("FROM ${table}") or docs that only quote a FROM line.
+# A Dockerfile's first instruction, after blank lines, comments and ARG
+# (including its continuation lines), is always FROM. That tells a Dockerfile by
+# its content, whatever its name, from SQL ("FROM ${table}") or docs that only
+# quote a FROM line.
+# Exit 0 yes, 1 no, anything else means the file could not be read.
 is_dockerfile() {
   awk '{ l = tolower($0); sub(/^[ \t]+/, "", l) }
-       l == "" || l ~ /^#/ || l ~ /^arg[ \t]/ { next }
+       cont { cont = (l ~ /\\[ \t]*$/); next }
+       l == "" || l ~ /^#/ { next }
+       l ~ /^arg[ \t]/ { cont = (l ~ /\\[ \t]*$/); next }
        { found = (l ~ /^from[ \t]/); exit }
        END { exit !found }' "$1"
 }
@@ -67,31 +72,55 @@ rg --no-ignore --hidden -H -N --null -i "${globs[@]}" -g '!actions-runners' \
   -- "$@" > "$var_from" || rc=$?
 case $rc in 0 | 1) ;; *) fail "$rc" ;; esac
 
-held=()     # "family<TAB>file" for FROM node:${V} and the like
+held=()     # "repo<TAB>file" for FROM node:${V} and the like
+checks=()
 while IFS= read -r -d '' path && IFS= read -r line; do
-  is_dockerfile "$path" || continue
+  rc=0
+  is_dockerfile "$path" || rc=$?
+  case $rc in 0) ;; 1) continue ;; *) fail "$rc" ;; esac
+  # The image name, with the registry prefix Docker drops from local tags.
   token=$(printf '%s\n' "$line" \
-    | sed -E 's/^[[:space:]]*[Ff][Rr][Oo][Mm][[:space:]]+(--platform=[^[:space:]]+[[:space:]]+)?//; s/[[:space:]].*//')
-  if [[ $token == \$* ]]; then
-    echo "check-by-eye $path: $line"
-  elif family=$(printf '%s\n' "$token" | grep -oE "^($families)(:|@)"); then
-    held+=("${family%[:@]}"$'\t'"$path")
+    | sed -E 's/^[[:space:]]*[Ff][Rr][Oo][Mm][[:space:]]+(--platform=[^[:space:]]+[[:space:]]+)?//; s/[[:space:]].*//' \
+    | sed -E 's#^(index\.)?docker\.io/(library/)?##')
+  repo=${token%%[:@]*}
+  if [[ $repo == *\$* ]]; then
+    # The kind of image itself is a variable (FROM ${BASE}): no way to tell.
+    checks+=("check-by-eye $path: $line")
+  elif printf '%s\n' "$repo" | grep -qxE "$families"; then
+    held+=("$repo"$'\t'"$path")
   fi
 done < "$var_from"
 
 # Pass 2: check each tag against the few files from pass 1. A single -o pass
 # cannot do this: when one tag contains another (node:24, node:24.22.1),
 # rg reports only one of them at a position and the other would look unused.
+# Results are printed only after every search has succeeded, so an error in
+# this pass can never leave an "unused" line behind.
+results=()
 while IFS= read -r tag; do
-  if [ -s "$files" ] && xargs -0 rg -F -l -e "$tag" -- < "$files" | grep -q .; then
-    echo "used $tag"
+  hit=
+  if [ -s "$files" ]; then
+    rc=0
+    hit=$(xargs -0 rg -F -l -e "$tag" -- < "$files" 2> "$err") || rc=$?
+    # xargs reports 123 when any rg call found nothing in its batch; only
+    # stderr tells that apart from a read error.
+    if [ -s "$err" ] || { [ "$rc" -ne 0 ] && [ "$rc" -ne 123 ]; }; then
+      cat "$err" >&2
+      fail 2
+    fi
+  fi
+  if [ -n "$hit" ]; then
+    results+=("used $tag")
     continue
   fi
   for h in ${held[@]+"${held[@]}"}; do
     if [ "${tag%%:*}" = "${h%%$'\t'*}" ]; then
-      echo "held $tag ${h#*$'\t'}"
+      results+=("held $tag ${h#*$'\t'}")
       continue 2
     fi
   done
-  echo "unused $tag"
+  results+=("unused $tag")
 done < "$tags"
+
+for c in ${checks[@]+"${checks[@]}"}; do echo "$c"; done
+printf '%s\n' "${results[@]}"
