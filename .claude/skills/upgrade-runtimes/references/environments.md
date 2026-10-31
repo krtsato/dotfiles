@@ -1,7 +1,6 @@
 # 実行環境の前提
 
-版を上げる作業に**必要な事実だけ**をここに置く。背景や過去の実測値は
-`~/dev/me/dotfiles/docs/maintenance.md` にある。
+版を上げる作業に**必要な事実だけ**をここに置く。
 
 ## 自宅 Mac と GitHub の機械の見分け方
 
@@ -37,13 +36,32 @@
 | 分かれている所 | 理由 |
 | --- | --- |
 | mediable の実行イメージが `alpine:3.24` | **ffmpeg が要る**。distroless にはパッケージ管理が無く入れられない |
-| note の実行イメージが `debian:trixie-slim` | **MCP server の日本語 OCR（tesseract）が要る**。同上。日次同期はイメージを使わず、自宅 Mac の Apple Vision で読む（2026-10-20、mcp-note #173）。macOS を上げたら同期の起動時点検が通るかを見る |
+| note の実行イメージが `debian:trixie-slim` | **MCP server の日本語 OCR（tesseract）が要る**。同上。日次同期はイメージを使わず、自宅 Mac の Apple Vision で読む（mcp-note #173）。手順 5 の検証で、note の同期の起動時点検が通ることも確かめる |
 | tradingview / invest-knowledge / youtube が distroless | 外部コマンドが不要なので、攻撃面の小さい方を選べる |
 
 ## runner の前提
 
 `<runner>/.path` は `config.sh` を実行した瞬間の PATH を**そのまま保存したファイル**で、job の PATH になる。
 mise は Go と terraform を**版番号つきのパス**で PATH に入れるため、**版を上げるたびに指し先が消える**。
+
+### 点検 — 先頭が shims で、欠落が無いこと
+
+`.path` は登録時の写しなので**版を上げると指し先が消える**。shims が先頭にあれば何もしなくてよい。
+
+```bash
+for d in ~/dev/me/mcp-note/actions-runners/magazine-sync \
+         ~/dev/me/mcp-seeking-alpha/actions-runners/alpha-picks-sync \
+         ~/dev/me/mcp-mediable/actions-runners \
+         ~/dev/me/mcp-invest-knowledge/actions-runners \
+         ~/dev/me/mcp-tradingview/actions-runners; do
+  echo "== $d"
+  cut -d: -f1 "$d/.path"; echo   # 先頭だけ見れば shims が先頭かを判定できる
+  # .path has no trailing newline: without the echo, read drops the last entry
+  { tr ':' '\n' < "$d/.path"; echo; } | while IFS= read -r e; do [ -n "$e" ] && [ ! -d "$e" ] && echo "   欠落 $e"; done
+done
+```
+
+先頭が `.../mise/shims` でない、または「欠落」が出たら、下の「直し方」で直す。
 
 ### 直し方 — 写し直すのではなく、変わらない場所を指す
 

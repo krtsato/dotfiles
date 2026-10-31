@@ -84,6 +84,7 @@ ID が実在しても、**手元の CLI が古いと呼べない**ことがあ�
 実際に応答したモデルを JSON の `modelUsage` で確かめる。
 
 ```bash
+# 120: seconds to wait before giving up on a model that never answers
 printf 'Reply OK\n' | gtimeout 120 claude -p --model <新しい ID> --output-format json \
   | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d["is_error"], list(d["modelUsage"]))'
 ```

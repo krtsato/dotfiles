@@ -8,8 +8,8 @@ Go の版上げ（SKILL.md の手順 3）で `golang:<版>-…` を書き換え�
 - [1. 土台を洗い出して分類する](#1-土台を洗い出して分類する)
 - [2. 新しい名札を確かめる](#2-新しい名札を確かめる)
 - [3. 書き換える](#3-書き換える)
-- [4. 名前を付けてビルドし、中の道具を動かす](#4-名前を付けてビルドし中の道具を動かす)
-- [5. 名前の付け方を点検する](#5-名前の付け方を点検する)
+- [4. 名札を付けてビルドし、中の道具を動かす](#4-名札を付けてビルドし中の道具を動かす)
+- [5. 名札の付け方を点検する](#5-名札の付け方を点検する)
 - [6. 片付ける](#6-片付ける)
 - [もっと軽い土台にできるか](#もっと軽い土台にできるか)
 
@@ -26,7 +26,7 @@ grep -rn --include='Dockerfile*' --exclude-dir=.worktrees --exclude-dir=actions-
 | --- | --- | --- | --- |
 | Go のビルド用 | `golang:<Go の版>-alpine3.24` | invest-knowledge・mediable・note・tradingview ×3 | Go の版は `go.mod` に合わせる。**alpine の版も明示する** |
 | Go のビルド用 | `golang:<Go の版>-trixie` | youtube | 同上。Debian の世代も明示する |
-| 実行用・最小 | `gcr.io/distroless/static-debian13:nonroot` | invest-knowledge・tradingview ×3・youtube | Debian の世代が上がったら数字を上げる。`nonroot`（uid 65532）は変わらない |
+| 実行用・最小 | `gcr.io/distroless/static-debian13:nonroot` | invest-knowledge・tradingview ×3・youtube | Debian の世代の数字は、新しい世代の名札が実在することを `docker manifest inspect` で確かめてから書き換える。`nonroot`（uid 65532）は変わらない |
 | 実行用・道具入り | `alpine:3.24` | mediable（ffmpeg） | alpine の版を上げる。**中の ffmpeg の版も変わる**ので手順 4 が必須 |
 | 実行用・道具入り | `debian:trixie-slim` | note（MCP server の日本語 OCR） | 世代名を上げる。**中の道具の版も変わる**ので手順 4 が必須 |
 | Python | `python:<版>-alpine3.24` | tradingview の取り込み 3 本 | Python の版と alpine の版を上げる。依存に **Alpine 向けの wheel（`musllinux`）** があるか手順 4 で確かめる（`--progress=plain` の記録に `Building wheel` が出たらソースから組まれている） |
@@ -58,10 +58,10 @@ docker run --rm golang:1.27.2-alpine cat /etc/alpine-release   # 浮動の名札
 | 実行ユーザーの uid | distroless の `nonroot` は 65532、自前のユーザーは 10001。マウント先の権限に効く |
 | 証明書 | 外へ HTTPS で問い合わせるイメージは、証明書の入った土台か `ca-certificates` を入れる |
 
-## 4. 名前を付けてビルドし、中の道具を動かす
+## 4. 名札を付けてビルドし、中の道具を動かす
 
 **ビルドが通っただけでは足りない。** 版の問題は中の道具が動くときに出る。確認用のイメージには
-`upgrade-check-<リポ>-<用途>` のように**必ず名前を付け**、確認後に名前ごと消す。
+`upgrade-check-<リポ>-<用途>` のように**必ず名札を付け**、確認後に名札ごと消す。
 
 ```bash
 docker build -q -t upgrade-check-mediable -f Dockerfile .
@@ -76,15 +76,15 @@ docker rmi upgrade-check-mediable
 | tradingview の取り込み 3 本 | **今の土台と新しい土台で同じ日のデータを取り込む** | 出力が 1 バイトも違わない。逆日歩は moomoo の接続先が動いているときだけ実データ、止まっていれば単体テストと部品の読み込みまで。**逆日歩の出力には記録時刻（`captured_at`）が入る**ので、その列を除いて比べる。**`--user` を付けずにワークフローと同じ形で動かす**（付けると家フォルダが `/` になり、moomoo の部品が設定を書けず `Permission denied: '/.com.moomoo.OpenD'` で落ちる。土台の故障と取り違えない） |
 | Go の配布物 | 起動して版を出す・`--help` | 期待どおりの出力 |
 
-試験用の HLS は `ffmpeg -f lavfi -i testsrc=d=6 … -c:v libx264 -c:a aac -f hls` で作る。
+試験用の HLS は `ffmpeg -f lavfi -i testsrc=d=6 … -c:v libx264 -c:a aac -f hls` で作る（`d=6` は 6 秒の試験用動画。HLS の区切りが複数できる長さ）。
 **`-c:v mpeg4` で作ると、どの土台でも mp4 へのまとめが失敗する**ので、それを土台の故障と取り違えない。
 
-## 5. 名前の付け方を点検する
+## 5. 名札の付け方を点検する
 
-名前の無いイメージ・後に残るコンテナを作っていないかを見る。
+名札の無いイメージ・後に残るコンテナを作っていないかを見る。
 
 ビルドと起動は**別々に**拾う。1 本の grep で両方を見ると、`docker builder prune` やコメントが混ざり、
-`-t` を持つ起動（`docker run -t`）が「名前あり」として黙って外れる。
+`-t` を持つ起動（`docker run -t`）が「名札あり」として黙って外れる。
 
 ```bash
 cd ~/dev/me
@@ -103,12 +103,12 @@ grep -rnE -A3 'docker run( |\\|$)' --include='*.y*ml' --include='*.sh' --include
 
 | 見つかったもの | すること |
 | --- | --- |
-| `-t` の無い `docker build` | 名前を付ける。名前の無いイメージが毎回 1 つ残る |
+| `-t` の無い `docker build` | 名札を付ける。名札の無いイメージが毎回 1 つ残る |
 | `--rm` の無い `docker run` | `--rm` を付ける。止まったコンテナが毎回 1 つ残る |
-| MCP サーバーの起動（`.mcp.json`・`.claude/settings.json` の `docker run --rm -i`） | **`--name` を足さない。** 自動で付く名前は `--rm` で消えて残らない。固定の名前は、同じサーバーを 2 つの会話が同時に起動したときに 2 つ目が「名前が使用中」で落ちる |
+| MCP サーバーの起動（`.mcp.json`・`.claude/settings.json` の `docker run --rm -i`） | **`--name` を足さない。** 自動で付くコンテナの名前は `--rm` で消えて残らない。固定のコンテナの名前は、同じサーバーを 2 つの会話が同時に起動したときに 2 つ目が「コンテナの名前が使用中」で落ちる |
 
-**同じ名前で作り直すと、古い方は「名前の無いイメージ」になる。** これは名前の付け忘れではなく、作り直しの仕様。
-対策は名前を足すことではなく、手順 6 の片付け。
+**同じ名札で作り直すと、古い方は「名札の無いイメージ」になる。** これは名札の付け忘れではなく、作り直しの仕様。
+対策は名札を足すことではなく、手順 6 の片付け。
 
 ## 6. 片付ける
 
@@ -127,7 +127,7 @@ grep -rnE -A3 'docker run( |\\|$)' --include='*.y*ml' --include='*.sh' --include
 
 | 消すもの | 消さないもの | 理由 |
 | --- | --- | --- |
-| 名前の外れたイメージ | 名前の付いたイメージ・ボリューム | 他のワークフローが使う |
+| 名札の外れたイメージ | 名札の付いたイメージ・ボリューム | 他のワークフローが使う |
 | **24 時間より古い**ビルドの中間物 | 直近の中間物 | 同じ Mac の Docker で並行して走る他のビルドが、次に使う中間物を消さない |
 
 2026-10-20 時点で片付けを持つもの: tradingview の取り込み 3 本・mcp-mediable（`make docker-prune`）。
@@ -142,9 +142,9 @@ docker images --format '{{.Repository}}:{{.Tag}} {{.Size}} {{.CreatedSince}}' | 
 
 | 消してよい | 消さない |
 | --- | --- |
-| `upgrade-check-*`・`slimcheck-*`・`chk-*` など確認用の名前 | **仕事のリポのイメージ**（ECR・社内のリポ名） |
+| `upgrade-check-*`・`slimcheck-*`・`chk-*` など確認用の名札 | **仕事のリポのイメージ**（ECR・社内のリポ名） |
 | 古い土台（上げる前の `golang`・`python`・`golangci-lint` の名札） | 起動中の MCP サーバーのイメージ |
-| 名前の外れたイメージ（`docker image prune -f`） | ボリューム |
+| 名札の外れたイメージ（`docker image prune -f`） | ボリューム |
 
 **古い土台は版上げのたびに必ず消す**（持ち主の指示・2026-10-23）。手元にある土台の名札を 1 つずつ、
 **個人のリポ全体と awa 側の両方**で文字列として探し、どこにも出てこないものだけを消す。
@@ -178,7 +178,7 @@ docker image rm <名札>
 | **全名札を 1 回で探す**。名札ごとに全体を読み直さない | 以前は名札 1 つごとに約 39 GB を `grep -r` で読み直し、1 つで 10 分を超えた（2026-10-31） |
 | `grep -r` でなく `rg` を使う | `grep -r` は通信用の特殊なファイル（`.codex/ipc/ipc.sock`）を開こうとして毎回失敗し、全名札が `SEARCH-FAILED` になっていた。`rg` は特殊なファイルを読み飛ばす |
 | 1 回目で「どれかの名札を含むファイル」に絞り、2 回目で名札ごとに確かめる | 1 回の `-o` で済ませると、一方が他方を含む名札（`node:24` と `node:24.22.1`）で片方しか報告されず、使っている方が `unused` に出る（2026-10-31 に実測） |
-| **会話の記録**（`.claude/projects`・`.claude/file-history`・`.codex/sessions`）は探さない | 会話で名前が出ただけで「使われている」になり、一度話題にした土台が永久に消せなくなる。plugin の `Dockerfile` は実際に組み立てるので探す |
+| **会話の記録**（`.claude/projects`・`.claude/file-history`・`.codex/sessions`）は探さない | 会話で名札が出ただけで「使われている」になり、一度話題にした土台が永久に消せなくなる。plugin の `Dockerfile` は実際に組み立てるので探す |
 | `:latest` は候補にしない | `FROM python` のように名札を書かない参照は文字列では見つからない |
 | `docker image rm` に `-f` を付けない | 使っているコンテナがあれば Docker が拒否する。これが最後の安全網 |
 
