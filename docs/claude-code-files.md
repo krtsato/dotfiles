@@ -44,7 +44,7 @@ Claude Code が読み書きするファイルの置き場と役割。**直す前
 | `settings.json` | Claude Code の本体の設定（下表） | **毎回** |
 | `hooks/` | `settings.json` の `hooks` から呼ばれるスクリプト（計画の書式の検査、文章の検査） | 該当の操作のたび |
 | `agents/` | サブエージェントの定義（`researcher`・`implementer`・`reviewer`） | 呼び出したとき |
-| `commands/` | スラッシュコマンド（`/git-commit`。`/codex-review` は手元だけにあり、git では管理していない） | 呼び出したとき |
+| `commands/` | スラッシュコマンド（`/git-commit`） | 呼び出したとき |
 | `skills/` | 自作の skill。Codex からは `.codex/skills/<名前>` の相対リンクで同じものを使う | 依頼が合ったとき |
 
 ### settings.json の中身
@@ -78,7 +78,7 @@ Claude Code は、決まった置き場を `cleanupPeriodDays`（既定 30 日�
 | `plugins/` | 取り込んだプラグイン | `claude plugin` に任せる。消さない |
 | `history.jsonl`・`stats-cache.json` | 入力した依頼の履歴・使用量の集計 | 自動では消えない |
 | `cache/`・`remote-settings*`・`policy-limits*` | Claude Code の内部の写し | 自動で取り直される。触らない |
-| `settings.local.json` | 下記 | — |
+| `settings.local.json` | 削除済み（中身は退避した `~/.mcp.json` の許可だけだった） | — |
 
 会話の記録は暗号化されていない。道具が読んだ値（`.env` の中身など）もそのまま残る。
 
@@ -141,4 +141,4 @@ dotfiles のリンクのはずがいつの間にか普通のファイルにな�
 | あるプロジェクトの記録をまとめて消す | `claude purge <作業フォルダ> --dry-run` で確かめてから `claude purge <作業フォルダ>` |
 | uv・mise・npx・Xcode・runner・Docker の取り直せる置き場 | skill `prune-dev-caches` |
 
-skill `prune-agent-storage` は「計画などは自動では片付かない」前提で作られている。今の Claude Code では 30 日で自動的に消えるので、前提が合っているかを見直す必要がある。
+skill `prune-agent-storage` は、自動の片付けが取りこぼしたものだけを片付ける。会話の記録が無い会話の退避（`file-history/`）・サブエージェントの記録・取得物が対象で、続いている会話のものには触れない（巻き戻しに要る）。あわせて、`cleanupPeriodDays` より古い会話の記録が残っていれば、自動の片付けが止まっている合図として警告する（`/status` で確かめる）。

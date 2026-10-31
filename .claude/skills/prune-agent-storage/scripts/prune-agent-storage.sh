@@ -1,19 +1,23 @@
 #!/usr/bin/env bash
 #
-# List or remove stale files under ~/.claude that nothing else cleans up.
+# List or remove leftovers under ~/.claude that Claude Code's automatic cleanup
+# missed.
 #
-# Session logs (~/.claude/projects/*/<uuid>.jsonl) rotate out after about 30
-# days on their own, so they are deliberately NOT touched. Four other kinds do
-# pile up, and they deserve different thresholds:
+# Claude Code deletes old data on its own (cleanupPeriodDays, default 30):
+# session logs (projects/<p>/<session>.jsonl) and, together with the parent log,
+# projects/<p>/<session>/{subagents,tool-results}/ and file-history/<session>/.
+# Data of a session whose log is still alive must stay: file-history is the
+# rewind point of that conversation. So this script never judges by file age.
+# It judges per session:
 #
-#   plans        180 days  written plans; worth re-reading for a while
-#   subagents     30 days  per-subagent transcripts under a session directory
-#   tool-results  30 days  files fetched by tools (json / images / pdf)
-#   file-history  30 days  snapshots taken before editing a file
+#   subagents / tool-results / file-history of a session whose log
+#   (projects/*/<session>.jsonl) exists under no project  ->  leftover
 #
-# Never in scope:
-#   memory/   persists across sessions on purpose; age is normal, not staleness
-#   plugins/  installed code; an old mtime does not mean unused
+# It also warns when session logs older than cleanupPeriodDays remain, which
+# means the automatic cleanup itself is not running (never deleted here).
+#
+# Never in scope: plans (cleaned automatically), memory/, jobs/, daemon/,
+# plugins/, and session logs.
 #
 # These trees live inside a git repository but .claude/.gitignore excludes them,
 # so deletions cannot be undone from history. Hence: listing is the default,
@@ -21,29 +25,32 @@
 set -euo pipefail
 
 CLAUDE_DIR="${CLAUDE_DIR:-$HOME/.claude}"
-DAYS=          # empty means "use the per-kind default"
 MODE=list
 TARGETS=all
 
-ALL_KINDS="plans subagents tool-results file-history"
+ALL_KINDS="subagents tool-results file-history"
 
 usage() {
 	cat <<'EOF'
-Usage: prune-agent-storage.sh [--days N] [--only KIND] [--apply | --purge]
+Usage: prune-agent-storage.sh [--only KIND] [--apply | --purge]
 
-  (no option)   List candidates only. Nothing is removed.
-  --apply       Move candidates to ~/.Trash/agent-prune-<timestamp>/.
-  --purge       Delete candidates permanently. Cannot be undone.
-  --days N      One threshold for every kind. Default: per kind (see below).
+  (no option)   List leftovers only. Nothing is removed.
+  --apply       Move leftovers to ~/.Trash/agent-prune-<timestamp>/.
+  --purge       Delete leftovers permanently. Cannot be undone.
   --only KIND   Restrict to one kind.
 
-  Kind           Default  What it is
-  plans          180 日   ~/.claude/plans/*.md
-  subagents       30 日   subagent transcripts under a session directory
-  tool-results    30 日   files fetched by tools (json / images / pdf)
-  file-history    30 日   snapshots taken before editing a file
+  Kind           What it is
+  subagents      subagent transcripts of a session with no log
+  tool-results   files fetched by tools, of a session with no log
+  file-history   pre-edit snapshots of a session with no log
 
-Never touched: memory/, plugins/, and session logs (they rotate automatically).
+A session is a leftover when projects/*/<session>.jsonl exists nowhere.
+Sessions whose log is alive are never touched, however old their files are.
+
+Also warns (never deletes) when session logs older than cleanupPeriodDays
+remain: the automatic cleanup may have stopped. Check /status.
+
+Never touched: plans/, memory/, jobs/, daemon/, plugins/, and session logs.
 
 Environment:
   CLAUDE_DIR    Root to scan. Default: ~/.claude
@@ -53,18 +60,6 @@ EOF
 
 while [ $# -gt 0 ]; do
 	case "$1" in
-	--days)
-		[ $# -ge 2 ] || {
-			echo "error: --days needs a value" >&2
-			exit 2
-		}
-		DAYS="$2"
-		shift 2
-		;;
-	--days=*)
-		DAYS="${1#*=}"
-		shift
-		;;
 	--only)
 		[ $# -ge 2 ] || {
 			echo "error: --only needs a value" >&2
@@ -97,15 +92,6 @@ while [ $# -gt 0 ]; do
 	esac
 done
 
-if [ -n "$DAYS" ]; then
-	case "$DAYS" in
-	*[!0-9]*)
-		echo "error: --days must be a non-negative integer, got: $DAYS" >&2
-		exit 2
-		;;
-	esac
-fi
-
 if [ "$TARGETS" != all ]; then
 	case " $ALL_KINDS " in
 	*" $TARGETS "*) ;;
@@ -121,67 +107,105 @@ if [ ! -d "$CLAUDE_DIR" ]; then
 	exit 1
 fi
 
-# days_for echoes the threshold for one kind: the --days override when given,
-# otherwise the per-kind default.
-days_for() {
-	if [ -n "$DAYS" ]; then
-		echo "$DAYS"
-		return
-	fi
-	case "$1" in
-	plans) echo 180 ;;
-	*) echo 30 ;;
-	esac
-}
-
 wants() { [ "$TARGETS" = all ] || [ "$TARGETS" = "$1" ]; }
 
 # find's stderr is collected, not discarded: an unreadable subtree would
-# otherwise look the same as "no stale files there".
+# otherwise look the same as "no leftovers there".
 find_errors="$(mktemp)"
+live_ids="$(mktemp)"
 on_exit() {
 	local rc=$?
 	if [ "$rc" -eq 0 ] && [ -s "$find_errors" ]; then
 		rc=1
 	fi
-	rm -f "$find_errors"
+	rm -f "$find_errors" "$live_ids"
 	exit "$rc"
 }
 trap on_exit EXIT
 
-candidates=()
-kinds=()
-collect() {
-	local kind="$1"
-	shift
-	local f
-	while IFS= read -r -d '' f; do
-		candidates+=("$f")
-		kinds+=("$kind")
-	done < <("$@" -print0 2>>"$find_errors" | sort -z)
-}
-
-# memory and plugins are excluded by construction: plans is its own directory,
-# subagents and tool-results only ever live under a session directory, and
-# file-history is a sibling tree. No path below can reach memory or plugins.
-if wants plans && [ -d "$CLAUDE_DIR/plans" ]; then
-	collect plans find "$CLAUDE_DIR/plans" -maxdepth 1 -type f -name '*.md' -mtime "+$(days_for plans)"
-fi
-if wants subagents && [ -d "$CLAUDE_DIR/projects" ]; then
-	collect subagents find "$CLAUDE_DIR/projects" -type f -path '*/subagents/*' -mtime "+$(days_for subagents)"
-fi
-if wants tool-results && [ -d "$CLAUDE_DIR/projects" ]; then
-	collect tool-results find "$CLAUDE_DIR/projects" -type f -path '*/tool-results/*' -mtime "+$(days_for tool-results)"
-fi
-if wants file-history && [ -d "$CLAUDE_DIR/file-history" ]; then
-	collect file-history find "$CLAUDE_DIR/file-history" -type f -mtime "+$(days_for file-history)"
-fi
-
-if [ -s "$find_errors" ]; then
+report_errors() {
 	echo "確かめられなかった箇所（読めないフォルダがあり、そこは「0 件」ではなく未確認です）:" >&2
 	sed 's/^/  /' "$find_errors" >&2
-	echo "終了コードは 1 になります（ゴミ箱への移動は読めた範囲だけに行います）。" >&2
+	echo "終了コードは 1 になります。" >&2
 	echo >&2
+}
+
+# cleanupPeriodDays comes from settings.json (Claude Code's own setting); this
+# script keeps no day count of its own. Missing or invalid falls back to 30,
+# the documented default.
+period=30
+period_note=""
+if [ -f "$CLAUDE_DIR/settings.json" ]; then
+	if command -v jq >/dev/null 2>&1; then
+		if ! v="$(jq -r '.cleanupPeriodDays // empty' "$CLAUDE_DIR/settings.json" 2>/dev/null)"; then
+			v=""
+			period_note="settings.json を読めません（自動の片付けも止まる原因になります）。30 日として扱います"
+		fi
+		case "$v" in
+		'') ;;
+		*[!0-9]* | 0) period_note="settings.json の cleanupPeriodDays（$v）を読めないため 30 日として扱います" ;;
+		*) period="$v" ;;
+		esac
+	else
+		period_note="jq が無いため cleanupPeriodDays を読めません。30 日として扱います"
+	fi
+fi
+
+# Index of live sessions: every projects/*/<session>.jsonl. memory/ sits one
+# level deeper, so it cannot appear here. If this listing is incomplete, every
+# session would look orphaned, so any error aborts before anything is judged.
+if [ -d "$CLAUDE_DIR/projects" ]; then
+	/usr/bin/find "$CLAUDE_DIR/projects" -mindepth 2 -maxdepth 2 -type f -name '*.jsonl' -print 2>>"$find_errors" |
+		while IFS= read -r p; do
+			b="${p##*/}"
+			echo "${b%.jsonl}"
+		done >"$live_ids" || true
+	if [ -s "$find_errors" ]; then
+		report_errors
+		echo "会話の記録の一覧が不完全なため、取り残しの判定を行いません。" >&2
+		exit 1
+	fi
+fi
+
+units=()
+unit_kinds=()
+# add_unit KIND DIR SESSION: keep DIR only when SESSION has no live log.
+add_unit() {
+	local kind="$1" dir="$2" sid="$3"
+	if ! /usr/bin/grep -Fxq -- "$sid" "$live_ids"; then
+		units+=("$dir")
+		unit_kinds+=("$kind")
+	fi
+}
+
+if wants file-history && [ -d "$CLAUDE_DIR/file-history" ]; then
+	while IFS= read -r -d '' d; do
+		add_unit file-history "$d" "${d##*/}"
+	done < <(/usr/bin/find "$CLAUDE_DIR/file-history" -mindepth 1 -maxdepth 1 -type d -print0 2>>"$find_errors" | sort -z)
+fi
+if [ -d "$CLAUDE_DIR/projects" ]; then
+	for kind in subagents tool-results; do
+		wants "$kind" || continue
+		while IFS= read -r -d '' d; do
+			parent="${d%/*}"
+			add_unit "$kind" "$d" "${parent##*/}"
+		done < <(/usr/bin/find "$CLAUDE_DIR/projects" -mindepth 3 -maxdepth 3 -type d -name "$kind" -print0 2>>"$find_errors" | sort -z)
+	done
+fi
+
+candidates=()
+kinds=()
+i=0
+while [ "$i" -lt "${#units[@]}" ]; do
+	while IFS= read -r -d '' f; do
+		candidates+=("$f")
+		kinds+=("${unit_kinds[$i]}")
+	done < <(/usr/bin/find "${units[$i]}" -type f -print0 2>>"$find_errors" | sort -z)
+	i=$((i + 1))
+done
+
+if [ -s "$find_errors" ]; then
+	report_errors
 fi
 
 total_bytes=0
@@ -190,28 +214,51 @@ for f in ${candidates+"${candidates[@]}"}; do
 done
 
 echo "対象ディレクトリ: $CLAUDE_DIR"
-if [ -n "$DAYS" ]; then
-	echo "しきい値: 全種類 ${DAYS} 日より古い更新日時"
-else
-	echo "しきい値: plans は 180 日、その他は 30 日より古い更新日時"
-fi
+echo "判定: 会話の記録（projects/*/<session>.jsonl）がどこにも無い session の分だけを取り残しとみなす"
 echo "対象の種類: $TARGETS"
 echo "該当: ${#candidates[@]} 件 / $((total_bytes / 1024 / 1024)) MB"
 echo
-echo "セッションログ・memory・plugins は対象外です。"
+echo "続いている会話・plans・memory・plugins・会話の記録は対象外です。"
 echo
 
-if [ "${#candidates[@]}" -eq 0 ]; then
+# Watch: the automatic cleanup removes logs older than cleanupPeriodDays. Logs
+# older than that mean it has stopped (unreadable settings, etc.). Report only.
+echo "=== 自動の片付けの見張り（cleanupPeriodDays = ${period} 日）==="
+[ -n "$period_note" ] && echo "注意: $period_note"
+stale_n=0
+oldest=""
+if [ -d "$CLAUDE_DIR/projects" ]; then
+	while IFS= read -r -d '' f; do
+		stale_n=$((stale_n + 1))
+		m="$(stat -f '%m' "$f")"
+		if [ -z "$oldest" ] || [ "$m" -lt "$oldest" ]; then oldest="$m"; fi
+	done < <(/usr/bin/find "$CLAUDE_DIR/projects" -mindepth 2 -maxdepth 2 -type f -name '*.jsonl' -mtime "+$period" -print0 2>>"$find_errors")
+fi
+if [ "$stale_n" -gt 0 ]; then
+	echo "警告: ${period} 日より古い会話の記録が ${stale_n} 件残っています（最古 $(date -r "$oldest" '+%Y-%m-%d')）。"
+	echo "自動の片付けが止まっている可能性があります。Claude Code で /status を確認してください。（ここでは消しません）"
+else
+	echo "期限切れの会話の記録は残っていません。"
+fi
+echo
+
+if [ "${#units[@]}" -eq 0 ]; then
 	echo "片付けたファイル数: 0"
 	echo
-	echo "しきい値より古いファイルはありません。"
+	echo "取り残されたファイルはありません。"
 	exit 0
 fi
 
 echo "=== 種類ごとの内訳 ==="
 for kind in $ALL_KINDS; do
+	s=0
 	n=0
 	b=0
+	i=0
+	while [ "$i" -lt "${#units[@]}" ]; do
+		[ "${unit_kinds[$i]}" = "$kind" ] && s=$((s + 1))
+		i=$((i + 1))
+	done
 	i=0
 	while [ "$i" -lt "${#candidates[@]}" ]; do
 		if [ "${kinds[$i]}" = "$kind" ]; then
@@ -220,7 +267,7 @@ for kind in $ALL_KINDS; do
 		fi
 		i=$((i + 1))
 	done
-	[ "$n" -gt 0 ] && printf '%-14s %5s 件  %6s MB  (%s 日)\n' "$kind" "$n" "$((b / 1024 / 1024))" "$(days_for "$kind")"
+	[ "$s" -gt 0 ] && printf '%-14s %5s session  %6s 件  %6s MB\n' "$kind" "$s" "$n" "$((b / 1024 / 1024))"
 done
 echo
 
@@ -231,7 +278,7 @@ echo "=== 古い順の上位 10 件 ==="
 sorted=()
 while IFS= read -r line; do
 	sorted+=("$line")
-done < <(for f in "${candidates[@]}"; do
+done < <(for f in ${candidates+"${candidates[@]}"}; do
 	printf '%s\t%s\n' "$(stat -f '%m' "$f")" "$f"
 done | sort -n)
 shown=0
@@ -241,11 +288,6 @@ for line in ${sorted+"${sorted[@]}"}; do
 	p="${line#*$'\t'}"
 	rel="${p#"$CLAUDE_DIR"/}"
 	printf '%s  %8s bytes  %s\n' "$(date -r "$m" '+%Y-%m-%d')" "$(stat -f '%z' "$p")" "$rel"
-	# A plan's first heading says what it was about; worth seeing before removal.
-	if [ "${rel#plans/}" != "$rel" ]; then
-		title=$(grep -m 1 '^# ' "$p" 2>/dev/null | sed 's/^# //' || true)
-		[ -n "$title" ] && printf '            %s\n' "$title"
-	fi
 	shown=$((shown + 1))
 done
 echo
@@ -257,10 +299,55 @@ if [ "$MODE" = list ]; then
 	exit 0
 fi
 
+# Re-check right before touching anything: the transcript list above is a
+# snapshot, and a session may have started (or resumed) since. A unit whose
+# session now has a transcript, or that was written to in the last hour, is
+# left alone.
+sid_of() {
+	case "$1" in
+	file-history/*) printf '%s\n' "$1" | cut -d/ -f2 ;;
+	projects/*) printf '%s\n' "$1" | cut -d/ -f3 ;;
+	esac
+}
+still_orphan() {
+	local sid="$1" unit="$2" t
+	for t in "$CLAUDE_DIR"/projects/*/"$sid".jsonl; do
+		[ -e "$t" ] && return 1
+	done
+	[ -z "$(find "$unit" -type f -mmin -60 -print 2>/dev/null | head -n 1)" ]
+}
+kept_sids=" "
+for d in ${units[@]+"${units[@]}"}; do
+	rel_unit="${d#"$CLAUDE_DIR"/}"
+	sid="$(sid_of "$rel_unit")"
+	if ! still_orphan "$sid" "$d"; then
+		case "$kept_sids" in *" $sid "*) ;; *) kept_sids="$kept_sids$sid " ;; esac
+	fi
+done
+if [ "$kept_sids" != " " ]; then
+	echo "消す直前に会話の記録が現れた、または直近 60 分に更新された会話は残します:$kept_sids"
+fi
+# Called for every file just before it is moved or deleted, so a session that
+# gets a transcript partway through the run is spared from that point on.
+skip_file() {
+	local s t
+	s="$(sid_of "${1#"$CLAUDE_DIR"/}")"
+	case "$kept_sids" in *" $s "*) return 0 ;; esac
+	for t in "$CLAUDE_DIR"/projects/*/"$s".jsonl; do
+		if [ -e "$t" ]; then
+			kept_sids="$kept_sids$s "
+			echo "途中で会話の記録が現れたので残します: $s"
+			return 0
+		fi
+	done
+	return 1
+}
+
 removed=0
 if [ "$MODE" = apply ]; then
 	dest="${TRASH_DIR:-$HOME/.Trash}/agent-prune-$(date '+%Y%m%d-%H%M%S')"
-	for f in "${candidates[@]}"; do
+	for f in ${candidates+"${candidates[@]}"}; do
+		skip_file "$f" && continue
 		# Keep the original layout so a restore is unambiguous.
 		rel="${f#"$CLAUDE_DIR"/}"
 		mkdir -p "$dest/$(dirname "$rel")"
@@ -269,17 +356,22 @@ if [ "$MODE" = apply ]; then
 	done
 	echo "移動先: $dest"
 else
-	for f in "${candidates[@]}"; do
+	for f in ${candidates+"${candidates[@]}"}; do
+		skip_file "$f" && continue
 		rm -f "$f"
 		removed=$((removed + 1))
 	done
 fi
 
-# Drop directories left empty by the move, but never the roots themselves.
-for root in "$CLAUDE_DIR/projects" "$CLAUDE_DIR/file-history"; do
-	[ -d "$root" ] && find "$root" -mindepth 1 -type d -empty -delete 2>/dev/null || true
+# Drop directories left empty under each leftover unit; the session directory
+# itself too when nothing else is in it. Roots and live sessions are untouched.
+for d in ${units[@]+"${units[@]}"}; do
+	skip_file "$d" && continue
+	find "$d" -depth -type d -empty -delete 2>/dev/null || true
+	case "${d#"$CLAUDE_DIR"/}" in
+	projects/*) rmdir "${d%/*}" 2>/dev/null || true ;;
+	esac
 done
 
 echo "片付けたファイル数: ${removed}"
 echo "解放した容量: $((total_bytes / 1024 / 1024)) MB"
-echo "残っているファイル数: $(find "$CLAUDE_DIR/plans" "$CLAUDE_DIR/projects" "$CLAUDE_DIR/file-history" -type f 2>/dev/null | wc -l | tr -d ' ')"
