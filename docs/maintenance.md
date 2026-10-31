@@ -35,7 +35,7 @@
 | `golangci-lint-action` の `version` | Go 8 リポ | action の版（`v9`）と lint 本体の版（`v2.15.0`）は別。2026-10-31 に watcher も揃えた（watcher #46） |
 | `Dockerfile*` の `FROM` | 7 リポ（Go 5・trade-moomoo・mdreview） | **固定の仕方が 2 通り**（下記）。watcher と mcp-notebooklm は配布物を作らないので無い |
 | `mise.toml` の `[tools]` | invest-knowledge のみ | 自宅 Mac の版を決める |
-| `.golangci.yml` | Go 8 リポ | 設定は全リポで同じ。版を書いたコメント行だけ watcher が古い（v2.14.0） |
+| `.golangci.yml` | Go 8 リポ | 全リポでバイト単位に同一（版を書いたコメント行も含む） |
 
 ## 揃っていないが、揃えてはいけないもの
 

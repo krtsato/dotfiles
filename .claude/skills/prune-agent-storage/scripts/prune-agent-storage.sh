@@ -136,6 +136,19 @@ days_for() {
 
 wants() { [ "$TARGETS" = all ] || [ "$TARGETS" = "$1" ]; }
 
+# find's stderr is collected, not discarded: an unreadable subtree would
+# otherwise look the same as "no stale files there".
+find_errors="$(mktemp)"
+on_exit() {
+	local rc=$?
+	if [ "$rc" -eq 0 ] && [ -s "$find_errors" ]; then
+		rc=1
+	fi
+	rm -f "$find_errors"
+	exit "$rc"
+}
+trap on_exit EXIT
+
 candidates=()
 kinds=()
 collect() {
@@ -145,7 +158,7 @@ collect() {
 	while IFS= read -r -d '' f; do
 		candidates+=("$f")
 		kinds+=("$kind")
-	done < <("$@" -print0 2>/dev/null | sort -z)
+	done < <("$@" -print0 2>>"$find_errors" | sort -z)
 }
 
 # memory and plugins are excluded by construction: plans is its own directory,
@@ -162,6 +175,13 @@ if wants tool-results && [ -d "$CLAUDE_DIR/projects" ]; then
 fi
 if wants file-history && [ -d "$CLAUDE_DIR/file-history" ]; then
 	collect file-history find "$CLAUDE_DIR/file-history" -type f -mtime "+$(days_for file-history)"
+fi
+
+if [ -s "$find_errors" ]; then
+	echo "確かめられなかった箇所（読めないフォルダがあり、そこは「0 件」ではなく未確認です）:" >&2
+	sed 's/^/  /' "$find_errors" >&2
+	echo "終了コードは 1 になります（ゴミ箱への移動は読めた範囲だけに行います）。" >&2
+	echo >&2
 fi
 
 total_bytes=0
