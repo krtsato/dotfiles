@@ -1,6 +1,22 @@
-# Only the settings the owner edits are tracked. Everything else in
-# ~/.config/herdr-app (view state, installed mods, bundled frames, release
-# note media) is written by the app and stays out of git.
+# Track what the owner decides; leave what Herdr writes as it runs out of git.
+# Roles of each file: ~/.config/herdr-app/AGENTS.md, section "The files".
 *
 !.gitignore
 !settings.json
+# What every key does. Seeded on first launch, then the owner's to rebind.
+!keys.json
+# How programs show (name, icon, tile). Only exists once the owner writes it.
+!programs.json
+# Color themes the owner adds; the seeded ones are not rewritten on start.
+!themes/
+!themes/*.json
+# Layouts the owner adds or clones (layout.clone). Herdr's own layouts are
+# read-only and rewritten whole on every start, so they stay ignored.
+!layouts/
+!layouts/*.json
+layouts/main.json
+layouts/terminals.json
+layouts/win98.json
+# Not tracked: view.json, window.json, windows.json, shared.json, data/,
+# seen.json, installed.json, icons/, frame/, mods/ (all shipped today; add a
+# line for a mod the owner writes or clones), update notes, telemetry.
