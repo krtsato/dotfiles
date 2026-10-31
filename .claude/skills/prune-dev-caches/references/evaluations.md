@@ -13,7 +13,7 @@
 
 | 依頼の言葉 | 期待する動作 |
 | --- | --- |
-| 「古い plan を消して」 | 発動しない。prune-agent-storage を使う |
+| 「取り残された編集前の退避を消して」 | 発動しない。prune-agent-storage を使う（`~/.claude` の中は対象外） |
 | 「brew cleanup して」 | 発動しない。Homebrew は対象外 |
 | 「Go を上げて」 | 発動しない。upgrade-runtimes を使う |
 
