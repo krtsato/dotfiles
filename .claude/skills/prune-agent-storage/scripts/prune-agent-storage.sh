@@ -137,7 +137,10 @@ period=30
 period_note=""
 if [ -f "$CLAUDE_DIR/settings.json" ]; then
 	if command -v jq >/dev/null 2>&1; then
-		v="$(jq -r '.cleanupPeriodDays // empty' "$CLAUDE_DIR/settings.json" 2>/dev/null || true)"
+		if ! v="$(jq -r '.cleanupPeriodDays // empty' "$CLAUDE_DIR/settings.json" 2>/dev/null)"; then
+			v=""
+			period_note="settings.json を読めません（自動の片付けも止まる原因になります）。30 日として扱います"
+		fi
 		case "$v" in
 		'') ;;
 		*[!0-9]* | 0) period_note="settings.json の cleanupPeriodDays（$v）を読めないため 30 日として扱います" ;;
@@ -156,7 +159,7 @@ if [ -d "$CLAUDE_DIR/projects" ]; then
 		while IFS= read -r p; do
 			b="${p##*/}"
 			echo "${b%.jsonl}"
-		done >"$live_ids"
+		done >"$live_ids" || true
 	if [ -s "$find_errors" ]; then
 		report_errors
 		echo "会話の記録の一覧が不完全なため、取り残しの判定を行いません。" >&2
