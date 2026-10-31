@@ -42,9 +42,9 @@ trap 'rm -f "$tags" "$files" "$var_from" "$err"' EXIT
 # Exit 0 yes, 1 no, anything else means the file could not be read.
 is_dockerfile() {
   awk '{ l = tolower($0); sub(/\r$/, "", l); sub(/^[ \t]+/, "", l) }
-       cont { cont = (l ~ /\\[ \t]*$/); next }
+       cont { cont = (l ~ /[\\`][ \t]*$/); next }
        l == "" || l ~ /^#/ { next }
-       l ~ /^arg[ \t]/ { cont = (l ~ /\\[ \t]*$/); next }
+       l ~ /^arg[ \t]/ { cont = (l ~ /[\\`][ \t]*$/); next }
        { found = (l ~ /^from[ \t]/); exit }
        END { exit !found }' "$1"
 }
@@ -90,7 +90,7 @@ while IFS= read -r -d '' path && IFS= read -r line; do
   # The image name, with the registry prefix Docker drops from local tags.
   token=$(printf '%s\n' "$line" \
     | sed -E 's/^[[:space:]]*[Ff][Rr][Oo][Mm][[:space:]]+(--platform=[^[:space:]]+[[:space:]]+)?//; s/[[:space:]].*//' \
-    | sed -E 's#^(index\.)?docker\.io/(library/)?##')
+    | sed -E 's#^(index\.)?docker\.io/##; s#^library/##')
   repo=${token%%[:@]*}
   if [[ $repo == *\$* ]]; then
     # The kind of image itself is a variable (FROM ${BASE}): no way to tell.
