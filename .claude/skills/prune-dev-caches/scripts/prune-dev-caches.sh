@@ -61,7 +61,7 @@ session_of() {
       return ;;
     esac
   done
-  ps -o command= -p "$1" | cut -c1-80
+  ps -o command= -p "$1" 2>/dev/null | cut -c1-80 | grep . || echo "(exited since the check)"
 }
 
 if want uv; then
