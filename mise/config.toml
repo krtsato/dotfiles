@@ -1,8 +1,12 @@
 [tools]
+actionlint = "1.7.12"
 flutter = "latest"
 go = "latest"
+golangci-lint = "2.15.0"
 java = "latest"
+markdownlint-cli2 = "0.23.3"
 node = "latest"
 python = "latest"
 ruby = "latest"
 terraform = "latest"
+trivy = "0.76.0"
