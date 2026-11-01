@@ -97,13 +97,17 @@
       "Bash(cd *)",
       "mcp__notion__notion-update-page",
       "mcp__notion__notion-move-pages",
-      "mcp__notion__notion-query-data-sources"
+      "mcp__notion__notion-query-data-sources",
+      "Bash(pup slos create *)",
+      "Bash(pup slos update *)",
+      "Bash(pup dashboards update *)"
     ],
     "deny": [
       "Bash(sudo *)",
       "Bash(rm -rf /*)"
     ]
   },
+  "model": "opus",
   "hooks": {
     "PreToolUse": [
       {
@@ -191,8 +195,10 @@
     "write-postmortem@awa-plugins": true,
     "document-dev@awa-plugins": true,
     "discord@claude-plugins-official": true,
+    "cc-plugin-you-should-know@builtin": true,
     "common@ysys": true,
-    "pdm@ysys": true
+    "pdm@ysys": true,
+    "swift-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
@@ -205,12 +211,12 @@
       "source": {
         "source": "github",
         "repo": "yoyogi-systems/claude-marketplace"
-      }
+      },
+      "autoUpdate": true
     }
   },
   "outputStyle": "Explanatory",
   "alwaysThinkingEnabled": true,
   "tui": "fullscreen",
-  "voiceEnabled": true,
-  "model": "opus"
+  "voiceEnabled": true
 }

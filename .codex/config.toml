@@ -1,10 +1,11 @@
-model = "gpt-5.6-sol"
+model = "gpt-6.1-sol"
 model_reasoning_effort = "medium"
 personality = "pragmatic"
 approval_policy = "on-request"
 approvals_reviewer = "auto_review"
 service_tier = "default"
-notify = ["$HOME/dev/me/dotfiles/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
+
+notify = ["/Users/s11639/dev/me/dotfiles/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
 
 [features]
 multi_agent = true
@@ -24,6 +25,12 @@ default_subagent_reasoning_effort = "medium"
 "$HOME/go/src/github.com/awa".trust_level = "trusted"
 "$HOME/Documents/New project".trust_level = "trusted"
 
+[projects."/Users/s11639/dev/me/discord-agent-bridge"]
+trust_level = "trusted"
+
+[projects."/Users/s11639/dev/job/ysys/case-20260427-bak-ai-cabinet-ipad"]
+trust_level = "trusted"
+
 [plugins]
 "browser@openai-bundled".enabled = true
 "documents@openai-primary-runtime".enabled = true
@@ -39,7 +46,9 @@ default_subagent_reasoning_effort = "medium"
 "pdf@openai-primary-runtime".enabled = true
 "template-creator@openai-primary-runtime".enabled = true
 "visualize@openai-bundled".enabled = true
+
 "common@ysys".enabled = true
+
 "pdm@ysys".enabled = true
 
 [apps]
@@ -48,112 +57,85 @@ connector_76869538009648d5b282a4bb21c3d157.tools.github_update_issue_comment.app
 
 [marketplaces]
 
-"openai-primary-runtime".last_updated = "2026-08-19T23:30:51Z"
-"openai-primary-runtime".source_type = "local"
-"openai-primary-runtime".source = "$HOME/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
-
 "openai-bundled".last_updated = "2026-08-17T02:28:54Z"
 "openai-bundled".source_type = "local"
 "openai-bundled".source = "$HOME/dev/me/dotfiles/.codex/.tmp/bundled-marketplaces/openai-bundled"
+
+"openai-primary-runtime".source_type = "local"
+"openai-primary-runtime".source = "/Users/s11639/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
 
 ysys.source_type = "git"
 ysys.source = "https://github.com/yoyogi-systems/claude-marketplace.git"
 
 [mcp_servers]
+notion.url = "https://mcp.notion.com/mcp"
 
-# github
-github.enabled = true
 github.command = "sh"
 github.args = ["-c", "GITHUB_PERSONAL_ACCESS_TOKEN=$(gh auth token) exec docker run -i --rm -e GITHUB_PERSONAL_ACCESS_TOKEN ghcr.io/github/github-mcp-server"]
 
-# note
-note.enabled = true
 note.command = "docker"
 note.args = ["run", "-i", "--rm", "-e", "NOTE_COOKIES", "-e", "MAGAZINES_DIR=/magazines", "-v", "/Users/s11639/dev/me/mcp-note/magazines:/magazines", "mcp-note"]
-note.env = { NOTE_COOKIES = "dummy..." }
 
-# stripe
-stripe.enabled = true
+note.env.NOTE_COOKIES = "dummy..."
+
 stripe.url = "https://mcp.stripe.com"
 
-# AWA
-"awa-doc".enabled = true
 "awa-doc".command = "docker"
 "awa-doc".args = ["run", "--rm", "-i", "ghcr.io/awa/doc-mcp-server:latest"]
-"awa-slack".enabled = true
+
 "awa-slack".command = "docker"
 "awa-slack".args = ["run", "-i", "--rm", "-e", "AWS_SSM_SLACK_TOKEN_NAME", "-e", "AWS_REGION", "-v", "$HOME/.aws:/root/.aws:ro", "ghcr.io/awa/mcp-slack:latest"]
+
 "awa-slack".env = { AWS_SSM_SLACK_TOKEN_NAME = "/mcp-slack/bot-token", AWS_REGION = "ap-northeast-1" }
 
-# AWS
-"aws-mcp".enabled = true
 "aws-mcp".command = "uvx"
 "aws-mcp".args = ["mcp-proxy-for-aws@latest", "https://aws-mcp.us-east-1.api.aws/mcp", "--metadata", "AWS_REGION=ap-northeast-1"]
-"awslabs.aws-api-mcp-server".enabled = true
+
 "awslabs.aws-api-mcp-server".command = "docker"
 "awslabs.aws-api-mcp-server".args = ["run", "--rm", "--interactive", "--env", "AWS_API_MCP_PROFILE_NAME=default", "--volume", "$HOME/.aws:/app/.aws", "public.ecr.aws/awslabs-mcp/awslabs/aws-api-mcp-server:latest"]
-"awslabs.aws-documentation-mcp-server".enabled = true
+
 "awslabs.aws-documentation-mcp-server".command = "docker"
 "awslabs.aws-documentation-mcp-server".args = ["run", "--rm", "--interactive", "--env", "FASTMCP_LOG_LEVEL=ERROR", "--env", "AWS_DOCUMENTATION_PARTITION=aws", "mcp/aws-documentation:latest"]
 
-# Astro
-"astro-docs".enabled = true
 "astro-docs".command = "npx"
 "astro-docs".args = ["mcp-remote", "https://mcp.docs.astro.build/mcp"]
 
-# Cloudflare
-"cloudflare-docs".enabled = true
 "cloudflare-docs".command = "npx"
 "cloudflare-docs".args = ["mcp-remote", "https://docs.mcp.cloudflare.com/mcp"]
 
-# Hono
-"hono-docs".enabled = true
 "hono-docs".command = "npx"
 "hono-docs".args = ["mcp-remote", "https://hono-docs-mcp.yusukebe.workers.dev/mcp"]
 
-# simply-rag
-"simply-rag".enabled = true
 "simply-rag".url = "https://rag.simply.dev/search"
-"simply-rag".http_headers = { "x-api-key" = "dummy..." }
 
-# Canva
-canva.enabled = true
+"simply-rag".http_headers."x-api-key" = "dummy..."
+
 canva.url = "https://mcp.canva.com/mcp"
 
-# draw.io
-drawio.enabled = true
 drawio.command = "npx"
 drawio.args = ["-y", "@drawio/mcp"]
 
-# Figma
-figma.enabled = true
 figma.command = "node"
 figma.args = ["$HOME/go/src/github.com/awa/figjam_mcp/dist/index.js"]
-figma.env = { BRIDGE_PORT = "3000" }
 
-# Docbase
-docbase.enabled = true
+figma.env.BRIDGE_PORT = "3000"
+
 docbase.url = "https://mcp.docbase.io/mcp"
 
-# BigQuery
-bigquery.enabled = true
 bigquery.command = "npx"
 bigquery.args = ["--registry", "https://mcp-repository.ai-ope.com", "@ca-ai-ope/mcp-bigquery-server", "--project-id", "warm-calculus-736", "--location", "US", "--max-bytes-threshold", "10GB"]
-bigquery.env = { npm_config_prefer_online = "true", npm_config_force = "true" }
 
-# mise
-mise.enabled = true
+bigquery.env.npm_config_force = "true"
+bigquery.env.npm_config_prefer_online = "true"
+
 mise.command = "mise"
 mise.args = ["mcp"]
-mise.env = { MISE_EXPERIMENTAL = "1" }
 
-# Terraform
-terraform.enabled = true
+mise.env.MISE_EXPERIMENTAL = "1"
+
 terraform.command = "docker"
 terraform.args = ["run", "-i", "--rm", "hashicorp/terraform-mcp-server:latest"]
 
-# TradingView
-tradingview.enabled = true
 tradingview.command = "docker"
 tradingview.args = ["run", "-i", "--rm", "mcp-tradingview"]
 
@@ -162,33 +144,40 @@ tradingview.args = ["run", "-i", "--rm", "mcp-tradingview"]
 "computer-use".cwd = "."
 "computer-use".enabled = false
 
-node_repl.args = []
-node_repl.command = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl"
-node_repl.startup_timeout_sec = 120
-
-node_repl.env.NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
-node_repl.env.NODE_REPL_NODE_MODULE_DIRS = "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
-node_repl.env.NODE_REPL_NODE_PATH = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node"
-node_repl.env.NODE_REPL_TRUSTED_CODE_PATHS = "$HOME/.codex:/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
-node_repl.env.CODEX_HOME = "$HOME/.codex"
-node_repl.env.BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
-node_repl.env.BROWSER_USE_TINYSKY_ENABLED = "0"
-node_repl.env.NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
-node_repl.env.NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
-node_repl.env.NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = "Control desktop apps on macOS through Computer Use."
-node_repl.env.BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-node_repl.env.BROWSER_USE_CODEX_APP_VERSION = "26.831.11858"
-node_repl.env.NODE_REPL_TRUSTED_SERVICES = '{"browser":"$HOME/.codex/plugins/cache/openai-bundled/browser/26.831.11858/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
-node_repl.env.CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex"
-
 cua_repl.command = "/Applications/ChatGPT.app/Contents/MacOS/ChatGPT"
 cua_repl.enabled = false
 
+[mcp_servers.node_repl]
+
+args = []
+command = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl"
+env_vars = ["BROWSER_USE_ACCESS_EXECUTOR_ID", "BROWSER_USE_ACCESS_PIPE_PATH", "BROWSER_USE_ACCESS_VERIFYING_IDENTITY"]
+startup_timeout_sec = 120
+
+[mcp_servers.node_repl.env]
+
+NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
+NODE_REPL_NODE_MODULE_DIRS = "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
+NODE_REPL_NODE_PATH = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node"
+NODE_REPL_TRUSTED_CODE_PATHS = "/Users/s11639/.codex:/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
+CODEX_HOME = "/Users/s11639/.codex"
+BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab,mcpapps"
+BROWSER_USE_TINYSKY_ENABLED = "1"
+NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
+NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
+BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
+BROWSER_USE_CODEX_APP_VERSION = "26.1027.30824"
+NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/s11639/.codex/plugins/cache/openai-bundled/browser/26.1027.30824/scripts/browser-service.mjs"}'
+CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex"
+
 [tui]
-model_availability_nux."gpt-5.6-sol" = 4
 resume_cwd = "current"
 status_line = ["model-with-reasoning", "context-remaining", "five-hour-limit", "weekly-limit", "total-tokens"]
 status_line_use_colors = true
+screen_reader_detection_done = true
+
+model_availability_nux."gpt-5.6-sol" = 4
+model_availability_nux."gpt-6.1-sol" = 1
 
 [desktop]
 "default-service-tier" = "fast"
@@ -197,6 +186,9 @@ status_line_use_colors = true
 followUpQueueMode = "queue"
 "dock-icon-preference" = "codex-system"
 "enabled-reasoning-efforts" = ["low", "medium", "high", "xhigh", "ultra", "max"]
+preventSleepWhileRunning = true
+"show-context-window-usage" = true
+composerPlainTextMode = false
 
 [notice.model_migrations]
 "gpt-5.5" = "gpt-5.6-sol"
@@ -204,5 +196,19 @@ followUpQueueMode = "queue"
 [shell_environment_policy.set]
 NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "323bc3e687e17d7e377238d9f4c69111c4d0e6219103b6316d8c52082489533b"
 
+[hooks.state]
+
 [hooks.state."$HOME/.codex/hooks.json:post_tool_use:0:0"]
 trusted_hash = "sha256:92363b3455a74f8ce61983233fc8f1cbb85cac0c8f1e4a687fc6cc9c9110074e"
+
+[hooks.state."/Users/s11639/.codex/hooks.json:post_tool_use:0:0"]
+trusted_hash = "sha256:92363b3455a74f8ce61983233fc8f1cbb85cac0c8f1e4a687fc6cc9c9110074e"
+
+[hooks.state."cyberagent-tableau@workspace-directory:hooks/hooks.json:session_start:0:0"]
+trusted_hash = "sha256:c4cbf67ef719eb320211030073a9669b68d359299ecd2b50c499a802181d11a0"
+
+[hooks.state."/Users/s11639/dev/job/ysys/case-20260427-bak-ai-cabinet-ipad/.codex/hooks.json:user_prompt_submit:0:0"]
+trusted_hash = "sha256:1d5a23fa70ba3f77bc274b69eadf2a68c7f0318f8dbd7164e3c60cbf90c220d2"
+
+[hooks.state."/Users/s11639/dev/job/ysys/case-20260427-bak-ai-cabinet-ipad/.codex/hooks.json:user_prompt_submit:0:1"]
+trusted_hash = "sha256:bf1ddacc9b472aeaa77ba7e5330e992e1f3c1dfd3c0bc9ea0031f0acc1428abb"
