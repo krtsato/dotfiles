@@ -5,7 +5,7 @@ approval_policy = "on-request"
 approvals_reviewer = "auto_review"
 service_tier = "default"
 
-notify = ["/Users/s11639/dev/me/dotfiles/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
+notify = ["$HOME/dev/me/dotfiles/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
 
 [features]
 multi_agent = true
@@ -25,10 +25,7 @@ default_subagent_reasoning_effort = "medium"
 "$HOME/go/src/github.com/awa".trust_level = "trusted"
 "$HOME/Documents/New project".trust_level = "trusted"
 
-[projects."/Users/s11639/dev/me/discord-agent-bridge"]
-trust_level = "trusted"
-
-[projects."/Users/s11639/dev/job/ysys/case-20260427-bak-ai-cabinet-ipad"]
+[projects."$HOME/dev/me/discord-agent-bridge"]
 trust_level = "trusted"
 
 [plugins]
@@ -62,7 +59,7 @@ connector_76869538009648d5b282a4bb21c3d157.tools.github_update_issue_comment.app
 "openai-bundled".source = "$HOME/dev/me/dotfiles/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
 "openai-primary-runtime".source_type = "local"
-"openai-primary-runtime".source = "/Users/s11639/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
+"openai-primary-runtime".source = "$HOME/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
 
 ysys.source_type = "git"
 ysys.source = "https://github.com/yoyogi-systems/claude-marketplace.git"
@@ -159,15 +156,15 @@ startup_timeout_sec = 120
 NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
 NODE_REPL_NODE_MODULE_DIRS = "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
 NODE_REPL_NODE_PATH = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node"
-NODE_REPL_TRUSTED_CODE_PATHS = "/Users/s11639/.codex:/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
-CODEX_HOME = "/Users/s11639/.codex"
+NODE_REPL_TRUSTED_CODE_PATHS = "$HOME/.codex:/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
+CODEX_HOME = "$HOME/.codex"
 BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab,mcpapps"
 BROWSER_USE_TINYSKY_ENABLED = "1"
 NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
 NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
 BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
 BROWSER_USE_CODEX_APP_VERSION = "26.1027.30824"
-NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/s11639/.codex/plugins/cache/openai-bundled/browser/26.1027.30824/scripts/browser-service.mjs"}'
+NODE_REPL_TRUSTED_SERVICES = '{"browser":"$HOME/.codex/plugins/cache/openai-bundled/browser/26.1027.30824/scripts/browser-service.mjs"}'
 CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex"
 
 [tui]
@@ -200,15 +197,3 @@ NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "323bc3e687e17d7e377238d9f4c69111c4d0
 
 [hooks.state."$HOME/.codex/hooks.json:post_tool_use:0:0"]
 trusted_hash = "sha256:92363b3455a74f8ce61983233fc8f1cbb85cac0c8f1e4a687fc6cc9c9110074e"
-
-[hooks.state."/Users/s11639/.codex/hooks.json:post_tool_use:0:0"]
-trusted_hash = "sha256:92363b3455a74f8ce61983233fc8f1cbb85cac0c8f1e4a687fc6cc9c9110074e"
-
-[hooks.state."cyberagent-tableau@workspace-directory:hooks/hooks.json:session_start:0:0"]
-trusted_hash = "sha256:c4cbf67ef719eb320211030073a9669b68d359299ecd2b50c499a802181d11a0"
-
-[hooks.state."/Users/s11639/dev/job/ysys/case-20260427-bak-ai-cabinet-ipad/.codex/hooks.json:user_prompt_submit:0:0"]
-trusted_hash = "sha256:1d5a23fa70ba3f77bc274b69eadf2a68c7f0318f8dbd7164e3c60cbf90c220d2"
-
-[hooks.state."/Users/s11639/dev/job/ysys/case-20260427-bak-ai-cabinet-ipad/.codex/hooks.json:user_prompt_submit:0:1"]
-trusted_hash = "sha256:bf1ddacc9b472aeaa77ba7e5330e992e1f3c1dfd3c0bc9ea0031f0acc1428abb"
