@@ -112,11 +112,6 @@ canva.url = "https://mcp.canva.com/mcp"
 drawio.command = "npx"
 drawio.args = ["-y", "@drawio/mcp"]
 
-figma.command = "node"
-figma.args = ["$HOME/go/src/github.com/awa/figjam_mcp/dist/index.js"]
-
-figma.env.BRIDGE_PORT = "3000"
-
 docbase.url = "https://mcp.docbase.io/mcp"
 
 bigquery.command = "npx"
