@@ -5,3 +5,5 @@
 .worktrees/
 Alfred/usage.data
 karabiner/automatic_backups
+# `npx skills add ... -g` が Kiro 用に作るリンク。本体は ~/.agents/skills/ にある（macsetup の roles/agent_skills）
+.kiro/skills/
