@@ -25,3 +25,8 @@ skills/.trash/
 # Symlink created by `mdreview setup`; it points outside this repo, so
 # committing it would leave a broken link on every other machine.
 skills/mdreview
+
+# 他人が配布する skill。`npx skills add ... -g` が本体を ~/.agents/skills/ に置き、ここへリンクを作る。
+# 本体はこのリポジトリの外なので追跡しない。入れる手順は macsetup の roles/agent_skills が持つ。
+# .codex/skills/ からはこのリンクを指す（自作の skill と同じ形）。
+skills/herdr
