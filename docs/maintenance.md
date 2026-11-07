@@ -82,13 +82,12 @@ for r in <repos>; do (cd ~/dev/me/$r && echo "$r: $($GL run --config ~/dev/me/mc
 
 | 何を | いつ | どうやって |
 | --- | --- | --- |
-| 定期実行の失敗通知 | 毎朝 | Slack に来る。`notify-failures.yaml` が全リポにある |
-| 停滞の検知 | 毎日 | `scripts/health-check.sh` と `scripts/health-check-manifest.json`（tradingview / invest-knowledge / mediable）。**新しい定期ワークフローを足したら manifest への追記が要る** |
+| 定期実行の失敗と停滞の通知 | 毎日 | `krtsato/watcher` が外から見張り、課題 1 本と Slack に出す。**新しい定期ワークフローを足したら watcher の監視表への追記が要る**（各リポにあった `notify-failures.yaml` と `scripts/health-check*` は削除済み） |
 | Docker の掃除 | 毎回の同期で自動 | tradingview の取り込み 3 本が `always()` で prune する。note の同期は 2026-10-20 から Docker を使わない |
 | 止められた digest の下書き | 失敗を調べるとき | `~/.config/mcp-invest-knowledge/withheld-drafts`（14 日 / 50 件） |
 
 ## 関連文書
 
-- 各リポ `docs/health-check.md`（tradingview / invest-knowledge / mediable）— 停滞検知の仕組みと盲点
+- `watcher` の `README.md` と `docs/design.md` — 見張りの対象・仕組みと、各リポから外へ移した理由
 - `mcp-invest-knowledge/docs/github-actions-pipeline.md` — 自宅 Mac の runner の前提が最も詳しい（`claude` の keychain 認証など）
 - `mcp-tradingview/docs/ledger-sync.md` — 台帳同期の設定値
