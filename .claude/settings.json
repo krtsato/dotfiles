@@ -119,6 +119,16 @@
             "statusMessage": "上流から考える"
           }
         ]
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$HOME/.claude/hooks/japanese-reply.py\"",
+            "timeout": 10
+          }
+        ]
       }
     ],
     "Notification": [
@@ -139,6 +149,15 @@
           {
             "type": "command",
             "command": "osascript -e 'display notification \"タスクが完了しました\" with title \"Claude Code\" subtitle \"処理終了\" sound name \"Hero\"'"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$HOME/.claude/hooks/japanese-reply.py\"",
+            "timeout": 10
           }
         ]
       }
@@ -167,6 +186,17 @@
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/plan-format.sh"
+          }
+        ]
+      }
+    ],
+    "MessageDisplay": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$HOME/.claude/hooks/japanese-reply.py\"",
+            "timeout": 5
           }
         ]
       }
@@ -218,5 +248,6 @@
   "outputStyle": "Explanatory",
   "alwaysThinkingEnabled": true,
   "tui": "fullscreen",
-  "voiceEnabled": true
+  "voiceEnabled": true,
+  "language": "japanese"
 }
