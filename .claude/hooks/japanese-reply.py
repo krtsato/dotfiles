@@ -38,7 +38,8 @@ import tempfile
 MIN_WORDS = 8
 MAX_STOP_BLOCKS = 2  # per stop sequence, so a false positive cannot loop forever
 
-FENCE = re.compile(r"```.*?```", re.S)
+# A block still streaming has no closing fence yet; treat it as code to the end.
+FENCE = re.compile(r"```.*?(?:```|\Z)", re.S)
 INLINE = re.compile(r"`[^`\n]*`")
 URL = re.compile(r"https?://\S+")
 PATH = re.compile(r"(?:~|\.{0,2})?/[\w.\-/]+|[\w\-]+\.(?:md|json|ya?ml|sh|py|go|ts|toml)\b")
