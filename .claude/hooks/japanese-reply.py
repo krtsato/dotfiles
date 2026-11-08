@@ -65,14 +65,25 @@ def state_dir(session_id):
     return path
 
 
-def take_stored_texts(directory):
-    """Return the displayed texts not yet judged, and forget them."""
-    texts = []
+def unflagged_messages(directory):
+    """Return {path: full text} for displayed messages not yet denied.
+
+    A message is kept whole until Stop and judged again as lines arrive: its
+    last line comes late, and halves judged apart can each fall under
+    MIN_WORDS while the whole message does not.
+    """
+    messages = {}
     for path in sorted(glob.glob(os.path.join(directory, "*.txt")), key=os.path.getmtime):
+        if os.path.exists(path + ".denied"):
+            continue
         with open(path, encoding="utf-8") as f:
-            texts.append(f.read())
+            messages[path] = f.read()
+    return messages
+
+
+def forget_messages(directory):
+    for path in glob.glob(os.path.join(directory, "*.txt*")):
         os.remove(path)
-    return texts
 
 
 def english_reason(texts):
@@ -112,8 +123,12 @@ def main():
         return
 
     if event == "PreToolUse":
-        reason = english_reason(take_stored_texts(directory))
+        messages = unflagged_messages(directory)
+        reason = english_reason(list(messages.values()))
         if reason:
+            for path, text in messages.items():
+                if is_english(text):
+                    open(path + ".denied", "w").close()
             print(json.dumps({"hookSpecificOutput": {
                 "hookEventName": "PreToolUse",
                 "permissionDecision": "deny",
@@ -122,7 +137,8 @@ def main():
         return
 
     if event == "Stop":
-        texts = take_stored_texts(directory) + [payload.get("last_assistant_message") or ""]
+        texts = list(unflagged_messages(directory).values()) + [payload.get("last_assistant_message") or ""]
+        forget_messages(directory)
         reason = english_reason(texts)
         if reason and stop_blocks_so_far(directory, payload.get("stop_hook_active")) < MAX_STOP_BLOCKS:
             print(json.dumps({"decision": "block", "reason": reason}, ensure_ascii=False))
