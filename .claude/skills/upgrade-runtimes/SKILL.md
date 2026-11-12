@@ -1,8 +1,8 @@
 ---
 name: upgrade-runtimes
 description: >-
-  `~/dev/me` 配下の 11 リポ（mcp-tradingview / mcp-invest-knowledge / mcp-mediable /
-  mcp-note / mcp-seeking-alpha / mcp-youtube / mcp-notebooklm / trade-moomoo / watcher /
+  `~/dev/me` 配下の 12 リポ（mcp-tradingview / mcp-invest-knowledge / mcp-mediable /
+  mcp-note / mcp-seeking-alpha / mcp-youtube / mcp-notebooklm / mcp-figjam / trade-moomoo / watcher /
   securerc / mdreview）で、Go・Python・Node・GitHub Actions のステップ・Docker イメージなど**固定された版を上げる**。あわせて
   自宅 Mac の runner（self-hosted）の PATH を点検する。「Go を上げて」「Python を上げて」
   「actions の版を上げて」「golangci-lint を上げて」「手元と CI で lint の結果が違う」
@@ -13,7 +13,7 @@ description: >-
   の実行ファイル**、スクリプトとワークフローが呼ぶ **Claude のモデル ID**。Docker の名札の点検で見つかった `Makefile` と `*.sh` の `docker build` /
   `docker run` の行も直す。Do NOT use for: 依存ライブラリ
   （`go.mod` の require 行）の更新、アプリのコード変更、runner の新規登録、
-  上の 11 リポ以外のリポの作業。
+  上の 12 リポ以外のリポの作業。
 compatibility: >-
   macOS + Homebrew + mise 環境を前提。`gh` CLI（認証済み）、`go`、`docker`、`rg`（ripgrep）、
   `npx markdownlint-cli2` が要る。Claude のモデルの版上げでは `claude` CLI（ログイン済み）、
@@ -90,7 +90,7 @@ compatibility: >-
 ```bash
 cd ~/dev/me
 for r in mcp-tradingview mcp-invest-knowledge mcp-mediable mcp-note \
-         mcp-seeking-alpha mcp-youtube mcp-notebooklm trade-moomoo watcher \
+         mcp-seeking-alpha mcp-youtube mcp-notebooklm mcp-figjam trade-moomoo watcher \
          securerc mdreview; do
   echo "== $r"
   grep -rnE "^go |go-version:|python-version:|node-version:|\"node\"[[:space:]]*:|uses: .*@|version: v?[0-9]|^FROM " "$r" \
@@ -115,6 +115,7 @@ done
 2026-10-31 時点の出力は上の一覧の 11 リポと blogs。**blogs は対象外**（持ち主が対象に選んでいない）。
 `.codex` を除くのは、codex が取り込んだ他人の部品（git の管理外）の `go.mod`・`Dockerfile` が dotfiles に当たるため。
 Node のリポ（securerc・mdreview）は 2026-10-31 に持ち主の指示で対象に加えた。
+mcp-figjam は 2026-11-13 に持ち主の指示で加えた（一覧は 12 リポになった）。
 
 `actions-runners/` と `.worktrees/` は**作業コピーであって正本ではない**ので必ず除外する
 （含めて数えると件数が倍になる）。
@@ -148,9 +149,9 @@ grep -rn "runs-on" ~/dev/me/*/.github/workflows/*.y*ml | grep -v actions-runners
 
 `actions/setup-go` は**両方で使える**。同じ `setup-*` でも挙動が違うので、まとめて扱わない。
 
-**`watcher` と `mcp-notebooklm` は GitHub の機械だけで動く。** 自宅 Mac の runner を持たないので手順 4 は要らない。
-どちらも `Dockerfile` も `mise.toml` も無く、版が書かれているのは `go.mod` の `go` 行・`go-version`・
-`golangci-lint-action` の `version` の 3 か所。
+**`watcher`・`mcp-notebooklm`・`mcp-figjam` は GitHub の機械だけで動く。** 自宅 Mac の runner を持たないので手順 4 は要らない。
+どれも `mise.toml` が無く、版が書かれているのは `go.mod` の `go` 行・`go-version`・
+`golangci-lint-action` の `version` の 3 か所。mcp-figjam だけは `Dockerfile` も持つ（`golang:<版>-trixie` と distroless）。
 
 **Node のリポも自宅 Mac の runner を持たない。** 手順 4 は要らない。
 
