@@ -150,8 +150,8 @@ grep -rn "runs-on" ~/dev/me/*/.github/workflows/*.y*ml | grep -v actions-runners
 `actions/setup-go` は**両方で使える**。同じ `setup-*` でも挙動が違うので、まとめて扱わない。
 
 **`watcher`・`mcp-notebooklm`・`mcp-figjam` は GitHub の機械だけで動く。** 自宅 Mac の runner を持たないので手順 4 は要らない。
-どれも `mise.toml` が無く、版が書かれているのは `go.mod` の `go` 行・`go-version`・
-`golangci-lint-action` の `version` の 3 か所。mcp-figjam だけは `Dockerfile` も持つ（`golang:<版>-trixie` と distroless）。
+どれも `mise.toml` が無く、共通して版が書かれているのは `go.mod` の `go` 行・`go-version`・
+`golangci-lint-action` の `version` の 3 か所。mcp-figjam は加えて `Dockerfile` の `FROM`（`golang:<版>-trixie` と distroless）も対象。
 
 **Node のリポも自宅 Mac の runner を持たない。** 手順 4 は要らない。
 
