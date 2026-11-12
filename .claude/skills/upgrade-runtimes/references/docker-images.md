@@ -25,8 +25,8 @@ grep -rn --include='Dockerfile*' --exclude-dir=.worktrees --exclude-dir=actions-
 | 種類 | 名札 | 置き場 | 上げ方 |
 | --- | --- | --- | --- |
 | Go のビルド用 | `golang:<Go の版>-alpine3.24` | invest-knowledge・mediable・note・tradingview ×3 | Go の版は `go.mod` に合わせる。**alpine の版も明示する** |
-| Go のビルド用 | `golang:<Go の版>-trixie` | youtube | 同上。Debian の世代も明示する |
-| 実行用・最小 | `gcr.io/distroless/static-debian13:nonroot` | invest-knowledge・tradingview ×3・youtube | Debian の世代の数字は、新しい世代の名札が実在することを `docker manifest inspect` で確かめてから書き換える。`nonroot`（uid 65532）は変わらない |
+| Go のビルド用 | `golang:<Go の版>-trixie` | youtube・figjam | 同上。Debian の世代も明示する |
+| 実行用・最小 | `gcr.io/distroless/static-debian13:nonroot` | invest-knowledge・tradingview ×3・youtube・figjam | Debian の世代の数字は、新しい世代の名札が実在することを `docker manifest inspect` で確かめてから書き換える。`nonroot`（uid 65532）は変わらない |
 | 実行用・道具入り | `alpine:3.24` | mediable（ffmpeg） | alpine の版を上げる。**中の ffmpeg の版も変わる**ので手順 4 が必須 |
 | 実行用・道具入り | `debian:trixie-slim` | note（MCP server の日本語 OCR） | 世代名を上げる。**中の道具の版も変わる**ので手順 4 が必須 |
 | Python | `python:<版>-alpine3.24` | tradingview の取り込み 3 本 | Python の版と alpine の版を上げる。依存に **Alpine 向けの wheel（`musllinux`）** があるか手順 4 で確かめる（`--progress=plain` の記録に `Building wheel` が出たらソースから組まれている） |

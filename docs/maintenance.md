@@ -1,6 +1,6 @@
 # 定型保守 — 版上げと runner の手入れ
 
-`~/dev/me` 配下の 11 リポ（Go・Python の 9 リポと、Node の securerc・mdreview）と、それらを動かす自宅 Mac（self-hosted runner）の保守手順。
+`~/dev/me` 配下の 12 リポ（Go・Python の 10 リポと、Node の securerc・mdreview）と、それらを動かす自宅 Mac（self-hosted runner）の保守手順。
 **版を上げるときに壊れやすい所**と、**揃っていないが揃えてはいけない所**を書く。
 
 実行手順は skill `upgrade-runtimes` にある。**運用に必要な事実（見分け方・手順の元になる
@@ -12,7 +12,7 @@
 見分け方と `actions/setup-python` を足してはいけない理由は `references/environments.md` にある。
 
 自宅 Mac で動くワークフローは **18 本**（tradingview 7 / invest-knowledge 8 / mediable 1 / note 1 / seeking-alpha 1・2026-10-12 時点）。
-`watcher` と `mcp-notebooklm` は GitHub の機械だけで動くので、この数に入らない。
+`watcher`・`mcp-notebooklm`・`mcp-figjam` は GitHub の機械だけで動くので、この数に入らない。
 
 **2026-09-06 に 3 リポの定期実行が `actions/setup-python` の追加で止まった。** この経緯が
 `references/environments.md` の禁止事項の根拠になっている。
@@ -28,14 +28,14 @@
 
 | 場所 | どのリポ | 備考 |
 | --- | --- | --- |
-| `go.mod` の `go` | Go 8 リポ | trade-moomoo は Python なので無い |
-| `.github/workflows/*.yaml` の `go-version` | Go 8 リポ | 自宅 Mac の runner でも `actions/setup-go` を使う |
+| `go.mod` の `go` | Go 9 リポ | trade-moomoo は Python なので無い |
+| `.github/workflows/*.yaml` の `go-version` | Go 9 リポ | 自宅 Mac の runner でも `actions/setup-go` を使う |
 | `.github/workflows/*.yaml` の `python-version` | **GitHub の機械のみ** | 自宅 Mac の runner に足さない |
 | `.github/workflows/*.yaml` の `uses: <action>@<版>` | 全リポ | `checkout@v7` 等 |
-| `golangci-lint-action` の `version` | Go 8 リポ | action の版（`v9`）と lint 本体の版（`v2.15.0`）は別。2026-10-31 に watcher も揃えた（watcher #46） |
-| `Dockerfile*` の `FROM` | 7 リポ（Go 5・trade-moomoo・mdreview） | **固定の仕方が 2 通り**（下記）。watcher と mcp-notebooklm は配布物を作らないので無い |
+| `golangci-lint-action` の `version` | Go 9 リポ | action の版（`v9`）と lint 本体の版（`v2.15.0`）は別。2026-10-31 に watcher も揃えた（watcher #46） |
+| `Dockerfile*` の `FROM` | 8 リポ（Go 6・trade-moomoo・mdreview） | **固定の仕方が 2 通り**（下記）。watcher と mcp-notebooklm は配布物を作らないので無い |
 | `mise.toml` の `[tools]` | invest-knowledge のみ | 自宅 Mac の版を決める |
-| `.golangci.yml` | Go 8 リポ | 全リポでバイト単位に同一（版を書いたコメント行も含む） |
+| `.golangci.yml` | Go 9 リポ | 全リポでバイト単位に同一（版を書いたコメント行も含む） |
 
 ## 揃っていないが、揃えてはいけないもの
 
