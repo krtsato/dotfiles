@@ -247,14 +247,16 @@ if want go; then
   else
     warn_gb=$GO_CACHE_WARN_GB
     case $warn_gb in
-      '' | *[!0-9]*) skip "GO_CACHE_WARN_GB='$warn_gb' is not whole GB; using 10"; warn_gb=10 ;;
+      # Whole GB, at most 6 digits, so the KB product below cannot overflow.
+      '' | *[!0-9]* | ???????*) skip "GO_CACHE_WARN_GB='$warn_gb' is not whole GB (up to 6 digits); using 10"; warn_gb=10 ;;
       *) warn_gb=$((10#$warn_gb)) ;;  # 08 is decimal here, not a bad octal
     esac
     k=$(kb "$gocache")
     echo "  size $(human "$k") ($gocache)"
     if [ "$k" -ge $((warn_gb * 1048576)) ]; then
       echo "  warn: over $warn_gb GB. With no go build/test running and every runner idle, run:"
-      printf '    (cd %q && mise x -- go clean -cache)\n' "$DEV_ROOT"
+      # Name the measured cache, so the command clears the one warned about.
+      printf '    (cd %q && GOCACHE=%q mise x -- go clean -cache)\n' "$DEV_ROOT" "$gocache"
       echo "    the next build of each repo is slower once; nothing else is lost"
     fi
   fi
