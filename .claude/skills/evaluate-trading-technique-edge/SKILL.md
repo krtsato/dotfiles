@@ -195,6 +195,14 @@ python3 ~/.claude/skills/evaluate-trading-technique-edge/scripts/compare.py \
 | **反対票の関門** | 売りノート側を見直す（`dissent_share` で 1 本ずつの成立率が出る） |
 | 地合いの関門 | 市場全体のゲートを確認する |
 
+地合いの関門のノートは、主語 `subject` が銘柄記号（`TVC:VIX` など）か、自前の系列
+（`local:nikkei_pbr_weighted`・`local:nikkei_eps`）のどちらか。`local:` の主語は、行の日付の
+**翌営業日の足から**使い、**評価できない足（行が無い・古すぎる・`eps` が 0 以下の `per`）は
+候補から除く**（通さない）。結果の `funnel[].regime_unevaluable`・`regime_series`（評価できない足と、
+後から作った値を使った足の数と期間）・`funnel[].onsets_on_backfilled` を読む。
+系列の一覧の正本は `mcp-invest-knowledge/sources/market-series/series.json`、
+詳細は mcp-tradingview の `docs/signal-study.md`。
+
 実測では**合意 3,635 バーのうち 198 バー（-95%）が反対票で落ちていた**。最大の寄与は 1 本で
 **35.4%**（2 位の 6 倍）。原因はそのノートの `scope: market_regime` 宣言漏れで、個別銘柄に
 市場全体の指標を当てていた。**「合意が稀だから」と読んでいたら永久に直らなかった。**
