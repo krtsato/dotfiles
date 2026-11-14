@@ -2,8 +2,9 @@
 # Prune regenerable caches that grow on this Mac and that nothing else cleans.
 #
 # usage: prune-dev-caches.sh [--apply] [--only <item>[,<item>...]]
-#   items: uv, mise, npx, xcode, runner, docker   (default: all)
+#   items: uv, mise, npx, xcode, runner, docker, go   (default: all)
 #   Without --apply it only lists what would go and how big it is.
+#   go only warns: the Go build cache is measured, never removed.
 #
 # Everything removed here is downloaded or rebuilt again on next use; nothing
 # here is user data. Each item checks its own "in use" condition and skips
@@ -16,10 +17,11 @@ DEV_ROOT=${DEV_ROOT:-$HOME/dev/me}
 UV_CACHE=${UV_CACHE_DIR:-$HOME/.cache/uv}
 NPX_DIR=${NPX_DIR:-$HOME/.npm/_npx}
 DERIVED=${DERIVED:-$HOME/Library/Developer/Xcode/DerivedData}
+GO_CACHE_WARN_GB=${GO_CACHE_WARN_GB:-10}  # warn when the Go build cache passes this
 FIND_UNUSED=$HOME/.claude/skills/upgrade-runtimes/scripts/find-unused-base-images.sh
 
 apply=0
-only=uv,mise,npx,xcode,runner,docker
+only=uv,mise,npx,xcode,runner,docker,go
 while [ "$#" -gt 0 ]; do
   case $1 in
     --apply) apply=1 ;;
@@ -229,6 +231,26 @@ if want docker; then
         docker image rm "$img" >/dev/null || skip "$img: docker image rm refused"
       done
       freed "$s"
+    fi
+  fi
+fi
+
+if want go; then
+  section "Go build cache (warning only; never removed here)"
+  # go clean -cache under a running build breaks that build, and Go trims only
+  # entries unused for 5 days, so a cache in daily use keeps growing (31 GB on
+  # 2026-11-14). Say so and leave the choice of when to a person.
+  gocache=${GOCACHE:-$(cd "$DEV_ROOT" 2>/dev/null && mise x -- go env GOCACHE 2>/dev/null)}
+  [ -n "$gocache" ] || gocache=$HOME/Library/Caches/go-build
+  if [ ! -d "$gocache" ]; then
+    echo "  nothing to measure ($gocache)"
+  else
+    k=$(kb "$gocache")
+    echo "  size $(human "$k") ($gocache)"
+    if [ "$k" -ge $((GO_CACHE_WARN_GB * 1048576)) ]; then
+      echo "  warn: over $GO_CACHE_WARN_GB GB. With no go build/test running and every runner idle, run:"
+      echo "    (cd $DEV_ROOT && mise x -- go clean -cache)"
+      echo "    the next build of each repo is slower once; nothing else is lost"
     fi
   fi
 fi

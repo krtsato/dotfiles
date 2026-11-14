@@ -6,10 +6,11 @@ description: >-
   Xcode の DerivedData、GitHub Actions の自宅 Mac の runner に残る古い本体・更新用の写し・
   使っていない Go、どこにも書かれていない Docker の土台イメージの 6 種。既定は一覧と大きさを
   出すだけで、`--apply` のときだけ消す。使用中のものは種類ごとに確かめて残す。
+  Go のビルドの cache は**大きさを測って 10 GB を超えたら警告するだけ**で、消さない。
   "キャッシュを掃除して" / "ディスクを空けたい" / "定期の片付け" / "uv cache を消して" /
-  "runner が太っている" / "DerivedData を消して" のようなリクエストや、月 1 回の保守で使用。
+  "runner が太っている" / "DerivedData を消して" / "ディスクが逼迫している" のようなリクエストや、月 1 回の保守で使用。
   Do NOT use for: `~/.claude` の片付け（prune-agent-storage を使う）、Homebrew の
-  `brew cleanup`、Go のモジュール・ビルドの cache、会話の記録（Claude・Codex）の削除、
+  `brew cleanup`、Go のモジュールの cache、会話の記録（Claude・Codex）の削除、
   版を上げる作業（upgrade-runtimes を使う）。
 compatibility: >-
   macOS（`/bin/bash` 3.2、BSD の `find`・`df`・`stat`）。`jq`、`gh`（認証済み）、`lsof`、
@@ -80,6 +81,7 @@ allowed-tools: Bash(~/.claude/skills/prune-dev-caches/scripts/prune-dev-caches.s
    ```
 
 5. **報告する。** 種類ごとの `freed`（空いた量）と、飛ばした種類とその理由を伝える。
+   `warn:` の行が出ていれば、Go のビルドの cache の大きさと消すコマンドを添え、消すかどうかを聞く。
 
 ## 種類ごとの決まり
 
@@ -91,6 +93,7 @@ allowed-tools: Bash(~/.claude/skills/prune-dev-caches/scripts/prune-dev-caches.s
 | Xcode | 30 日触っていない DerivedData | それ以外 | 同上。消すと次の組み立てが 1 回遅くなるだけ |
 | runner | リンクが指していない古い `bin.*`・`externals.*`、`_work/_update`、ワークフローの `go-version` に無い Go | 使用中の版、`go-version` の版 | `go-version` に `1.27` のような省略・matrix・`go-version-file` があると要る版が決まらないので Go を残す。夜間（01:30〜09:30）は自動の job が走るので触らない |
 | Docker | `find-unused-base-images.sh` が `unused` とした土台 | `used`・`held`、コンテナが使う土台 | 判定の中身は upgrade-runtimes の `references/docker-images.md` |
+| Go のビルドの cache | **なし（警告だけ）**。`GO_CACHE_WARN_GB`（既定 10）を超えると `warn:` と消すコマンドを出す | 全部 | Go は 5 日使われなかったものしか消さないので、毎日ビルドすると減らない（2026-11-14 に 31 GB でディスクの空きが 3 GB まで減った）。ビルドの最中に消すとそのビルドが壊れるため、`go build`・`go test` が走っておらず runner が全台待機中のときに、人が `go clean -cache` を流す |
 
 ## 使用例
 
