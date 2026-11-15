@@ -83,5 +83,6 @@ echo "突き合わせて報告書を書く" >&2
     -fills "$FILLS" \
     -ledger "$LEDGER" \
     -notes sources/technique-notes \
+    -regime "$TV/data/market-regime" \
     -out "$OUT" )
 echo "$OUT"
