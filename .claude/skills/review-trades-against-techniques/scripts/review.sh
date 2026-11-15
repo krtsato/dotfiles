@@ -79,10 +79,17 @@ done < "$WORK/windows.txt"
 
 OUT="$IK/derived/trade-reviews/$END.md"
 echo "突き合わせて報告書を書く" >&2
+# The market-regime record is display only: without it the report is still written.
+REGIME=""
+if ls "$TV/data/market-regime/"*.jsonl >/dev/null 2>&1; then
+  REGIME="$TV/data/market-regime"
+else
+  echo "注意: 市場全体の技法の記録（$TV/data/market-regime）が無いので、その件数を出さずに報告書を作ります。" >&2
+fi
 ( cd "$IK" && go run ./cmd/trade-review \
     -fills "$FILLS" \
     -ledger "$LEDGER" \
     -notes sources/technique-notes \
-    -regime "$TV/data/market-regime" \
+    ${REGIME:+-regime "$REGIME"} \
     -out "$OUT" )
 echo "$OUT"
