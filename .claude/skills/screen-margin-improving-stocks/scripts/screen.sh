@@ -79,7 +79,6 @@ COOKIES_FILE="${TRADINGVIEW_COOKIES_FILE:-$HOME/.config/mcp-tradingview/cookies.
 ENV_DIR="$(mktemp -d)"
 trap 'rm -rf "$ENV_DIR"' EXIT INT TERM
 ENV_FILE="$ENV_DIR/tv.env"
-ENV_ARGS=""
 if command -v python3 >/dev/null 2>&1 && python3 -I - "$COOKIES_FILE" "$ENV_FILE" <<'PY' 2>/dev/null
 import json, os, stat, sys
 src, dst = sys.argv[1], sys.argv[2]
@@ -97,22 +96,23 @@ with os.fdopen(fd, "w") as f:
     f.write("TRADINGVIEW_SESSIONID_SIGN=" + sign + "\n")
 PY
 then
-  ENV_ARGS="--env-file $ENV_FILE"
+  :
 else
+  # An empty env file keeps one docker command line for both cases.
+  rm -f "$ENV_FILE"; : > "$ENV_FILE"
   echo "52 週線: ログインの証明を読めないため問い合わせません（列は全行 —）。" >&2
 fi
 
 # data と notes は読み取り専用で渡す。正本は絞るときだけ渡す。常に繋ぐと、正本が無い
-# 環境で絞らない実行まで落ちる。ENV_ARGS は一時ファイルのパスだけ（値は入っていない）。
-# shellcheck disable=SC2086
+# 環境で絞らない実行まで落ちる。
 if [ -n "$LIST" ]; then
-  docker run --rm $ENV_ARGS \
+  docker run --rm --env-file "$ENV_FILE" \
     -v "$REPO/data:/work/data:ro" \
     -v "$NOTES:/notes:ro" \
     -v "$CANON:/canon:ro" \
     "$IMAGE" -count "$COUNT" -canon /canon -list "$LIST"
 else
-  docker run --rm $ENV_ARGS \
+  docker run --rm --env-file "$ENV_FILE" \
     -v "$REPO/data:/work/data:ro" \
     -v "$NOTES:/notes:ro" \
     "$IMAGE" -count "$COUNT"
