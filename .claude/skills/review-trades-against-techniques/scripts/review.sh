@@ -86,10 +86,33 @@ if ls "$TV/data/market-regime/"*.jsonl >/dev/null 2>&1; then
 else
   echo "注意: 市場全体の技法の記録（$TV/data/market-regime）が無いので、その件数を出さずに報告書を作ります。" >&2
 fi
-( cd "$IK" && go run ./cmd/trade-review \
+# 52-week line phase of each entry day: display only. The phase is computed in
+# mcp-tradingview (the one place the rule lives); a failure here never stops the
+# review, the section's rows are then all "—".
+( cd "$IK" && go build -o "$WORK/tr" ./cmd/trade-review )
+"$WORK/tr" -fills "$FILLS" -ledger "$LEDGER" -notes "$IK/sources/technique-notes" \
+    -ma52w-items-out "$WORK/ma52w-items.jsonl" -out "$WORK/pre.md" 2>/dev/null || true
+MA52W="$WORK/ma52w.json"
+echo "[]" > "$MA52W"
+LAYOUT="${TV_CHART_LAYOUT:-$(gh variable get TV_CHART_LAYOUT -R krtsato/mcp-tradingview 2>/dev/null || true)}"
+if [ -s "$WORK/ma52w-items.jsonl" ] && [ -n "$LAYOUT" ] \
+   && ( cd "$TV" && go build -o "$WORK/cb" ./cmd/tradingview-chart-bars ); then
+  # Exit 2 means some symbols could not be read: the file still holds the rows
+  # that were, so keep it; only a missing file leaves the section all "—".
+  "$WORK/cb" ma52w -layout "$LAYOUT" -items "$WORK/ma52w-items.jsonl" -out "$WORK/ma52w.json.new" || true
+  if [ -s "$WORK/ma52w.json.new" ]; then
+    mv "$WORK/ma52w.json.new" "$MA52W"
+  else
+    echo "注意: 52 週線の局面を読めなかったので、その節は全部「—」になります。" >&2
+  fi
+else
+  echo "注意: 52 週線の局面の段を飛ばします（取引・layout・ビルドのいずれかが無い）。節は全部「—」になります。" >&2
+fi
+( cd "$IK" && "$WORK/tr" \
     -fills "$FILLS" \
     -ledger "$LEDGER" \
     -notes sources/technique-notes \
     ${REGIME:+-regime "$REGIME"} \
+    -ma52w "$MA52W" \
     -out "$OUT" )
 echo "$OUT"
