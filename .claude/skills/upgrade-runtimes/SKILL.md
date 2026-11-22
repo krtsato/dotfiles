@@ -192,6 +192,7 @@ runner の古い本体・更新用の写し・使っていない Go は、マー
 | 何を | どう |
 | --- | --- |
 | ビルドとテスト | 各 Go リポで `mise x -- go build ./... && mise x -- go test ./...`。**素の `go` を使わない**——作業中のシェルの PATH が古い Go のフォルダを直接指していることがあり（2026-10-20、1.27.2 のリポを 1.27.1 で走らせて偽の失敗が出た） |
+| `go fix` の直し | Go を上げたリポで `mise x -- go fix -diff ./...`。分析器は Go の版ごとに増えるので、上げた直後に新しい直しが出ることがある。差分が出たら `mise x -- go fix ./...` で当て、ビルド・テスト・lint を流し直し、**版の書き換えと別のコミット**にする（`refactor: apply go fix for Go <版>`）。`go fix` は動きの変わる直しを当てない（`omitzero` への置き換えなどは「ignoring alternative fix」と出して見送る）。9 本で合わせて約 8 秒、キャッシュが空でも最大のリポで 8 秒ほど（2026-11-23 実測）。0 件が続いても、動いているかを疑うときは `mcp-applemusic #1` の手順書「Go のテストとアロケーション」2.1 の一時モジュールで確かめる |
 | Node のビルドとテスト | securerc は `mise x node@<版> -- sh -c 'npm ci && npm run typecheck && npm test'`、mdreview は `mise x node@<版> -- sh -c 'npm ci && npm test'`。上げた先の版で走らせる。**mdreview の `npm run build` は Docker のイメージを作り直す**ので、新しい `FROM node` の確かめはこちらで行い、続けて `npm run start` でサイトが開くことを見る |
 | Docker の土台 | `references/docker-images.md` の手順 4。新しい土台で全 `Dockerfile*` を**名札を付けて**ビルドし、中の道具を動かしてから名札ごと消す。取り込みは**今の土台と同じ日のデータで出力を比べる** |
 | Docker の片付け | `references/docker-images.md` の手順 5・6。名札の無いビルド・`--rm` の無い起動が無いこと、毎日作り直すワークフローに片付けの手順があること、手元の `docker system df` の前後 |
@@ -268,6 +269,7 @@ Docker の判定の中身と、`docker image prune -a` で一括にしない理�
 - [ ] **手元の `mise x -- golangci-lint version` が CI の `version:` と一致することを確かめた**（Go のリポを上げたとき）
 - [ ] runner の `.path` を点検した（自宅 Mac の runner を持つリポを上げたとき）
 - [ ] `go build` と `go test` が通る（Go のリポを上げたとき）
+- [ ] `mise x -- go fix -diff ./...` を流し、差分が出たら当てて別のコミットにした（Go のリポを上げたとき）
 - [ ] Node のリポ（securerc・mdreview）で、上げた先の版の `npm test` が通る
 - [ ] `mise x -- golangci-lint run ./...` が通る（CI 任せにしない）（Go のリポを上げたとき）
 - [ ] 自宅 Mac の runner のワークフローを 1 本実際に走らせた（同上）
