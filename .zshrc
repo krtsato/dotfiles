@@ -92,6 +92,13 @@ export GO111MODULE=on
 export AWS_PROFILE=default
 
 # ------------------------------------------------------------ #
+# NotebookLM (nlm)
+# ------------------------------------------------------------ #
+# Hand-run nlm uses the same storage as the nightly pipeline
+# (krtsato/mcp-notebooklm passes this path too), so one login serves both.
+export NOTEBOOKLM_MCP_CLI_PATH="$HOME/.config/mcp-notebooklm/nlm"
+
+# ------------------------------------------------------------ #
 # Google Cloud SDK
 # ------------------------------------------------------------ #
 
