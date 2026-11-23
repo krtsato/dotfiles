@@ -152,7 +152,7 @@ grep -rn "runs-on" ~/dev/me/*/.github/workflows/*.y*ml | grep -v actions-runners
 
 **`watcher`・`mcp-notebooklm`・`mcp-figjam`・`mcp-applemusic` は GitHub の機械だけで動く。** 自宅 Mac の runner を持たないので手順 4 は要らない。
 どれも `mise.toml` が無く、共通して版が書かれているのは `go.mod` の `go` 行・`go-version`・
-`golangci-lint-action` の `version` の 3 か所。mcp-figjam は加えて `Dockerfile` の `FROM`（`golang:<版>-trixie` と distroless）も対象。mcp-applemusic は `Dockerfile` を持たない（Safari からの取得に手元の `osascript` が要るため）。
+`golangci-lint-action` の `version` の 3 か所。mcp-figjam と mcp-applemusic は加えて `Dockerfile` の `FROM`（`golang:<版>-trixie` と distroless）も対象。mcp-applemusic の `Dockerfile` は 2026-11-23 に加えた（mcp-applemusic #8。ブラウザからのログインだけは Mac 本体の命令で行う）。
 
 **Node のリポも自宅 Mac の runner を持たない。** 手順 4 は要らない。
 

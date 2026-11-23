@@ -33,7 +33,7 @@
 | `.github/workflows/*.yaml` の `python-version` | **GitHub の機械のみ** | 自宅 Mac の runner に足さない |
 | `.github/workflows/*.yaml` の `uses: <action>@<版>` | 全リポ | `checkout@v7` 等 |
 | `golangci-lint-action` の `version` | Go 10 リポ | action の版（`v9`）と lint 本体の版（`v2.15.0`）は別。2026-10-31 に watcher も揃えた（watcher #46） |
-| `Dockerfile*` の `FROM` | 8 リポ（Go 6・trade-moomoo・mdreview） | **固定の仕方が 2 通り**（下記）。watcher・mcp-notebooklm・mcp-applemusic は配布物を作らないので無い |
+| `Dockerfile*` の `FROM` | 9 リポ（Go 7・trade-moomoo・mdreview） | **固定の仕方が 2 通り**（下記）。watcher・mcp-notebooklm は配布物を作らないので無い。mcp-applemusic は 2026-11-23 に加えた（mcp-applemusic #8） |
 | `mise.toml` の `[tools]` | invest-knowledge のみ | 自宅 Mac の版を決める |
 | `.golangci.yml` | Go 10 リポ | 全リポでバイト単位に同一（版を書いたコメント行も含む） |
 
