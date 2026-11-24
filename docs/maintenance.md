@@ -1,6 +1,6 @@
 # 定型保守 — 版上げと runner の手入れ
 
-`~/dev/me` 配下の 13 リポ（Go・Python の 11 リポと、Node の securerc・mdreview）と、それらを動かす自宅 Mac（self-hosted runner）の保守手順。
+`~/dev/me` 配下の 14 リポ（Go・Python の 12 リポと、Node の securerc・mdreview）と、それらを動かす自宅 Mac（self-hosted runner）の保守手順。
 **版を上げるときに壊れやすい所**と、**揃っていないが揃えてはいけない所**を書く。
 
 実行手順は skill `upgrade-runtimes` にある。**運用に必要な事実（見分け方・手順の元になる
@@ -28,14 +28,14 @@
 
 | 場所 | どのリポ | 備考 |
 | --- | --- | --- |
-| `go.mod` の `go` | Go 10 リポ | trade-moomoo は Python なので無い |
-| `.github/workflows/*.yaml` の `go-version` | Go 10 リポ | 自宅 Mac の runner でも `actions/setup-go` を使う |
+| `go.mod` の `go` | Go 11 リポ | trade-moomoo は Python なので無い |
+| `.github/workflows/*.yaml` の `go-version` | Go 11 リポ | 自宅 Mac の runner でも `actions/setup-go` を使う |
 | `.github/workflows/*.yaml` の `python-version` | **GitHub の機械のみ** | 自宅 Mac の runner に足さない |
 | `.github/workflows/*.yaml` の `uses: <action>@<版>` | 全リポ | `checkout@v7` 等 |
-| `golangci-lint-action` の `version` | Go 10 リポ | action の版（`v9`）と lint 本体の版（`v2.15.0`）は別。2026-10-31 に watcher も揃えた（watcher #46） |
-| `Dockerfile*` の `FROM` | 9 リポ（Go 7・trade-moomoo・mdreview） | **固定の仕方が 2 通り**（下記）。watcher・mcp-notebooklm は配布物を作らないので無い。mcp-applemusic は 2026-11-23 に加えた（mcp-applemusic #8） |
+| `golangci-lint-action` の `version` | Go 10 リポ | action の版（`v9`）と lint 本体の版（`v2.15.0`）は別。2026-10-31 に watcher も揃えた（watcher #46）。**例外は mcp-music-knowledge**: 自宅 Mac の runner で PATH の `golangci-lint` を直接呼ぶ（`ci.yaml` の `Lint`）ので、手元に入れた本体の版がそのまま CI の版になる。確かめるのは `golangci-lint version` と、そのリポの `CLAUDE.md` の検証の行の版 |
+| `Dockerfile*` の `FROM` | 10 リポ（Go 8・trade-moomoo・mdreview） | **固定の仕方が 2 通り**（下記）。watcher・mcp-notebooklm は配布物を作らないので無い。mcp-applemusic は 2026-11-23 に加えた（mcp-applemusic #8）。mcp-music-knowledge は 2026-11-24 に加えた（mcp-music-knowledge #11） |
 | `mise.toml` の `[tools]` | invest-knowledge のみ | 自宅 Mac の版を決める |
-| `.golangci.yml` | Go 10 リポ | 全リポでバイト単位に同一（版を書いたコメント行も含む） |
+| `.golangci.yml` | Go 11 リポ | 全リポでバイト単位に同一（版を書いたコメント行も含む） |
 
 ## 揃っていないが、揃えてはいけないもの
 

@@ -53,7 +53,8 @@ for d in ~/dev/me/mcp-note/actions-runners/magazine-sync \
          ~/dev/me/mcp-seeking-alpha/actions-runners/alpha-picks-sync \
          ~/dev/me/mcp-mediable/actions-runners \
          ~/dev/me/mcp-invest-knowledge/actions-runners \
-         ~/dev/me/mcp-tradingview/actions-runners; do
+         ~/dev/me/mcp-tradingview/actions-runners \
+         ~/dev/me/mcp-music-knowledge/actions-runners; do
   echo "== $d"
   cut -d: -f1 "$d/.path"; echo   # 先頭だけ見れば shims が先頭かを判定できる
   # .path has no trailing newline: without the echo, read drops the last entry
