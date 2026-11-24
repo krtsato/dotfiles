@@ -17,7 +17,7 @@ description: >-
 compatibility: >-
   macOS + Homebrew + mise 環境を前提。`gh` CLI（認証済み）、`go`、`docker`、`rg`（ripgrep）、
   `npx markdownlint-cli2` が要る。Claude のモデルの版上げでは `claude` CLI（ログイン済み）、
-  `gtimeout`（`brew install coreutils`）、`python3` も使う。自宅 Mac の runner が 5 台登録済みであること。
+  `gtimeout`（`brew install coreutils`）、`python3` も使う。自宅 Mac の runner が 6 台登録済みであること。
 ---
 
 # 版を上げる

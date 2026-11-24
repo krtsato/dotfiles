@@ -190,7 +190,7 @@ docker image rm <名札>
 （下で 1 件も出ないことを確かめる）。
 
 ```bash
-for r in mcp-tradingview mcp-invest-knowledge mcp-mediable mcp-note mcp-seeking-alpha; do
+for r in mcp-tradingview mcp-invest-knowledge mcp-mediable mcp-note mcp-seeking-alpha mcp-music-knowledge; do
   gh api "repos/krtsato/$r/actions/runs?status=in_progress" -q ".workflow_runs[] | \"$r \\(.name)\""
 done
 ```
