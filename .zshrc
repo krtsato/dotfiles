@@ -36,8 +36,16 @@ autoload -Uz colors && colors
 PROMPT="%{$fg[green]%}%1~ %# %{$reset_color%}"
 
 # zsh-completions
-autoload -Uz compinit && compinit -u
 fpath=(/opt/homebrew/share/zsh-completions $fpath)
+autoload -Uz compinit
+# Rebuild the completion dump at most once a day; otherwise load it without the slow security check
+zcompdump_stale=(${ZDOTDIR:-$HOME}/.zcompdump(N.mh+24))
+if (( $#zcompdump_stale )) || [[ ! -s ${ZDOTDIR:-$HOME}/.zcompdump ]]; then
+  compinit -u && touch ${ZDOTDIR:-$HOME}/.zcompdump
+else
+  compinit -C
+fi
+unset zcompdump_stale
 
 # match dotfiles without '.' in a completion
 setopt GLOB_DOTS
@@ -45,15 +53,7 @@ setopt GLOB_DOTS
 # coloring for directories, symbolic links, executable files
 export LSCOLORS=cxgxxxxxfxxxxxxxxxxxxx
 # coloring for completions
-zstyle ':completion:*' list-colors di=32 ln=36 ex=35$ source ~/.zshrc
-
-# ------------------------------------------------------------ #
-# SSH
-# ------------------------------------------------------------ #
-
-eval "$(ssh-agent -s)"
-ssh-add --apple-use-keychain "$HOME/.ssh/id_ecdsa_github.com"
-ssh -T git@github.com
+zstyle ':completion:*' list-colors di=32 ln=36 ex=35
 
 # ------------------------------------------------------------ #
 # Starship
