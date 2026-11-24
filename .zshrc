@@ -41,7 +41,7 @@ autoload -Uz compinit
 # Rebuild the completion dump at most once a day; otherwise load it without the slow security check
 zcompdump_stale=(${ZDOTDIR:-$HOME}/.zcompdump(N.mh+24))
 if (( $#zcompdump_stale )) || [[ ! -s ${ZDOTDIR:-$HOME}/.zcompdump ]]; then
-  compinit -u
+  compinit -u && touch ${ZDOTDIR:-$HOME}/.zcompdump
 else
   compinit -C
 fi
