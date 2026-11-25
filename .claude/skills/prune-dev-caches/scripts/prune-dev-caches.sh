@@ -209,10 +209,11 @@ if want devicesupport; then
     old=()
     for m in $(printf '%s\n' "$names" | cut -d' ' -f1 | sort -u); do
       of_model=$(printf '%s\n' "$names" | awk -v m="$m" '$1 == m')
-      newest=$(printf '%s\n' "$of_model" | awk '{print $2 "\t" $0}' | sort -V | tail -n 1 | cut -f2-)
-      printf '%s\n' "$of_model" | grep -qxF "$newest" || { skip "DeviceSupport $m: newest version unclear; kept"; continue; }
+      # Compare the iOS version only: every build of the newest version stays.
+      newest=$(printf '%s\n' "$of_model" | cut -d' ' -f2 | sort -V | tail -n 1)
+      printf '%s\n' "$newest" | grep -qE '^[0-9]+(\.[0-9]+)+$' || { skip "DeviceSupport $m: newest version unclear; kept"; continue; }
       while IFS= read -r n; do
-        [ "$n" != "$newest" ] && old+=("$DEVICE_SUPPORT/$n")
+        [ "$(printf '%s\n' "$n" | cut -d' ' -f2)" != "$newest" ] && old+=("$DEVICE_SUPPORT/$n")
       done <<EOF
 $of_model
 EOF
