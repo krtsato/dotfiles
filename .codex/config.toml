@@ -58,11 +58,12 @@ connector_76869538009648d5b282a4bb21c3d157.tools.github_update_issue_comment.app
 "openai-bundled".source_type = "local"
 "openai-bundled".source = "$HOME/dev/me/dotfiles/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
-"openai-primary-runtime".source_type = "local"
-"openai-primary-runtime".source = "$HOME/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
-
 ysys.source_type = "git"
 ysys.source = "https://github.com/yoyogi-systems/claude-marketplace.git"
+
+[marketplaces.openai-primary-runtime]
+source_type = "local"
+source = "$HOME/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
 
 [mcp_servers]
 notion.url = "https://mcp.notion.com/mcp"
@@ -158,9 +159,10 @@ BROWSER_USE_TINYSKY_ENABLED = "1"
 NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
 NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
 BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-BROWSER_USE_CODEX_APP_VERSION = "26.1027.30824"
-NODE_REPL_TRUSTED_SERVICES = '{"browser":"$HOME/.codex/plugins/cache/openai-bundled/browser/26.1027.30824/scripts/browser-service.mjs"}'
+BROWSER_USE_CODEX_APP_VERSION = "26.1117.41037"
+NODE_REPL_TRUSTED_SERVICES = '{"browser":"$HOME/.codex/plugins/cache/openai-bundled/browser/26.1117.41037/scripts/browser-service.mjs"}'
 CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex"
+NODE_REPL_LAZY_TRUSTED_WORKER = "0"
 
 [tui]
 resume_cwd = "current"
@@ -175,12 +177,13 @@ model_availability_nux."gpt-6.1-sol" = 1
 "default-service-tier" = "fast"
 "open-in-target-preferences".global = "vscode"
 "open-in-target-preferences".perPath."$HOME/Documents/New project" = "fileManager"
-followUpQueueMode = "queue"
 "dock-icon-preference" = "codex-system"
 "enabled-reasoning-efforts" = ["low", "medium", "high", "xhigh", "ultra", "max"]
 preventSleepWhileRunning = true
 "show-context-window-usage" = true
 composerPlainTextMode = false
+migratedFollowUpQueueToSteer = true
+conversationDetailMode = "STEPS_COMMANDS"
 
 [notice.model_migrations]
 "gpt-5.5" = "gpt-5.6-sol"
