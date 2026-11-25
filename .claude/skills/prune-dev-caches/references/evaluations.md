@@ -8,6 +8,7 @@
 | 「ディスクを空けたい」 | 発動する。6 種の大きさと、Go のビルドの cache の大きさ（目安を超えれば警告）を示す。`~/.claude` も重いなら prune-agent-storage を併せて案内する |
 | 「uv cache を消して」 | 発動する。鍵を持つ会話があれば、そのフォルダと端末を示して閉じるよう伝える |
 | 「runner が太っている」 | 発動する。`--only runner` で古い本体・`_update`・使っていない Go を示す |
+| 「Chrome のキャッシュを消して」 | 発動する。起動中なら終了させてよいかを聞き、了承後に通常の終了 → 消す → 起動し直す |
 
 ## Should NOT trigger
 
@@ -16,10 +17,11 @@
 | 「取り残された編集前の退避を消して」 | 発動しない。prune-agent-storage を使う（`~/.claude` の中は対象外） |
 | 「brew cleanup して」 | 発動しない。Homebrew は対象外 |
 | 「Go を上げて」 | 発動しない。upgrade-runtimes を使う |
+| 「Chrome の閲覧履歴を消して」 | 発動しない。履歴・cookie は cache ではない |
 
 ## 安全側に倒れることの確認
 
-試験用の置き場を作り、`NPX_DIR`・`DERIVED`・`DEV_ROOT` で差し替え、偽の `gh` と `svc.sh` を置いて流す。
+試験用の置き場を作り、`NPX_DIR`・`DERIVED`・`DEVICE_SUPPORT`・`NPM_CACHE`・`GOIMPORTS_CACHE`・`CHROME_CACHE`・`DEV_ROOT` で差し替え、偽の `gh` と `svc.sh` を置いて流す。
 
 | 場面 | 期待 |
 | --- | --- |
@@ -31,3 +33,6 @@
 | `GO_CACHE_WARN_GB` が整数の GB でない（`0.5`・`oops`） | `skip:` で知らせて 10 GB を目安に使う。終了コード 1。`08` は 8 GB として読む |
 | 消すものが 0 件 | 大きさが 0 と出る（作業フォルダ全体を測らない） |
 | uv の鍵を別の処理が持つ | uv は消さず、鍵を持つ処理の会話のフォルダと端末を出す |
+| DeviceSupport に同じ機種の `26.5.2`・`26.6.1`・`26.10.1` と別機種 1 つ | `26.10.1`（数として最新）と別機種が残り、2 つが消える |
+| Chrome が起動中 | Chrome 分は消さず、終了のコマンドを `skip:` に出す。終了コード 1。スクリプトは Chrome を終了させない |
+| `npm install` が動いている（`npm exec` だけなら動いていない扱い） | npm 分は消さない。終了コード 1 |
