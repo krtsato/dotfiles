@@ -47,6 +47,38 @@ MSG
 	exit 1
 fi
 
+# --- Agent settings: client project folders ----------------------------------
+#
+# Codex and Claude Code record every folder the user trusts or opens, including
+# folders below ~/dev/job/<org>/ whose names are client case names. This
+# repository is public, so a synced settings file must stop at the organisation
+# folder. Codex has no include mechanism to keep those entries in a separate
+# file, so the guard is here instead: only added lines are checked, so an entry
+# that is already committed does not block unrelated edits.
+#
+# This happened on 2026-11-25: a case folder's trust entry had been committed
+# with an earlier settings sync.
+# Settings files only (docs may show <org>/<case> placeholders). JSON may
+# escape slashes, so unescape before matching. The folder must sit under a
+# home directory, and quotes of either kind end a path.
+leaked=$(git diff --cached -U0 -- '.codex/*.toml' '.codex/*.json' '.claude/settings*.json' \
+	| grep -E '^\+[^+]' | sed 's#\\/#/#g' \
+	| grep -E '(\$HOME|~|/Users/[^/"'"'"']+|/home/[^/"'"'"']+)/dev/job/[^/"'"'"']+/[^/"'"'"']+' || true)
+if [ -n "$leaked" ]; then
+	cat >&2 <<MSG
+
+pre-commit: an agent settings file names a folder below ~/dev/job/<org>/.
+Those folder names are client case names and this repository is public.
+Commit aborted.
+${leaked}
+
+Remove the line from the staged file. The working copy on this machine can keep it.
+
+To commit anyway: git commit --no-verify
+MSG
+	exit 1
+fi
+
 if ! command -v gitleaks >/dev/null 2>&1; then
 	cat >&2 <<'MSG'
 pre-commit: gitleaks not found, refusing to commit without a credential check.
