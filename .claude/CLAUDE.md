@@ -15,6 +15,7 @@
 | コミット・PR を出す前 | [rules/git.md](rules/git.md) |
 | Markdown を編集した後 | [rules/editing.md](rules/editing.md) |
 | 文脈の使い方を変えたくなったとき | [docs/context-efficiency.md](docs/context-efficiency.md) |
+| 版上げ・runner の保守、Claude Code の設定ファイルを直すとき | [../docs/maintenance.md](../docs/maintenance.md)・[../docs/claude-code-files.md](../docs/claude-code-files.md) |
 
 ## 伝え方
 
