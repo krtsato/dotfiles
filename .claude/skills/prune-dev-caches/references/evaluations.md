@@ -44,3 +44,5 @@
 | `pgrep` が 2 で終わる（確かめられない） | Xcode・DeviceSupport・goimports・ビルドの cache・Chrome・Homebrew はどれも消さない。終了コード 1 |
 | 偽の `brew` が古い版 `postgresql@17/17.5` を出し、偽の `lsof` がその中のファイルを開いている | Homebrew 分は消さず、開いている版を出す。終了コード 1。開いていなければ `HOMEBREW_NO_AUTOREMOVE=1` を付けた `brew cleanup --prune=all` が 1 回呼ばれる |
 | 偽の `lsof` が一部だけ出して終了コード 1 で終わる | 古い版があれば Homebrew 分は消さない。終了コード 1 |
+| 古い版があり、偽の `ps` に root の `/opt/homebrew/` のプログラムが出る | Homebrew 分は消さない。終了コード 1 |
+| `bash /opt/homebrew/Library/Homebrew/brew.sh update` が動いている | Homebrew 分は消さない。終了コード 1 |

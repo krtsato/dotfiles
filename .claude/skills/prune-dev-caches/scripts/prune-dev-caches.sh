@@ -362,7 +362,8 @@ if want brew; then
   # command keeps 120 days of them); a reinstall downloads them again.
   if ! command -v brew >/dev/null; then
     echo "  nothing to prune (no brew)"
-  elif running -f 'bin/ruby .*/Library/Homebrew/brew\.rb'; then
+  # brew runs as bash (brew.sh: update, auto-update) and then as ruby (brew.rb).
+  elif running -f '(bin/ruby|bash) .*/Library/Homebrew/brew\.(rb|sh)'; then
     skip "brew is running (or pgrep could not tell)"
   # cleanup also runs autoremove by default, which uninstalls formulae no
   # other formula depends on; that is removing software, not a cache.
@@ -376,9 +377,16 @@ if want brew; then
     # A failed lsof may have listed only part of what is open, so it stops too.
     lsof_ok=1; listing=$(lsof -Fn 2>/dev/null) || lsof_ok=0
     open_files=$(printf '%s\n' "$listing" | sed -n 's/^n//p')
+    # lsof sees only this user's processes, so a Homebrew program run by
+    # another user (sudo brew services) makes old versions unprovable too.
+    # The program itself (comm) is matched, not its arguments: root runs
+    # "login ... /opt/homebrew/bin/zsh" for every terminal.
+    others=$(ps -axo user=,comm= 2>/dev/null | awk -v me="$(id -un)" -v pre="$(brew --prefix)/" '$1 != me && index($2, pre) == 1 {print $1}' | sort -u | tr '\n' ' ')
     held=
     if [ -n "$kegs" ] && { [ "$lsof_ok" = 0 ] || [ -z "$open_files" ]; }; then
       held=" (lsof failed or listed nothing, so none can be ruled out)"
+    elif [ -n "$kegs" ] && [ -n "$others" ]; then
+      held=" (Homebrew programs run as ${others% }, which lsof cannot see)"
     else
       for k in $kegs; do
         printf '%s\n' "$open_files" | grep -qF "$k/" && held="$held ${k#"$cellar"/}"
