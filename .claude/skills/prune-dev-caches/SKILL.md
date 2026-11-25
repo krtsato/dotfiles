@@ -57,6 +57,7 @@ allowed-tools: Bash(~/.claude/skills/prune-dev-caches/scripts/prune-dev-caches.s
 | gopls か goimports が動いている | 書き込み中の索引を消す | スクリプトが goimports 分を飛ばす。エディタを閉じてから流し直す |
 | `docker build` が動いている | 組み立て中の cache を消す | スクリプトがビルドの cache 分を飛ばす |
 | brew が動いている（更新中のシェルの段階を含む）、消す予定の古い版を動いているプログラムが開いている、または別のユーザー（`sudo brew services` など）が Homebrew のプログラムを動かしている | 実行中の brew と競合する／使用中の古い版を消す | スクリプトが Homebrew 分を飛ばし、理由を出す。別のユーザーのプログラムは `lsof` から見えないので、古い版があるときは確かめられないものとして止める。そのプログラムを新しい版で起動し直してから流し直す |
+| Homebrew の外のプログラムを別のユーザーが動かし、古い版のライブラリを読み込んでいる（root の httpd が古い PHP を読む など） | 使用中の古い版を消す。管理者権限なしでは見えない | スクリプトは見分けられない。見るだけの一覧に出た `old version` を示し、そうした使い方が無いことを確かめてから `--apply` する |
 | 古い iOS のクラッシュの記録をまだ読み解く必要がある | 古い版の DeviceSupport は取り戻せない | 見るだけの一覧に出た版を示し、消してよいかを聞く。要るなら `--only` から `devicesupport` を外す |
 | Chrome が動いている | 使用中の cache を消す | スクリプトが Chrome 分を飛ばす。**ユーザーの了承を得てから** `osascript -e 'tell application "Google Chrome" to quit'` で通常の終了をさせ（強制終了しない。タブの記録が書き終わる）、流し直した後に `open -a "Google Chrome"` で起動し直す |
 | runner が job を実行中（待機中でない）、または夜間の時間帯 | 実行中の job を壊す | スクリプトが runner 分を飛ばす。昼間に流し直す |
