@@ -107,7 +107,7 @@ allowed-tools: Bash(~/.claude/skills/prune-dev-caches/scripts/prune-dev-caches.s
 | Docker | `find-unused-base-images.sh` が `unused` とした土台 | `used`・`held`、コンテナが使う土台 | 判定の中身は upgrade-runtimes の `references/docker-images.md` |
 | ビルドの cache | `docker builder prune -f` が消す分。イメージの層になっていない cache で、多段の組み立ての途中段階や `RUN --mount=type=cache` の取得物を含む | 今あるイメージの層（`--all` を付けないので内部用のイメージも残る） | 消えたものは Dockerfile から作り直せる。代わりに、途中段階を使うイメージの次の組み立ては 1 回遅くなる。2026-11-24 は 4.8 GB が 2.2 GB に減った |
 | Chrome | `~/Library/Caches/Google/Chrome` の中身全部 | 履歴・cookie・ログイン情報（`Application Support` 側にあり触らない） | 閲覧するたびに増え、2026-11-24 は 9.3 GB あった。消すとサイトの初回表示が 1 回遅くなるだけ |
-| Homebrew | `brew cleanup --prune=all` が消す分。入れ替わった古い版、取得物（今入っている版の分も）、古いログ | 今入っている版、固定（`brew pin`）した formula | 何も付けない `brew cleanup` は 120 日以内の取得物を残すので減りきらない（2026-11-24 に 2.3 GB 消した翌日も 3.8 GB 残った）。取得物は入れ直すときに取り直すだけ |
+| Homebrew | `HOMEBREW_NO_AUTOREMOVE=1 brew cleanup --prune=all` が消す分。入れ替わった古い版、取得物（今入っている版の分も）、古いログ | 今入っている版、固定（`brew pin`）した formula、どこからも使われていない依存（既定の `autoremove` はアンインストールなので止める） | 何も付けない `brew cleanup` は 120 日以内の取得物を残すので減りきらない（2026-11-24 に 2.3 GB 消した翌日も 3.8 GB 残った）。取得物は入れ直すときに取り直すだけ |
 | Go のビルドの cache | **なし（警告だけ）**。`GO_CACHE_WARN_GB`（既定 10）を超えると `warn:` と消すコマンドを出す | 全部 | Go は 5 日使われなかったものしか消さないので、毎日ビルドすると減らない（2026-11-14 に 31 GB でディスクの空きが 3 GB まで減った）。ビルドの最中に消すとそのビルドが壊れるため、`go build`・`go test` が走っておらず runner が全台待機中のときに、人が `go clean -cache` を流す |
 
 ## 使用例

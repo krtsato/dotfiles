@@ -42,4 +42,5 @@
 | Chrome が起動中 | Chrome 分は消さず、終了のコマンドを `skip:` に出す。終了コード 1。スクリプトは Chrome を終了させない |
 | `npm view`・`npm cache verify`・引数なしの `npm`・子が git だけの `npm exec` が動いている（偽の `ps` で再現） | npm 分は消さず、そのコマンドを出す。終了コード 1。子が `_npx/<番号>/node_modules/.bin/` のプログラムである `npm exec` だけなら、動いている時間に関係なく消す |
 | `pgrep` が 2 で終わる（確かめられない） | Xcode・DeviceSupport・goimports・ビルドの cache・Chrome・Homebrew はどれも消さない。終了コード 1 |
-| 偽の `brew` が古い版 `postgresql@17/17.5` を出し、偽の `lsof` がその中のファイルを開いている | Homebrew 分は消さず、開いている版を出す。終了コード 1。開いていなければ `brew cleanup --prune=all` が 1 回呼ばれる |
+| 偽の `brew` が古い版 `postgresql@17/17.5` を出し、偽の `lsof` がその中のファイルを開いている | Homebrew 分は消さず、開いている版を出す。終了コード 1。開いていなければ `HOMEBREW_NO_AUTOREMOVE=1` を付けた `brew cleanup --prune=all` が 1 回呼ばれる |
+| 偽の `lsof` が一部だけ出して終了コード 1 で終わる | 古い版があれば Homebrew 分は消さない。終了コード 1 |

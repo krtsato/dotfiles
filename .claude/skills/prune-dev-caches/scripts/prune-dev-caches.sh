@@ -364,17 +364,21 @@ if want brew; then
     echo "  nothing to prune (no brew)"
   elif running -f 'bin/ruby .*/Library/Homebrew/brew\.rb'; then
     skip "brew is running (or pgrep could not tell)"
-  elif ! plan=$(brew cleanup --prune=all -n 2>/dev/null); then
+  # cleanup also runs autoremove by default, which uninstalls formulae no
+  # other formula depends on; that is removing software, not a cache.
+  elif ! plan=$(HOMEBREW_NO_AUTOREMOVE=1 brew cleanup --prune=all -n 2>/dev/null); then
     skip "brew cleanup -n failed; nothing removed"
   else
     # An old version a running program still has open is kept: its kegs are
     # listed by the dry run, and any open file under one stops the whole item.
     cellar=$(brew --cellar)
     kegs=$(printf '%s\n' "$plan" | awk -v c="$cellar/" 'index($0, "Would remove: " c) == 1 {print $3}')
-    open_files=$(lsof -Fn 2>/dev/null | sed -n 's/^n//p')
+    # A failed lsof may have listed only part of what is open, so it stops too.
+    lsof_ok=1; listing=$(lsof -Fn 2>/dev/null) || lsof_ok=0
+    open_files=$(printf '%s\n' "$listing" | sed -n 's/^n//p')
     held=
-    if [ -n "$kegs" ] && [ -z "$open_files" ]; then
-      held="(lsof listed no open files)"
+    if [ -n "$kegs" ] && { [ "$lsof_ok" = 0 ] || [ -z "$open_files" ]; }; then
+      held=" (lsof failed or listed nothing, so none can be ruled out)"
     else
       for k in $kegs; do
         printf '%s\n' "$open_files" | grep -qF "$k/" && held="$held ${k#"$cellar"/}"
@@ -385,7 +389,7 @@ if want brew; then
     if [ -n "$held" ]; then
       skip "an old version is still open:$held; quit what uses it, then rerun"
     elif [ "$apply" = 1 ]; then
-      s=$(avail); brew cleanup --prune=all >/dev/null 2>&1 || skip "brew cleanup failed"; freed "$s"
+      s=$(avail); HOMEBREW_NO_AUTOREMOVE=1 brew cleanup --prune=all >/dev/null 2>&1 || skip "brew cleanup failed"; freed "$s"
     fi
   fi
 fi
