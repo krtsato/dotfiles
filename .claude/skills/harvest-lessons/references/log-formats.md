@@ -32,13 +32,13 @@ jq -c --argjson since "$LAST_RUN" 'select(.ts > $since)' ~/.codex/history.jsonl
 | フィールド | 型 | 内容 |
 | --- | --- | --- |
 | `display` | string | ユーザープロンプト本文 |
-| `timestamp` | string または number | 記録時刻。実装により ISO 8601 文字列と unix 秒が混在し得るため、比較前に形式を確認する |
+| `timestamp` | number（または string） | 記録時刻。**いまは unix ミリ秒の number（13 桁）**。`$LAST_RUN` は秒なので、比べる前に 1000 で割る。古い行には ISO 8601 文字列があり得る |
 | `project` | string | 実行時のプロジェクトパス |
 
 抽出例:
 
 ```sh
-jq -c --argjson since "$LAST_RUN" 'select((.timestamp | tonumber? // (. | fromdateiso8601? // 0)) > $since)' ~/.claude/history.jsonl
+jq -c --argjson since "$LAST_RUN" 'select((.timestamp | if type == "number" then (if . > 1e11 then . / 1000 else . end) else (fromdateiso8601? // 0) end) > $since)' ~/.claude/history.jsonl
 ```
 
 ## セッション全文（`rollout-*.jsonl` / session jsonl）
