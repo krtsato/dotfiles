@@ -21,7 +21,7 @@ metadata:
 
 ## 重要な境界
 
-- `securerc` の実行前に、この skill の `scripts/bootstrap.sh` を実行する。CLI の real path が既定の `~/dev/me/securerc/dist/src/cli.js`（移行・検証時は `SECURERC_REPOSITORY` 配下）と完全一致すれば副作用なく終了する。未導入、壊れた link、別 checkout を指す場合だけ、Git repository と `package.json` を確認して `npm ci`、`npm run build`、`npm link` を順に実行する。link 後は real path を再確認し、設定ファイルがある場合だけ `securerc status` も確認する。`sudo` は使わない。token file は内容を読まず、`test` と `stat` で存在と mode `0600` だけを確認する。値の表示・コピー・変更はしない。
+- `securerc` の実行前に、この skill の `scripts/bootstrap.sh` を実行する。CLI の real path が既定の `~/dev/me/securerc/dist/src/cli.js`（移行・検証時は `SECURERC_REPOSITORY` 配下）と完全一致すれば副作用なく終了する（ただし設定ファイルがあって mode が `0600` でなければ、一致していても先に失敗で終わる）。未導入、壊れた link、別 checkout を指す場合だけ、Git repository と `package.json` を確認して `npm ci`、`npm run build`、`npm link` を順に実行する。link 後は real path を再確認し、設定ファイルがある場合だけ `securerc status` も確認する。`sudo` は使わない。token file は内容を読まず、`test` と `stat` で存在と mode `0600` だけを確認する。値の表示・コピー・変更はしない。
 - 曖昧な依頼の既定は **状態確認 → 必要なら起動 → `Running` 確認**。会話の削除、停止、終了確認は既定で実行しない。
 - `Starting` は準備中であり、成功ではない。`securerc status` を 5 秒間隔、最大 5 分繰り返す。5 秒はローカル状態確認の過剰な反復を避け、5 分は無限待機を防ぎ、60 秒以内の進捗報告は無応答に見せないためである。`Running` になるまで利用者へ起動完了と報告せず、新規 Discord 投稿を案内しない。上限時は失敗または未完了としてログを診断し、`Running` と報告しない。
 - 完了会話の整理対象は、securerc が記録した `completed` または `failed` のスレッドだけである。未知の Forum 投稿、実行中の会話、設定ファイルは削除しない。bridge が `Running` の場合、`down` は別の実行中・入力待ち task も中断し得るため、その影響を明示して利用者の確認を得るまで停止・整理しない。
