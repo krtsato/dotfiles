@@ -118,7 +118,7 @@ cd ~/dev/me/mcp-tradingview
   -out-dir /tmp/out-after
 ```
 
-合流も見るときは 2 つ足す。**`-levels` は必ず指定する**（既定は何も絞らない・次節）。
+合流も見るときは 2 つ足す。**`-levels` は必ず指定する**（省略すると既定の `1,2,3,4` を分布を見ずに測ってしまう・次節）。
 
 ```bash
   -confluence-state -levels 4,5,6,7,8,9,10
