@@ -142,17 +142,24 @@ if want npm; then
   # npm keeps its downloads in <cache>/_cacache; --cache names the parent, so
   # the folder measured and the folder cleaned are the same one.
   NPM_CACHE=${NPM_CACHE:-$(npm config get cache 2>/dev/null)/_cacache}
+  NPM_CACHE=${NPM_CACHE%/}
   section "npm download cache ($NPM_CACHE)"
   # Every command that downloads blocks, aliases included. npx servers run as
   # "npm exec ..." for a whole session and read the cache only while starting,
   # so an "npm exec" younger than 10 minutes blocks too and older ones do not.
-  # shellcheck disable=SC2009  # pgrep cannot print the elapsed time
-  fetching=$(ps -axo etime=,command= | awk '
+  # A failed ps is not "nothing running": the list is read first, then parsed.
+  procs=$(ps -axo etime=,command= 2>/dev/null) || procs=
+  fetching=$(printf '%s\n' "$procs" | awk '
     $2 != "npm" { next }
     $3 ~ /^(install|i|in|ins|inst|insta|instal|isnt|isnta|isntal|isntall|add|ci|clean-install|ic|install-clean|isntall-clean|it|cit|install-test|install-ci-test|clean-install-test|sit|update|up|upgrade|udpate|pack|publish|rebuild|rb|dedupe|ddp)$/ { print; next }
+    $3 == "cache" && $4 == "add" { print; next }
     $3 == "exec" { n = split($1, t, /[-:]/); if (n == 2 && t[1] + 0 < 10) print }')
-  if [ ! -d "$NPM_CACHE" ]; then
+  if [ "${NPM_CACHE##*/}" != _cacache ]; then
+    skip "NPM_CACHE must end in /_cacache, the folder npm cleans"
+  elif [ ! -d "$NPM_CACHE" ]; then
     echo "  nothing to prune"
+  elif [ -z "$procs" ]; then
+    skip "ps listed no processes, so a running download cannot be ruled out"
   elif [ -n "$fetching" ]; then
     skip "npm is downloading:"
     printf '%s\n' "$fetching" | cut -c1-100 | sed 's/^/    /'
