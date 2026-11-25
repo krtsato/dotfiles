@@ -73,7 +73,7 @@ docker rmi upgrade-check-mediable
 | --- | --- | --- |
 | mediable | 実際と同じ引数で HLS を mp4 にまとめる（試験用の HLS を別のコンテナから配る） | 映像と音声の両方が入った mp4 ができる |
 | note | `tesseract --list-langs` と実際の画像 | `jpn` があり、読み取り結果が今と大きく変わらない。**日次同期はこのイメージを使わない**（自宅 Mac の Apple Vision で読む） |
-| tradingview の取り込み 4 本 | **今の土台と新しい土台で同じ日のデータを取り込む** | 出力が 1 バイトも違わない。逆日歩は moomoo の接続先が動いているときだけ実データ、止まっていれば単体テストと部品の読み込みまで。**逆日歩の出力には記録時刻（`captured_at`）が入る**ので、その列を除いて比べる。**`--user` を付けずにワークフローと同じ形で動かす**（付けると家フォルダが `/` になり、moomoo の部品が設定を書けず `Permission denied: '/.com.moomoo.OpenD'` で落ちる。土台の故障と取り違えない） |
+| tradingview の取り込み 4 本 | **今の土台と新しい土台で同じ日のデータを取り込む** | 出力が 1 バイトも違わない。逆日歩は moomoo の接続先が動いているときだけ実データ、止まっていれば単体テストと部品の読み込みまで。**逆日歩と海外投資家の売買の出力には記録時刻（`captured_at`）が入る**ので、その列を除いて比べる。**`--user` を付けずにワークフローと同じ形で動かす**（付けると家フォルダが `/` になり、moomoo の部品が設定を書けず `Permission denied: '/.com.moomoo.OpenD'` で落ちる。土台の故障と取り違えない） |
 | Go の配布物 | 起動して版を出す・`--help` | 期待どおりの出力 |
 
 試験用の HLS は `ffmpeg -f lavfi -i testsrc=d=6 … -c:v libx264 -c:a aac -f hls` で作る（`d=6` は 6 秒の試験用動画。HLS の区切りが複数できる長さ）。
@@ -130,7 +130,7 @@ grep -rnE -A3 'docker run( |\\|$)' --include='*.y*ml' --include='*.sh' --include
 | 名札の外れたイメージ | 名札の付いたイメージ・ボリューム | 他のワークフローが使う |
 | **24 時間より古い**ビルドの中間物 | 直近の中間物 | 同じ Mac の Docker で並行して走る他のビルドが、次に使う中間物を消さない |
 
-2026-10-20 時点で片付けを持つもの: tradingview の取り込み 3 本・mcp-mediable（`make docker-prune`）。2026-11-14 に空売りの圧力（`short-pressure-ingest`）が加わり、取り込みは 4 本とも「Reclaim runner disk」を持つ。
+2026-10-20 時点で片付けを持つもの: tradingview の取り込み 3 本・mcp-mediable（`make docker-prune`）。2026-11-14 に海外投資家の売買（`investor-type-ingest`）が加わり、取り込みは 4 本とも「Reclaim runner disk」を持つ。
 mcp-note の日次同期は 2026-10-20 から Docker を使わない（Apple Vision で読むため）ので、片付けの手順も外した。
 
 ### 手元
