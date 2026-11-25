@@ -47,7 +47,9 @@ try:
     obj = json.load(open(raw, encoding="utf-8"))
 except Exception:
     sys.exit("%s..%s: 約定の応答が読めません" % (a, b))
-if isinstance(obj, dict) and obj.get("ret", 0) != 0:
+# Errors come as {"ret": N, "error": ...} from check_ret, or as {"error": ...}
+# without "ret" from the script's own exception handler.
+if isinstance(obj, dict) and ("error" in obj or obj.get("ret", 0) != 0):
     sys.exit("%s..%s: %s" % (a, b, obj.get("error")))
 rows = obj if isinstance(obj, list) else obj.get("deals")
 if rows is None:

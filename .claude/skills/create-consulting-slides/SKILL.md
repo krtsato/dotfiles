@@ -167,6 +167,8 @@ it later. Use raster images only when the source itself is photographic or illus
 2. **視覚検証**：PDFへ書き出し、全ページを画像化し、連続したcontact sheetと高密度
    ページの原寸画像を確認する。
 
+PDFへの書き出しは、作成に使った手段で行う。Google Slidesは Drive の書き出し（PDF）、`.pptx`は作成に使った skill の描画・書き出し機能を使う。この Mac には LibreOffice（`soffice`）が入っていないので、それを前提にしない。
+
 PDFをPNGへ展開する標準例。`120` DPIは、全体確認の速度と小さな文字の判読性を
 両立する検査用の既定値であり、判読できない場合は高解像度で対象ページを再確認する。
 
@@ -186,7 +188,7 @@ pdftoppm -png -r 120 deck.pdf slide
 ストーリーボードをMarkdownで保存した場合は次を実行する。
 
 ```bash
-npx markdownlint-cli2 --config .markdownlint.yaml storyboard.md
+npx markdownlint-cli2 --config ~/dev/me/dotfiles/.markdownlint.yaml storyboard.md
 ```
 
 ## 実行チェックリスト

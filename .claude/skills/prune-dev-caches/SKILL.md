@@ -6,7 +6,7 @@ description: >-
   npm の取得の cache、Xcode の DerivedData、iOS の端末ごとの古い DeviceSupport、goimports の索引、
   GitHub Actions の自宅 Mac の runner に残る古い本体・更新用の写し・使っていない Go、
   どこにも書かれていない Docker の土台イメージ、イメージの層になっていない Docker のビルドの cache、
-  Chrome の cache、Homebrew の古い版と取得物（`brew cleanup --prune=all`）の 12 種。既定は一覧と大きさを出すだけで、`--apply` のときだけ消す。
+  Chrome の cache、Homebrew の古い版と取得物（`brew cleanup --prune=all`）の 12 種と、警告だけの Go のビルドの cache（合わせて 13 項目）。既定は一覧と大きさを出すだけで、`--apply` のときだけ消す。
   使用中のものは種類ごとに確かめて残す（Chrome は終了していなければ飛ばし、自分では終了させない）。
   Go のビルドの cache は**大きさを測って 10 GB を超えたら警告するだけ**で、消さない。
   "キャッシュを掃除して" / "ディスクを空けたい" / "定期の片付け" / "uv cache を消して" /
@@ -25,7 +25,7 @@ allowed-tools: Bash(~/.claude/skills/prune-dev-caches/scripts/prune-dev-caches.s
 
 # 開発用の置き場を片付ける
 
-スクリプト 1 本を、まず**見るだけ**で流し、確かめてから `--apply` で消す。12 種それぞれの「使用中」の確かめ方は
+スクリプト 1 本を、まず**見るだけ**で流し、確かめてから `--apply` で消す。13 項目それぞれの「使用中」の確かめ方は
 スクリプトが持ち、疑わしい種類は消さずに `skip:` で理由を出す。種類ごとの細則は [種類ごとの決まり](#種類ごとの決まり)、
 試験の場面は [references/evaluations.md](references/evaluations.md)。
 
