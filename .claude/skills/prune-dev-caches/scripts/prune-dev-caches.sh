@@ -324,9 +324,11 @@ if want docker; then
 fi
 
 if want buildcache; then
-  section "Docker build cache no image refers to"
-  # Without --all, builder prune removes only cache no image is built from, so
-  # the next build of an existing image stays fast.
+  section "Docker build cache no image layer holds"
+  # Without --all, builder prune removes cache that no image's own layers hold.
+  # That includes intermediate stages of multi-stage builds and RUN --mount
+  # caches, so the next build of such an image is slower once; all of it is
+  # rebuilt from the Dockerfile, so nothing is lost.
   if ! docker info >/dev/null 2>&1; then
     skip "Docker is not running"
   elif running -f 'docker(-buildx)? (buildx |compose )?build( |$)'; then

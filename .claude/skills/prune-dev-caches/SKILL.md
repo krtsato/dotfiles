@@ -5,7 +5,7 @@ description: >-
   対象は uv の cache（`uv cache clean`）、mise の不要な版（`mise prune`）、npx の取得物、
   npm の取得の cache、Xcode の DerivedData、iOS の端末ごとの古い DeviceSupport、goimports の索引、
   GitHub Actions の自宅 Mac の runner に残る古い本体・更新用の写し・使っていない Go、
-  どこにも書かれていない Docker の土台イメージ、どのイメージも使わない Docker のビルドの cache、
+  どこにも書かれていない Docker の土台イメージ、イメージの層になっていない Docker のビルドの cache、
   Chrome の cache の 11 種。既定は一覧と大きさを出すだけで、`--apply` のときだけ消す。
   使用中のものは種類ごとに確かめて残す（Chrome は終了していなければ飛ばし、自分では終了させない）。
   Go のビルドの cache は**大きさを測って 10 GB を超えたら警告するだけ**で、消さない。
@@ -103,7 +103,7 @@ allowed-tools: Bash(~/.claude/skills/prune-dev-caches/scripts/prune-dev-caches.s
 | goimports | 索引（`~/Library/Caches/goimports`）全部 | なし | エディタが必要なときに作り直す |
 | runner | リンクが指していない古い `bin.*`・`externals.*`、`_work/_update`、ワークフローの `go-version` に無い Go | 使用中の版、`go-version` の版 | `go-version` に `1.27` のような省略・matrix・`go-version-file` があると要る版が決まらないので Go を残す。夜間（01:30〜09:30）は自動の job が走るので触らない |
 | Docker | `find-unused-base-images.sh` が `unused` とした土台 | `used`・`held`、コンテナが使う土台 | 判定の中身は upgrade-runtimes の `references/docker-images.md` |
-| ビルドの cache | `docker builder prune -f` が消す分（どのイメージも使っていない cache） | 今あるイメージの組み立てに使う cache | `--all` を付けないので、次の組み立ては速いまま。2026-11-24 は 4.8 GB が 2.2 GB に減った |
+| ビルドの cache | `docker builder prune -f` が消す分。イメージの層になっていない cache で、多段の組み立ての途中段階や `RUN --mount=type=cache` の取得物を含む | 今あるイメージの層（`--all` を付けないので内部用のイメージも残る） | 消えたものは Dockerfile から作り直せる。代わりに、途中段階を使うイメージの次の組み立ては 1 回遅くなる。2026-11-24 は 4.8 GB が 2.2 GB に減った |
 | Chrome | `~/Library/Caches/Google/Chrome` の中身全部 | 履歴・cookie・ログイン情報（`Application Support` 側にあり触らない） | 閲覧するたびに増え、2026-11-24 は 9.3 GB あった。消すとサイトの初回表示が 1 回遅くなるだけ |
 | Go のビルドの cache | **なし（警告だけ）**。`GO_CACHE_WARN_GB`（既定 10）を超えると `warn:` と消すコマンドを出す | 全部 | Go は 5 日使われなかったものしか消さないので、毎日ビルドすると減らない（2026-11-14 に 31 GB でディスクの空きが 3 GB まで減った）。ビルドの最中に消すとそのビルドが壊れるため、`go build`・`go test` が走っておらず runner が全台待機中のときに、人が `go clean -cache` を流す |
 
