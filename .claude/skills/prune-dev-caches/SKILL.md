@@ -53,7 +53,7 @@ allowed-tools: Bash(~/.claude/skills/prune-dev-caches/scripts/prune-dev-caches.s
 | --- | --- | --- |
 | uv の鍵を誰かが持っている | `uv cache clean` が待ちで失敗する | スクリプトが**鍵を持つ会話のフォルダと端末**を出す。uvx で起動する MCP サーバーは会話の間ずっと鍵を持つので、その会話を閉じてから流し直す |
 | Xcode か xcodebuild が動いている | 使用中の DerivedData・DeviceSupport を消す | スクリプトが Xcode の 2 種を飛ばす。閉じてから流し直す |
-| `npm install` などの取得（別名と `npm cache add` を含む）か、取得物をまだ起動していない `npm exec`・`npm x` が動いている | 取得中の cache を消してその取得が壊れる | スクリプトが npm 分を飛ばし、取得中のコマンドを出す。`npm exec` は取得を終えると、npx の置き場（`_npx/<番号>/node_modules/.bin/`）のプログラムを子として起動する。その子がある `npm exec`（会話の間ずっと動く npx の MCP サーバー）では止めない。取得中に動く git などの子は印にならない。状態行などの短い `npm exec` に当たったら数秒後に流し直す |
+| npm の処理が動いている（取得物を起動し終えた `npm exec`・`npm x` を除く） | 使用中の cache を消してその処理が壊れる | スクリプトが npm 分を飛ばし、そのコマンドを出す。命令の種類は列挙せず、npm なら何でも止める。例外の `npm exec` は、npx の置き場（`_npx/<番号>/node_modules/.bin/`）のプログラムを子として起動済みのもの（会話の間ずっと動く npx の MCP サーバー）だけ。取得中に動く git などの子は印にならない。状態行などの短い `npm exec` に当たったら数秒後に流し直す |
 | gopls か goimports が動いている | 書き込み中の索引を消す | スクリプトが goimports 分を飛ばす。エディタを閉じてから流し直す |
 | `docker build` が動いている | 組み立て中の cache を消す | スクリプトがビルドの cache 分を飛ばす |
 | Chrome が動いている | 使用中の cache を消す | スクリプトが Chrome 分を飛ばす。**ユーザーの了承を得てから** `osascript -e 'tell application "Google Chrome" to quit'` で通常の終了をさせ（強制終了しない。タブの記録が書き終わる）、流し直した後に `open -a "Google Chrome"` で起動し直す |

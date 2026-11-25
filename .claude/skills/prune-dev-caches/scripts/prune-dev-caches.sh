@@ -147,23 +147,17 @@ if want npm; then
   NPM_CACHE=${NPM_CACHE:-$(npm config get cache 2>/dev/null)/_cacache}
   NPM_CACHE=${NPM_CACHE%/}
   section "npm download cache ($NPM_CACHE)"
-  # Every command that downloads blocks, aliases included. npx servers run as
-  # "npm exec ..." for a whole session but read the cache only until the
-  # package starts, which npm runs as a child from <npx dir>/<hash>/node_modules/.bin.
-  # Any other child (git during a fetch) proves nothing, so an "npm exec"
-  # without such a child blocks, however long it has run.
+  # Any npm process may be reading or writing the cache, so every one blocks,
+  # with one exception: npx servers run as "npm exec ..." (or "npm x") for a
+  # whole session but read the cache only until the package starts, which npm
+  # runs as a child from <npx dir>/<hash>/node_modules/.bin. Any other child
+  # (git during a fetch) proves nothing, however long it has run.
   # A failed ps is not "nothing running": the list is read first, then parsed.
   procs=$(ps -axo pid=,ppid=,command= 2>/dev/null) || procs=
   fetching=$(printf '%s\n' "$procs" | awk '
     $0 ~ /\/_npx\/[^\/]+\/node_modules\/\.bin\// { started[$2] = 1 }
-    $3 != "npm" { next }
-    $4 ~ /^(install|i|in|ins|inst|insta|instal|isnt|isnta|isntal|isntall|add|ci|clean-install|ic|install-clean|isntall-clean|it|cit|install-test|install-ci-test|clean-install-test|sit|update|up|upgrade|udpate|pack|publish|init|create|innit|rebuild|rb|dedupe|ddp)$/ { hit[$1] = $0; next }
-    $4 == "cache" && $5 == "add" { hit[$1] = $0; next }
-    $4 == "exec" || $4 == "x" { ex[$1] = $0 }
-    END {
-      for (p in hit) print hit[p]
-      for (p in ex) if (!(p in started)) print ex[p]
-    }')
+    $3 == "npm" { npm[$1] = $0; ex[$1] = ($4 == "exec" || $4 == "x") }
+    END { for (p in npm) if (!(ex[p] && (p in started))) print npm[p] }')
   if [ "${NPM_CACHE##*/}" != _cacache ]; then
     skip "NPM_CACHE must end in /_cacache, the folder npm cleans"
   elif [ ! -d "$NPM_CACHE" ]; then
@@ -171,7 +165,7 @@ if want npm; then
   elif [ -z "$procs" ]; then
     skip "ps listed no processes, so a running download cannot be ruled out"
   elif [ -n "$fetching" ]; then
-    skip "npm is downloading:"
+    skip "npm may be using the cache:"
     printf '%s\n' "$fetching" | cut -c1-100 | sed 's/^/    /'
   else
     echo "  size $(human "$(kb "$NPM_CACHE")")"

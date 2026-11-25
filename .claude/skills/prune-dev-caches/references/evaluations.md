@@ -38,5 +38,5 @@
 | `NPM_CACHE` を試験用に差し替えて `--apply` | 試験用の置き場だけが消え、本物の `~/.npm/_cacache` は残る |
 | `NPM_CACHE` が `/_cacache` で終わらない／`ps` が失敗する／`npm cache add` が動いている | どれも npm 分を消さない。終了コード 1 |
 | Chrome が起動中 | Chrome 分は消さず、終了のコマンドを `skip:` に出す。終了コード 1。スクリプトは Chrome を終了させない |
-| `npm install`・`npm it`・`npm create`・`npm init` などの取得、`npm x`、子が git だけの `npm exec` が動いている（偽の `ps` で再現） | npm 分は消さず、そのコマンドを出す。終了コード 1。子が `_npx/<番号>/node_modules/.bin/` のプログラムである `npm exec` だけなら、動いている時間に関係なく消す |
+| `npm view`・`npm cache verify`・引数なしの `npm`・子が git だけの `npm exec` が動いている（偽の `ps` で再現） | npm 分は消さず、そのコマンドを出す。終了コード 1。子が `_npx/<番号>/node_modules/.bin/` のプログラムである `npm exec` だけなら、動いている時間に関係なく消す |
 | `pgrep` が 2 で終わる（確かめられない） | Xcode・DeviceSupport・goimports・ビルドの cache・Chrome はどれも消さない。終了コード 1 |
