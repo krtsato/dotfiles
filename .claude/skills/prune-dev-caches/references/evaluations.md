@@ -46,3 +46,4 @@
 | 偽の `lsof` が一部だけ出して終了コード 1 で終わる | 古い版があれば Homebrew 分は消さない。終了コード 1 |
 | 古い版があり、偽の `ps` に root の `/opt/homebrew/` のプログラムが出る | Homebrew 分は消さない。終了コード 1 |
 | `bash /opt/homebrew/Library/Homebrew/brew.sh update` が動いている | Homebrew 分は消さない。終了コード 1 |
+| 偽の `lsof` が古い版のフォルダそのもの（作業フォルダ）を出す／偽の `ps` が失敗する | どちらも Homebrew 分は消さない。名前が似た別の版（`17.55`）だけが開かれているなら消す |

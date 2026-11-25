@@ -381,15 +381,20 @@ if want brew; then
     # another user (sudo brew services) makes old versions unprovable too.
     # The program itself (comm) is matched, not its arguments: root runs
     # "login ... /opt/homebrew/bin/zsh" for every terminal.
-    others=$(ps -axo user=,comm= 2>/dev/null | awk -v me="$(id -un)" -v pre="$(brew --prefix)/" '$1 != me && index($2, pre) == 1 {print $1}' | sort -u | tr '\n' ' ')
+    ps_ok=1; users=$(ps -axo user=,comm= 2>/dev/null) || ps_ok=0
+    others=$(printf '%s\n' "$users" | awk -v me="$(id -un)" -v pre="$(brew --prefix)/" '$1 != me && index($2, pre) == 1 {print $1}' | sort -u | tr '\n' ' ')
     held=
     if [ -n "$kegs" ] && { [ "$lsof_ok" = 0 ] || [ -z "$open_files" ]; }; then
       held=" (lsof failed or listed nothing, so none can be ruled out)"
+    elif [ -n "$kegs" ] && [ "$ps_ok" = 0 ]; then
+      held=" (ps failed, so programs of other users cannot be ruled out)"
     elif [ -n "$kegs" ] && [ -n "$others" ]; then
       held=" (Homebrew programs run as ${others% }, which lsof cannot see)"
     else
       for k in $kegs; do
-        printf '%s\n' "$open_files" | grep -qF "$k/" && held="$held ${k#"$cellar"/}"
+        # The keg itself (a working directory) or anything under it.
+        printf '%s\n' "$open_files" | awk -v k="$k" '$0 == k || index($0, k "/") == 1 {f = 1} END {exit !f}' \
+          && held="$held ${k#"$cellar"/}"
       done
     fi
     echo "  $(printf '%s\n' "$plan" | grep -c '^Would remove:') item(s), $(printf '%s\n' "$plan" | sed -n 's/.*would free approximately //p' | sed 's/ of disk space.//' | grep . || echo '0 MB')"
