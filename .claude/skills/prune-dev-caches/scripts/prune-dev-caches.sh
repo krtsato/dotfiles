@@ -19,7 +19,6 @@ UV_CACHE=${UV_CACHE_DIR:-$HOME/.cache/uv}
 NPX_DIR=${NPX_DIR:-$HOME/.npm/_npx}
 DERIVED=${DERIVED:-$HOME/Library/Developer/Xcode/DerivedData}
 DEVICE_SUPPORT=${DEVICE_SUPPORT:-$HOME/Library/Developer/Xcode/iOS DeviceSupport}
-NPM_CACHE=${NPM_CACHE:-$HOME/.npm/_cacache}
 GOIMPORTS_CACHE=${GOIMPORTS_CACHE:-$HOME/Library/Caches/goimports}
 CHROME_CACHE=${CHROME_CACHE:-$HOME/Library/Caches/Google/Chrome}
 GO_CACHE_WARN_GB=${GO_CACHE_WARN_GB:-10}  # warn when the Go build cache passes this
@@ -140,16 +139,30 @@ if want npx; then
 fi
 
 if want npm; then
+  # npm keeps its downloads in <cache>/_cacache; --cache names the parent, so
+  # the folder measured and the folder cleaned are the same one.
+  NPM_CACHE=${NPM_CACHE:-$(npm config get cache 2>/dev/null)/_cacache}
   section "npm download cache ($NPM_CACHE)"
-  # npx servers run as "npm exec ..." for a whole session but no longer read
-  # the cache; only a command that downloads does, so only those block.
+  # Every command that downloads blocks, aliases included. npx servers run as
+  # "npm exec ..." for a whole session and read the cache only while starting,
+  # so an "npm exec" younger than 10 minutes blocks too and older ones do not.
+  # shellcheck disable=SC2009  # pgrep cannot print the elapsed time
+  fetching=$(ps -axo etime=,command= | awk '
+    $2 != "npm" { next }
+    $3 ~ /^(install|i|in|ins|inst|insta|instal|isnt|isnta|isntal|isntall|add|ci|clean-install|ic|install-clean|isntall-clean|it|cit|install-test|install-ci-test|clean-install-test|sit|update|up|upgrade|udpate|pack|publish|rebuild|rb|dedupe|ddp)$/ { print; next }
+    $3 == "exec" { n = split($1, t, /[-:]/); if (n == 2 && t[1] + 0 < 10) print }')
   if [ ! -d "$NPM_CACHE" ]; then
     echo "  nothing to prune"
-  elif pgrep -f '^npm (install|i|ci|update|up|add|pack|publish)( |$)' >/dev/null; then
-    skip "an npm install is running"
+  elif [ -n "$fetching" ]; then
+    skip "npm is downloading:"
+    printf '%s\n' "$fetching" | cut -c1-100 | sed 's/^/    /'
   else
     echo "  size $(human "$(kb "$NPM_CACHE")")"
-    if [ "$apply" = 1 ]; then s=$(avail); npm cache clean --force >/dev/null 2>&1 || skip "npm cache clean failed"; freed "$s"; fi
+    if [ "$apply" = 1 ]; then
+      s=$(avail)
+      npm cache clean --force --cache "${NPM_CACHE%/_cacache}" >/dev/null 2>&1 || skip "npm cache clean failed"
+      freed "$s"
+    fi
   fi
 fi
 
@@ -177,15 +190,20 @@ if want devicesupport; then
   elif [ ! -d "$DEVICE_SUPPORT" ]; then
     echo "  nothing to prune"
   else
+    # Only names of the exact form "<model> <x.y[.z]> (<build>)" take part; any
+    # other folder is kept, and so is every folder of a model whose newest
+    # version cannot be told.
+    names=$(find "$DEVICE_SUPPORT" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; \
+      | grep -E '^[^ ]+ [0-9]+(\.[0-9]+)+ \(.+\)$')
     old=()
-    models=$(find "$DEVICE_SUPPORT" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sed 's/ .*//' | sort -u)
-    for m in $models; do
-      newest=$(find "$DEVICE_SUPPORT" -mindepth 1 -maxdepth 1 -type d -name "$m *" -exec basename {} \; \
-        | sed -E 's/^[^ ]+ ([^ ]+) .*/\1 &/' | sort -V | tail -n 1 | cut -d' ' -f2-)
+    for m in $(printf '%s\n' "$names" | cut -d' ' -f1 | sort -u); do
+      of_model=$(printf '%s\n' "$names" | awk -v m="$m" '$1 == m')
+      newest=$(printf '%s\n' "$of_model" | awk '{print $2 "\t" $0}' | sort -V | tail -n 1 | cut -f2-)
+      printf '%s\n' "$of_model" | grep -qxF "$newest" || { skip "DeviceSupport $m: newest version unclear; kept"; continue; }
       while IFS= read -r n; do
-        [ -n "$n" ] && [ "$n" != "$newest" ] && old+=("$DEVICE_SUPPORT/$n")
+        [ "$n" != "$newest" ] && old+=("$DEVICE_SUPPORT/$n")
       done <<EOF
-$(find "$DEVICE_SUPPORT" -mindepth 1 -maxdepth 1 -type d -name "$m *" -exec basename {} \;)
+$of_model
 EOF
     done
     echo "  ${#old[@]} of $(find "$DEVICE_SUPPORT" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' '), $(human "$(kb ${old[@]+"${old[@]}"})")"

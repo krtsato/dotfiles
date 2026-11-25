@@ -53,7 +53,7 @@ allowed-tools: Bash(~/.claude/skills/prune-dev-caches/scripts/prune-dev-caches.s
 | --- | --- | --- |
 | uv の鍵を誰かが持っている | `uv cache clean` が待ちで失敗する | スクリプトが**鍵を持つ会話のフォルダと端末**を出す。uvx で起動する MCP サーバーは会話の間ずっと鍵を持つので、その会話を閉じてから流し直す |
 | Xcode か xcodebuild が動いている | 使用中の DerivedData・DeviceSupport を消す | スクリプトが Xcode の 2 種を飛ばす。閉じてから流し直す |
-| `npm install` などの取得が動いている | 取得中の cache を消してその取得が壊れる | スクリプトが npm 分を飛ばす。会話の間ずっと動く `npm exec`（npx の MCP サーバー）は cache を読まないので止めない |
+| `npm install` などの取得（別名を含む）か、起動から 10 分未満の `npm exec` が動いている | 取得中の cache を消してその取得が壊れる | スクリプトが npm 分を飛ばし、取得中のコマンドを出す。`npm exec` は起動時だけ cache を読むので、10 分を超えて動き続ける npx の MCP サーバーでは止めない。状態行などの短い `npm exec` に当たったら数秒後に流し直す |
 | gopls か goimports が動いている | 書き込み中の索引を消す | スクリプトが goimports 分を飛ばす。エディタを閉じてから流し直す |
 | `docker build` が動いている | 組み立て中の cache を消す | スクリプトがビルドの cache 分を飛ばす |
 | Chrome が動いている | 使用中の cache を消す | スクリプトが Chrome 分を飛ばす。**ユーザーの了承を得てから** `osascript -e 'tell application "Google Chrome" to quit'` で通常の終了をさせ（強制終了しない。タブの記録が書き終わる）、流し直した後に `open -a "Google Chrome"` で起動し直す |
@@ -99,7 +99,7 @@ allowed-tools: Bash(~/.claude/skills/prune-dev-caches/scripts/prune-dev-caches.s
 | npx | 30 日触っていない取得物 | 実行中のプロセスの引数に出る取得物 | 30 日は月 1 回の保守の間隔。使い続けているものは日付が新しく残る |
 | npm | 取得の cache（`~/.npm/_cacache`）全部を `npm cache clean --force` で | なし（次の取得で取り直す） | 中身は取得物の写しだけ。npx の取得物（`_npx`）は別の置き場で、上の行が扱う |
 | Xcode | 30 日触っていない DerivedData | それ以外 | 同上。消すと次の組み立てが 1 回遅くなるだけ |
-| DeviceSupport | 端末の機種ごとに、最新の iOS 以外 | 機種ごとの最新の版 | 端末をつなぐと Xcode が端末から写し直す。iOS を上げるたびに 1 版あたり数 GB 増える（2026-11-24 に 2 版で消した） |
+| DeviceSupport | 名前が `<機種> <版> (<build>)` の形のうち、機種ごとに最新の iOS 以外 | 機種ごとの最新の版、形の違う名前（機種名の無い古い形など） | 端末をつなぐと Xcode が端末から写し直す。iOS を上げるたびに 1 版あたり数 GB 増える（2026-11-24 に 2 版で消した） |
 | goimports | 索引（`~/Library/Caches/goimports`）全部 | なし | エディタが必要なときに作り直す |
 | runner | リンクが指していない古い `bin.*`・`externals.*`、`_work/_update`、ワークフローの `go-version` に無い Go | 使用中の版、`go-version` の版 | `go-version` に `1.27` のような省略・matrix・`go-version-file` があると要る版が決まらないので Go を残す。夜間（01:30〜09:30）は自動の job が走るので触らない |
 | Docker | `find-unused-base-images.sh` が `unused` とした土台 | `used`・`held`、コンテナが使う土台 | 判定の中身は upgrade-runtimes の `references/docker-images.md` |
