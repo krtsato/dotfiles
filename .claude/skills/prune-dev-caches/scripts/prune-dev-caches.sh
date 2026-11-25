@@ -194,8 +194,10 @@ fi
 
 if want devicesupport; then
   section "iOS DeviceSupport older than the newest per device model"
-  # Folders are "<model> <iOS version> (<build>)". Xcode copies them again from
-  # the device on the next connection, so only the newest per model is kept.
+  # Folders are "<model> <iOS version> (<build>)" and hold that iOS's symbols.
+  # Only the newest per model is kept: a device once updated never gives an
+  # older version back, so an old folder is needed only to read crash reports
+  # from that older iOS. The dry run lists them for a person to approve.
   if xcode_busy; then
     skip "Xcode or xcodebuild is running (or pgrep could not tell)"
   elif [ ! -d "$DEVICE_SUPPORT" ]; then

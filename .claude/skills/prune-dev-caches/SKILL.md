@@ -56,6 +56,7 @@ allowed-tools: Bash(~/.claude/skills/prune-dev-caches/scripts/prune-dev-caches.s
 | npm の処理が動いている（取得物を起動し終えた `npm exec`・`npm x` を除く） | 使用中の cache を消してその処理が壊れる | スクリプトが npm 分を飛ばし、そのコマンドを出す。命令の種類は列挙せず、npm なら何でも止める。例外の `npm exec` は、npx の置き場（`_npx/<番号>/node_modules/.bin/`）のプログラムを子として起動済みのもの（会話の間ずっと動く npx の MCP サーバー）だけ。取得中に動く git などの子は印にならない。状態行などの短い `npm exec` に当たったら数秒後に流し直す |
 | gopls か goimports が動いている | 書き込み中の索引を消す | スクリプトが goimports 分を飛ばす。エディタを閉じてから流し直す |
 | `docker build` が動いている | 組み立て中の cache を消す | スクリプトがビルドの cache 分を飛ばす |
+| 古い iOS のクラッシュの記録をまだ読み解く必要がある | 古い版の DeviceSupport は取り戻せない | 見るだけの一覧に出た版を示し、消してよいかを聞く。要るなら `--only` から `devicesupport` を外す |
 | Chrome が動いている | 使用中の cache を消す | スクリプトが Chrome 分を飛ばす。**ユーザーの了承を得てから** `osascript -e 'tell application "Google Chrome" to quit'` で通常の終了をさせ（強制終了しない。タブの記録が書き終わる）、流し直した後に `open -a "Google Chrome"` で起動し直す |
 | runner が job を実行中（待機中でない）、または夜間の時間帯 | 実行中の job を壊す | スクリプトが runner 分を飛ばす。昼間に流し直す |
 | Docker の判定が `check-by-eye` か失敗 | 使用中の土台を消す | スクリプトが Docker 分を消さない。出た `FROM` を読んでから手で消す |
@@ -99,7 +100,7 @@ allowed-tools: Bash(~/.claude/skills/prune-dev-caches/scripts/prune-dev-caches.s
 | npx | 30 日触っていない取得物 | 実行中のプロセスの引数に出る取得物 | 30 日は月 1 回の保守の間隔。使い続けているものは日付が新しく残る |
 | npm | 取得の cache（`~/.npm/_cacache`）全部を `npm cache clean --force` で | なし（次の取得で取り直す） | 中身は取得物の写しだけ。npx の取得物（`_npx`）は別の置き場で、上の行が扱う |
 | Xcode | 30 日触っていない DerivedData | それ以外 | 同上。消すと次の組み立てが 1 回遅くなるだけ |
-| DeviceSupport | 名前が `<機種> <版> (<build>)` の形のうち、機種ごとに最新の iOS 以外 | 機種ごとの最新の版、形の違う名前（機種名の無い古い形など） | 端末をつなぐと Xcode が端末から写し直す。iOS を上げるたびに 1 版あたり数 GB 増える（2026-11-24 に 2 版で消した） |
+| DeviceSupport | 名前が `<機種> <版> (<build>)` の形のうち、機種ごとに最新の iOS より古い版 | 機種ごとの最新の版（build 違いも全部）、形の違う名前（機種名の無い古い形など） | 中身はその iOS の記号表で、1 版あたり数 GB。最新の版は端末をつなげば写し直せるが、**古い版は端末を上げた後は戻らない**。要るのは古い iOS で起きたクラッシュの記録を読み解くときだけ（2026-11-24 に了承を得て 2 版を消した） |
 | goimports | 索引（`~/Library/Caches/goimports`）全部 | なし | エディタが必要なときに作り直す |
 | runner | リンクが指していない古い `bin.*`・`externals.*`、`_work/_update`、ワークフローの `go-version` に無い Go | 使用中の版、`go-version` の版 | `go-version` に `1.27` のような省略・matrix・`go-version-file` があると要る版が決まらないので Go を残す。夜間（01:30〜09:30）は自動の job が走るので触らない |
 | Docker | `find-unused-base-images.sh` が `unused` とした土台 | `used`・`held`、コンテナが使う土台 | 判定の中身は upgrade-runtimes の `references/docker-images.md` |
