@@ -2,7 +2,8 @@
 # Prune regenerable caches that grow on this Mac and that nothing else cleans.
 #
 # usage: prune-dev-caches.sh [--apply] [--only <item>[,<item>...]]
-#   items: uv, mise, npx, xcode, runner, docker, go   (default: all)
+#   items: uv, mise, npx, npm, xcode, devicesupport, goimports, runner, docker,
+#          buildcache, chrome, go   (default: all)
 #   Without --apply it only lists what would go and how big it is.
 #   go only warns: the Go build cache is measured, never removed.
 #
@@ -17,16 +18,19 @@ DEV_ROOT=${DEV_ROOT:-$HOME/dev/me}
 UV_CACHE=${UV_CACHE_DIR:-$HOME/.cache/uv}
 NPX_DIR=${NPX_DIR:-$HOME/.npm/_npx}
 DERIVED=${DERIVED:-$HOME/Library/Developer/Xcode/DerivedData}
+DEVICE_SUPPORT=${DEVICE_SUPPORT:-$HOME/Library/Developer/Xcode/iOS DeviceSupport}
+GOIMPORTS_CACHE=${GOIMPORTS_CACHE:-$HOME/Library/Caches/goimports}
+CHROME_CACHE=${CHROME_CACHE:-$HOME/Library/Caches/Google/Chrome}
 GO_CACHE_WARN_GB=${GO_CACHE_WARN_GB:-10}  # warn when the Go build cache passes this
 FIND_UNUSED=$HOME/.claude/skills/upgrade-runtimes/scripts/find-unused-base-images.sh
 
 apply=0
-only=uv,mise,npx,xcode,runner,docker,go
+only=uv,mise,npx,npm,xcode,devicesupport,goimports,runner,docker,buildcache,chrome,go
 while [ "$#" -gt 0 ]; do
   case $1 in
     --apply) apply=1 ;;
     --only) only=$2; shift ;;
-    -h | --help) sed -n '2,11p' "$0"; exit 0 ;;
+    -h | --help) sed -n '2,12p' "$0"; exit 0 ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
   shift
@@ -48,6 +52,10 @@ recent() {
   [ -n "$out" ]
 }
 # Report freed space from df, which also counts clones and hard links correctly.
+# pgrep exits 1 for "none found" and 2 or more when it could not look; only
+# a clean "none found" counts as not running.
+running() { local rc=0; pgrep "$@" >/dev/null 2>&1 || rc=$?; [ "$rc" -ne 1 ]; }
+xcode_busy() { running -x Xcode || running -f xcodebuild; }
 freed() { local k=$(($(avail) - $1)); [ "$k" -gt 0 ] || k=0; echo "  freed $(human "$k")"; }
 
 # A process's Claude Code session, shown as its folder and terminal.
@@ -133,10 +141,46 @@ if want npx; then
   if [ "$apply" = 1 ] && [ "${#old[@]}" -gt 0 ]; then s=$(avail); rm -rf "${old[@]}"; freed "$s"; fi
 fi
 
+if want npm; then
+  # npm keeps its downloads in <cache>/_cacache; --cache names the parent, so
+  # the folder measured and the folder cleaned are the same one.
+  NPM_CACHE=${NPM_CACHE:-$(npm config get cache 2>/dev/null)/_cacache}
+  NPM_CACHE=${NPM_CACHE%/}
+  section "npm download cache ($NPM_CACHE)"
+  # Any npm process may be reading or writing the cache, so every one blocks,
+  # with one exception: npx servers run as "npm exec ..." (or "npm x") for a
+  # whole session but read the cache only until the package starts, which npm
+  # runs as a child from <npx dir>/<hash>/node_modules/.bin. Any other child
+  # (git during a fetch) proves nothing, however long it has run.
+  # A failed ps is not "nothing running": the list is read first, then parsed.
+  procs=$(ps -axo pid=,ppid=,command= 2>/dev/null) || procs=
+  fetching=$(printf '%s\n' "$procs" | awk '
+    $0 ~ /\/_npx\/[^\/]+\/node_modules\/\.bin\// { started[$2] = 1 }
+    $3 == "npm" { npm[$1] = $0; ex[$1] = ($4 == "exec" || $4 == "x") }
+    END { for (p in npm) if (!(ex[p] && (p in started))) print npm[p] }')
+  if [ "${NPM_CACHE##*/}" != _cacache ]; then
+    skip "NPM_CACHE must end in /_cacache, the folder npm cleans"
+  elif [ ! -d "$NPM_CACHE" ]; then
+    echo "  nothing to prune"
+  elif [ -z "$procs" ]; then
+    skip "ps listed no processes, so a running download cannot be ruled out"
+  elif [ -n "$fetching" ]; then
+    skip "npm may be using the cache:"
+    printf '%s\n' "$fetching" | cut -c1-100 | sed 's/^/    /'
+  else
+    echo "  size $(human "$(kb "$NPM_CACHE")")"
+    if [ "$apply" = 1 ]; then
+      s=$(avail)
+      npm cache clean --force --cache "${NPM_CACHE%/_cacache}" >/dev/null 2>&1 || skip "npm cache clean failed"
+      freed "$s"
+    fi
+  fi
+fi
+
 if want xcode; then
   section "Xcode DerivedData untouched for $AGE_DAYS days"
-  if pgrep -x Xcode >/dev/null || pgrep -f xcodebuild >/dev/null; then
-    skip "Xcode or xcodebuild is running"
+  if xcode_busy; then
+    skip "Xcode or xcodebuild is running (or pgrep could not tell)"
   else
     old=()
     for d in "$DERIVED"/*/; do
@@ -145,6 +189,53 @@ if want xcode; then
     done
     echo "  ${#old[@]} of $(find "$DERIVED" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' '), $(human "$(kb ${old[@]+"${old[@]}"})")"
     if [ "$apply" = 1 ] && [ "${#old[@]}" -gt 0 ]; then s=$(avail); rm -rf "${old[@]}"; freed "$s"; fi
+  fi
+fi
+
+if want devicesupport; then
+  section "iOS DeviceSupport older than the newest per device model"
+  # Folders are "<model> <iOS version> (<build>)" and hold that iOS's symbols.
+  # Only the newest per model is kept: a device once updated never gives an
+  # older version back, so an old folder is needed only to read crash reports
+  # from that older iOS. The dry run lists them for a person to approve.
+  if xcode_busy; then
+    skip "Xcode or xcodebuild is running (or pgrep could not tell)"
+  elif [ ! -d "$DEVICE_SUPPORT" ]; then
+    echo "  nothing to prune"
+  else
+    # Only names of the exact form "<model> <x.y[.z]> (<build>)" take part; any
+    # other folder is kept, and so is every folder of a model whose newest
+    # version cannot be told.
+    names=$(find "$DEVICE_SUPPORT" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; \
+      | grep -E '^[^ ]+ [0-9]+(\.[0-9]+)+ \(.+\)$')
+    old=()
+    for m in $(printf '%s\n' "$names" | cut -d' ' -f1 | sort -u); do
+      of_model=$(printf '%s\n' "$names" | awk -v m="$m" '$1 == m')
+      # Compare the iOS version only: every build of the newest version stays.
+      newest=$(printf '%s\n' "$of_model" | cut -d' ' -f2 | sort -V | tail -n 1)
+      printf '%s\n' "$newest" | grep -qE '^[0-9]+(\.[0-9]+)+$' || { skip "DeviceSupport $m: newest version unclear; kept"; continue; }
+      while IFS= read -r n; do
+        [ "$(printf '%s\n' "$n" | cut -d' ' -f2)" != "$newest" ] && old+=("$DEVICE_SUPPORT/$n")
+      done <<EOF
+$of_model
+EOF
+    done
+    echo "  ${#old[@]} of $(find "$DEVICE_SUPPORT" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' '), $(human "$(kb ${old[@]+"${old[@]}"})")"
+    for o in ${old[@]+"${old[@]}"}; do echo "    ${o##*/}"; done
+    if [ "$apply" = 1 ] && [ "${#old[@]}" -gt 0 ]; then s=$(avail); rm -rf "${old[@]}"; freed "$s"; fi
+  fi
+fi
+
+if want goimports; then
+  section "goimports index ($GOIMPORTS_CACHE)"
+  # Rebuilt by the editor on demand; a running gopls may be writing it.
+  if [ ! -d "$GOIMPORTS_CACHE" ]; then
+    echo "  nothing to prune"
+  elif running -x gopls || running -x goimports; then
+    skip "gopls or goimports is running (or pgrep could not tell)"
+  else
+    echo "  size $(human "$(kb "$GOIMPORTS_CACHE")")"
+    if [ "$apply" = 1 ]; then s=$(avail); rm -rf "$GOIMPORTS_CACHE"; freed "$s"; fi
   fi
 fi
 
@@ -232,6 +323,36 @@ if want docker; then
       done
       freed "$s"
     fi
+  fi
+fi
+
+if want buildcache; then
+  section "Docker build cache no image layer holds"
+  # Without --all, builder prune removes cache that no image's own layers hold.
+  # That includes intermediate stages of multi-stage builds and RUN --mount
+  # caches, so the next build of such an image is slower once; all of it is
+  # rebuilt from the Dockerfile, so nothing is lost.
+  if ! docker info >/dev/null 2>&1; then
+    skip "Docker is not running"
+  elif running -f 'docker(-buildx)? (buildx |compose )?build( |$)'; then
+    skip "a docker build is running (or pgrep could not tell)"
+  else
+    docker system df 2>/dev/null | awk '$1 == "Build" {print "  total " $5 ", reclaimable " $6}'
+    if [ "$apply" = 1 ]; then s=$(avail); docker builder prune -f >/dev/null 2>&1 || skip "docker builder prune failed"; freed "$s"; fi
+  fi
+fi
+
+if want chrome; then
+  section "Chrome cache ($CHROME_CACHE)"
+  # Cache only: history, cookies and sign-ins live under Application Support.
+  # Chrome writes here while it runs, so it is never quit from this script.
+  if [ ! -d "$CHROME_CACHE" ]; then
+    echo "  nothing to prune"
+  elif running -x 'Google Chrome'; then
+    skip "Chrome is running (or pgrep could not tell); quit it (osascript -e 'tell application \"Google Chrome\" to quit'), then rerun"
+  else
+    echo "  size $(human "$(kb "$CHROME_CACHE")")"
+    if [ "$apply" = 1 ]; then s=$(avail); find "$CHROME_CACHE" -mindepth 1 -maxdepth 1 -exec rm -rf {} +; freed "$s"; fi
   fi
 fi
 
