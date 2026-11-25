@@ -52,7 +52,10 @@ recent() {
   [ -n "$out" ]
 }
 # Report freed space from df, which also counts clones and hard links correctly.
-xcode_busy() { pgrep -x Xcode >/dev/null || pgrep -f xcodebuild >/dev/null; }
+# pgrep exits 1 for "none found" and 2 or more when it could not look; only
+# a clean "none found" counts as not running.
+running() { local rc=0; pgrep "$@" >/dev/null 2>&1 || rc=$?; [ "$rc" -ne 1 ]; }
+xcode_busy() { running -x Xcode || running -f xcodebuild; }
 freed() { local k=$(($(avail) - $1)); [ "$k" -gt 0 ] || k=0; echo "  freed $(human "$k")"; }
 
 # A process's Claude Code session, shown as its folder and terminal.
@@ -154,7 +157,7 @@ if want npm; then
   fetching=$(printf '%s\n' "$procs" | awk '
     $0 ~ /\/_npx\/[^\/]+\/node_modules\/\.bin\// { started[$2] = 1 }
     $3 != "npm" { next }
-    $4 ~ /^(install|i|in|ins|inst|insta|instal|isnt|isnta|isntal|isntall|add|ci|clean-install|ic|install-clean|isntall-clean|it|cit|install-test|install-ci-test|clean-install-test|sit|update|up|upgrade|udpate|pack|publish|rebuild|rb|dedupe|ddp)$/ { hit[$1] = $0; next }
+    $4 ~ /^(install|i|in|ins|inst|insta|instal|isnt|isnta|isntal|isntall|add|ci|clean-install|ic|install-clean|isntall-clean|it|cit|install-test|install-ci-test|clean-install-test|sit|update|up|upgrade|udpate|pack|publish|init|create|innit|rebuild|rb|dedupe|ddp)$/ { hit[$1] = $0; next }
     $4 == "cache" && $5 == "add" { hit[$1] = $0; next }
     $4 == "exec" || $4 == "x" { ex[$1] = $0 }
     END {
@@ -183,7 +186,7 @@ fi
 if want xcode; then
   section "Xcode DerivedData untouched for $AGE_DAYS days"
   if xcode_busy; then
-    skip "Xcode or xcodebuild is running"
+    skip "Xcode or xcodebuild is running (or pgrep could not tell)"
   else
     old=()
     for d in "$DERIVED"/*/; do
@@ -200,7 +203,7 @@ if want devicesupport; then
   # Folders are "<model> <iOS version> (<build>)". Xcode copies them again from
   # the device on the next connection, so only the newest per model is kept.
   if xcode_busy; then
-    skip "Xcode or xcodebuild is running"
+    skip "Xcode or xcodebuild is running (or pgrep could not tell)"
   elif [ ! -d "$DEVICE_SUPPORT" ]; then
     echo "  nothing to prune"
   else
@@ -231,8 +234,8 @@ if want goimports; then
   # Rebuilt by the editor on demand; a running gopls may be writing it.
   if [ ! -d "$GOIMPORTS_CACHE" ]; then
     echo "  nothing to prune"
-  elif pgrep -x gopls >/dev/null || pgrep -x goimports >/dev/null; then
-    skip "gopls or goimports is running"
+  elif running -x gopls || running -x goimports; then
+    skip "gopls or goimports is running (or pgrep could not tell)"
   else
     echo "  size $(human "$(kb "$GOIMPORTS_CACHE")")"
     if [ "$apply" = 1 ]; then s=$(avail); rm -rf "$GOIMPORTS_CACHE"; freed "$s"; fi
@@ -332,8 +335,8 @@ if want buildcache; then
   # the next build of an existing image stays fast.
   if ! docker info >/dev/null 2>&1; then
     skip "Docker is not running"
-  elif pgrep -f 'docker(-buildx)? (buildx |compose )?build( |$)' >/dev/null; then
-    skip "a docker build is running"
+  elif running -f 'docker(-buildx)? (buildx |compose )?build( |$)'; then
+    skip "a docker build is running (or pgrep could not tell)"
   else
     docker system df 2>/dev/null | awk '$1 == "Build" {print "  total " $5 ", reclaimable " $6}'
     if [ "$apply" = 1 ]; then s=$(avail); docker builder prune -f >/dev/null 2>&1 || skip "docker builder prune failed"; freed "$s"; fi
@@ -346,8 +349,8 @@ if want chrome; then
   # Chrome writes here while it runs, so it is never quit from this script.
   if [ ! -d "$CHROME_CACHE" ]; then
     echo "  nothing to prune"
-  elif pgrep -x 'Google Chrome' >/dev/null; then
-    skip "Chrome is running; quit it (osascript -e 'tell application \"Google Chrome\" to quit'), then rerun"
+  elif running -x 'Google Chrome'; then
+    skip "Chrome is running (or pgrep could not tell); quit it (osascript -e 'tell application \"Google Chrome\" to quit'), then rerun"
   else
     echo "  size $(human "$(kb "$CHROME_CACHE")")"
     if [ "$apply" = 1 ]; then s=$(avail); find "$CHROME_CACHE" -mindepth 1 -maxdepth 1 -exec rm -rf {} +; freed "$s"; fi
