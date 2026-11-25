@@ -58,8 +58,12 @@ fi
 #
 # This happened on 2026-11-25: a case folder's trust entry had been committed
 # with an earlier settings sync.
-leaked=$(git diff --cached -U0 -- '.codex/' '.claude/settings*.json' \
-	| grep -E '^\+[^+]' | grep -E 'dev/job/[^/"]+/[^"/]+' || true)
+# Settings files only (docs may show <org>/<case> placeholders). JSON may
+# escape slashes, so unescape before matching. The folder must sit under a
+# home directory, and quotes of either kind end a path.
+leaked=$(git diff --cached -U0 -- '.codex/*.toml' '.codex/*.json' '.claude/settings*.json' \
+	| grep -E '^\+[^+]' | sed 's#\\/#/#g' \
+	| grep -E '(\$HOME|~|/Users/[^/"'"'"']+|/home/[^/"'"'"']+)/dev/job/[^/"'"'"']+/[^/"'"'"']+' || true)
 if [ -n "$leaked" ]; then
 	cat >&2 <<MSG
 
