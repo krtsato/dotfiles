@@ -146,19 +146,20 @@ if want npm; then
   section "npm download cache ($NPM_CACHE)"
   # Every command that downloads blocks, aliases included. npx servers run as
   # "npm exec ..." for a whole session but read the cache only until the
-  # package starts, which npm runs as its child; an "npm exec" with no child
-  # yet may still be downloading, however long it has run, so it blocks too.
+  # package starts, which npm runs as a child from <npx dir>/<hash>/node_modules/.bin.
+  # Any other child (git during a fetch) proves nothing, so an "npm exec"
+  # without such a child blocks, however long it has run.
   # A failed ps is not "nothing running": the list is read first, then parsed.
   procs=$(ps -axo pid=,ppid=,command= 2>/dev/null) || procs=
   fetching=$(printf '%s\n' "$procs" | awk '
-    { parent[$2] = 1 }
+    $0 ~ /\/_npx\/[^\/]+\/node_modules\/\.bin\// { started[$2] = 1 }
     $3 != "npm" { next }
     $4 ~ /^(install|i|in|ins|inst|insta|instal|isnt|isnta|isntal|isntall|add|ci|clean-install|ic|install-clean|isntall-clean|it|cit|install-test|install-ci-test|clean-install-test|sit|update|up|upgrade|udpate|pack|publish|rebuild|rb|dedupe|ddp)$/ { hit[$1] = $0; next }
     $4 == "cache" && $5 == "add" { hit[$1] = $0; next }
-    $4 == "exec" { ex[$1] = $0 }
+    $4 == "exec" || $4 == "x" { ex[$1] = $0 }
     END {
       for (p in hit) print hit[p]
-      for (p in ex) if (!(p in parent)) print ex[p]
+      for (p in ex) if (!(p in started)) print ex[p]
     }')
   if [ "${NPM_CACHE##*/}" != _cacache ]; then
     skip "NPM_CACHE must end in /_cacache, the folder npm cleans"
