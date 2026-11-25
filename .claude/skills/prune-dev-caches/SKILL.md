@@ -53,7 +53,7 @@ allowed-tools: Bash(~/.claude/skills/prune-dev-caches/scripts/prune-dev-caches.s
 | --- | --- | --- |
 | uv の鍵を誰かが持っている | `uv cache clean` が待ちで失敗する | スクリプトが**鍵を持つ会話のフォルダと端末**を出す。uvx で起動する MCP サーバーは会話の間ずっと鍵を持つので、その会話を閉じてから流し直す |
 | Xcode か xcodebuild が動いている | 使用中の DerivedData・DeviceSupport を消す | スクリプトが Xcode の 2 種を飛ばす。閉じてから流し直す |
-| `npm install` などの取得（別名を含む）か、起動から 10 分未満の `npm exec` が動いている | 取得中の cache を消してその取得が壊れる | スクリプトが npm 分を飛ばし、取得中のコマンドを出す。`npm exec` は起動時だけ cache を読むので、10 分を超えて動き続ける npx の MCP サーバーでは止めない。状態行などの短い `npm exec` に当たったら数秒後に流し直す |
+| `npm install` などの取得（別名と `npm cache add` を含む）か、まだ起動先の処理を立ち上げていない `npm exec` が動いている | 取得中の cache を消してその取得が壊れる | スクリプトが npm 分を飛ばし、取得中のコマンドを出す。`npm exec` は取得を終えると取得物を子の処理として起動するので、子のある `npm exec`（会話の間ずっと動く npx の MCP サーバー）では止めない。状態行などの短い `npm exec` に当たったら数秒後に流し直す |
 | gopls か goimports が動いている | 書き込み中の索引を消す | スクリプトが goimports 分を飛ばす。エディタを閉じてから流し直す |
 | `docker build` が動いている | 組み立て中の cache を消す | スクリプトがビルドの cache 分を飛ばす |
 | Chrome が動いている | 使用中の cache を消す | スクリプトが Chrome 分を飛ばす。**ユーザーの了承を得てから** `osascript -e 'tell application "Google Chrome" to quit'` で通常の終了をさせ（強制終了しない。タブの記録が書き終わる）、流し直した後に `open -a "Google Chrome"` で起動し直す |
