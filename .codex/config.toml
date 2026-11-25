@@ -21,7 +21,6 @@ default_subagent_reasoning_effort = "medium"
 "$HOME/dev/me".trust_level = "trusted"
 "$HOME/dev/job/dxe".trust_level = "trusted"
 "$HOME/dev/job/ysys".trust_level = "trusted"
-"$HOME/dev/job/ysys/case-20260427-bak-ai-cabinet-ipad".trust_level = "trusted"
 "$HOME/go/src/github.com/awa".trust_level = "trusted"
 "$HOME/Documents/New project".trust_level = "trusted"
 
