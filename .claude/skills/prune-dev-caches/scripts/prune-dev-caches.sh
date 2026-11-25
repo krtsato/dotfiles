@@ -3,7 +3,7 @@
 #
 # usage: prune-dev-caches.sh [--apply] [--only <item>[,<item>...]]
 #   items: uv, mise, npx, npm, xcode, devicesupport, goimports, runner, docker,
-#          buildcache, chrome, go   (default: all)
+#          buildcache, chrome, brew, go   (default: all)
 #   Without --apply it only lists what would go and how big it is.
 #   go only warns: the Go build cache is measured, never removed.
 #
@@ -25,7 +25,7 @@ GO_CACHE_WARN_GB=${GO_CACHE_WARN_GB:-10}  # warn when the Go build cache passes 
 FIND_UNUSED=$HOME/.claude/skills/upgrade-runtimes/scripts/find-unused-base-images.sh
 
 apply=0
-only=uv,mise,npx,npm,xcode,devicesupport,goimports,runner,docker,buildcache,chrome,go
+only=uv,mise,npx,npm,xcode,devicesupport,goimports,runner,docker,buildcache,chrome,brew,go
 while [ "$#" -gt 0 ]; do
   case $1 in
     --apply) apply=1 ;;
@@ -353,6 +353,57 @@ if want chrome; then
   else
     echo "  size $(human "$(kb "$CHROME_CACHE")")"
     if [ "$apply" = 1 ]; then s=$(avail); find "$CHROME_CACHE" -mindepth 1 -maxdepth 1 -exec rm -rf {} +; freed "$s"; fi
+  fi
+fi
+
+if want brew; then
+  section "Homebrew old versions and downloads (brew cleanup --prune=all)"
+  # --prune=all also drops downloads of what is installed now (the plain
+  # command keeps 120 days of them); a reinstall downloads them again.
+  if ! command -v brew >/dev/null; then
+    echo "  nothing to prune (no brew)"
+  # brew runs as bash (brew.sh: update, auto-update) and then as ruby (brew.rb).
+  elif running -f '(bin/ruby|bash) .*/Library/Homebrew/brew\.(rb|sh)'; then
+    skip "brew is running (or pgrep could not tell)"
+  # cleanup also runs autoremove by default, which uninstalls formulae no
+  # other formula depends on; that is removing software, not a cache.
+  elif ! plan=$(HOMEBREW_NO_AUTOREMOVE=1 brew cleanup --prune=all -n 2>/dev/null); then
+    skip "brew cleanup -n failed; nothing removed"
+  else
+    # An old version a running program still has open is kept: its kegs are
+    # listed by the dry run, and any open file under one stops the whole item.
+    cellar=$(brew --cellar)
+    kegs=$(printf '%s\n' "$plan" | awk -v c="$cellar/" 'index($0, "Would remove: " c) == 1 {print $3}')
+    # A failed lsof may have listed only part of what is open, so it stops too.
+    lsof_ok=1; listing=$(lsof -Fn 2>/dev/null) || lsof_ok=0
+    open_files=$(printf '%s\n' "$listing" | sed -n 's/^n//p')
+    # lsof sees only this user's processes, so a Homebrew program run by
+    # another user (sudo brew services) makes old versions unprovable too.
+    # The program itself (comm) is matched, not its arguments: root runs
+    # "login ... /opt/homebrew/bin/zsh" for every terminal.
+    ps_ok=1; users=$(ps -axo user=,comm= 2>/dev/null) || ps_ok=0
+    others=$(printf '%s\n' "$users" | awk -v me="$(id -un)" -v pre="$(brew --prefix)/" '$1 != me && index($2, pre) == 1 {print $1}' | sort -u | tr '\n' ' ')
+    held=
+    if [ -n "$kegs" ] && { [ "$lsof_ok" = 0 ] || [ -z "$open_files" ]; }; then
+      held=" (lsof failed or listed nothing, so none can be ruled out)"
+    elif [ -n "$kegs" ] && [ "$ps_ok" = 0 ]; then
+      held=" (ps failed, so programs of other users cannot be ruled out)"
+    elif [ -n "$kegs" ] && [ -n "$others" ]; then
+      held=" (Homebrew programs run as ${others% }, which lsof cannot see)"
+    else
+      for k in $kegs; do
+        # The keg itself (a working directory) or anything under it.
+        printf '%s\n' "$open_files" | awk -v k="$k" '$0 == k || index($0, k "/") == 1 {f = 1} END {exit !f}' \
+          && held="$held ${k#"$cellar"/}"
+      done
+    fi
+    echo "  $(printf '%s\n' "$plan" | grep -c '^Would remove:') item(s), $(printf '%s\n' "$plan" | sed -n 's/.*would free approximately //p' | sed 's/ of disk space.//' | grep . || echo '0 MB')"
+    for k in $kegs; do echo "    old version ${k#"$cellar"/}"; done
+    if [ -n "$held" ]; then
+      skip "an old version is still open:$held; quit what uses it, then rerun"
+    elif [ "$apply" = 1 ]; then
+      s=$(avail); HOMEBREW_NO_AUTOREMOVE=1 brew cleanup --prune=all >/dev/null 2>&1 || skip "brew cleanup failed"; freed "$s"
+    fi
   fi
 fi
 

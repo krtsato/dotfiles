@@ -9,19 +9,20 @@
 | 「uv cache を消して」 | 発動する。鍵を持つ会話があれば、そのフォルダと端末を示して閉じるよう伝える |
 | 「runner が太っている」 | 発動する。`--only runner` で古い本体・`_update`・使っていない Go を示す |
 | 「Chrome のキャッシュを消して」 | 発動する。起動中なら終了させてよいかを聞き、了承後に通常の終了 → 消す → 起動し直す |
+| 「brew cleanup して」 | 発動する。`--only brew` で消す件数と大きさ、古い版の一覧を示してから `--apply` |
 
 ## Should NOT trigger
 
 | 依頼の言葉 | 期待する動作 |
 | --- | --- |
 | 「取り残された編集前の退避を消して」 | 発動しない。prune-agent-storage を使う（`~/.claude` の中は対象外） |
-| 「brew cleanup して」 | 発動しない。Homebrew は対象外 |
 | 「Go を上げて」 | 発動しない。upgrade-runtimes を使う |
 | 「Chrome の閲覧履歴を消して」 | 発動しない。履歴・cookie は cache ではない |
+| 「brew で入れた jq を消して」 | 発動しない。formula を消すのは片付けではない |
 
 ## 安全側に倒れることの確認
 
-試験用の置き場を作り、`NPX_DIR`・`DERIVED`・`DEVICE_SUPPORT`・`NPM_CACHE`・`GOIMPORTS_CACHE`・`CHROME_CACHE`・`DEV_ROOT` で差し替え、偽の `gh` と `svc.sh` を置いて流す。
+試験用の置き場を作り、`NPX_DIR`・`DERIVED`・`DEVICE_SUPPORT`・`NPM_CACHE`・`GOIMPORTS_CACHE`・`CHROME_CACHE`・`DEV_ROOT` で差し替え（Homebrew は偽の `brew`・`lsof` を置く）、偽の `gh` と `svc.sh` を置いて流す。
 
 | 場面 | 期待 |
 | --- | --- |
@@ -40,4 +41,9 @@
 | `NPM_CACHE` が `/_cacache` で終わらない／`ps` が失敗する／`npm cache add` が動いている | どれも npm 分を消さない。終了コード 1 |
 | Chrome が起動中 | Chrome 分は消さず、終了のコマンドを `skip:` に出す。終了コード 1。スクリプトは Chrome を終了させない |
 | `npm view`・`npm cache verify`・引数なしの `npm`・子が git だけの `npm exec` が動いている（偽の `ps` で再現） | npm 分は消さず、そのコマンドを出す。終了コード 1。子が `_npx/<番号>/node_modules/.bin/` のプログラムである `npm exec` だけなら、動いている時間に関係なく消す |
-| `pgrep` が 2 で終わる（確かめられない） | Xcode・DeviceSupport・goimports・ビルドの cache・Chrome はどれも消さない。終了コード 1 |
+| `pgrep` が 2 で終わる（確かめられない） | Xcode・DeviceSupport・goimports・ビルドの cache・Chrome・Homebrew はどれも消さない。終了コード 1 |
+| 偽の `brew` が古い版 `postgresql@17/17.5` を出し、偽の `lsof` がその中のファイルを開いている | Homebrew 分は消さず、開いている版を出す。終了コード 1。開いていなければ `HOMEBREW_NO_AUTOREMOVE=1` を付けた `brew cleanup --prune=all` が 1 回呼ばれる |
+| 偽の `lsof` が一部だけ出して終了コード 1 で終わる | 古い版があれば Homebrew 分は消さない。終了コード 1 |
+| 古い版があり、偽の `ps` に root の `/opt/homebrew/` のプログラムが出る | Homebrew 分は消さない。終了コード 1 |
+| `bash /opt/homebrew/Library/Homebrew/brew.sh update` が動いている | Homebrew 分は消さない。終了コード 1 |
+| 偽の `lsof` が古い版のフォルダそのもの（作業フォルダ）を出す／偽の `ps` が失敗する | どちらも Homebrew 分は消さない。名前が似た別の版（`17.55`）だけが開かれているなら消す |
