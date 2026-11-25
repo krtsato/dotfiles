@@ -3,7 +3,7 @@
 #
 # usage: prune-dev-caches.sh [--apply] [--only <item>[,<item>...]]
 #   items: uv, mise, npx, npm, xcode, devicesupport, goimports, runner, docker,
-#          buildcache, chrome, go   (default: all)
+#          buildcache, chrome, brew, go   (default: all)
 #   Without --apply it only lists what would go and how big it is.
 #   go only warns: the Go build cache is measured, never removed.
 #
@@ -25,7 +25,7 @@ GO_CACHE_WARN_GB=${GO_CACHE_WARN_GB:-10}  # warn when the Go build cache passes 
 FIND_UNUSED=$HOME/.claude/skills/upgrade-runtimes/scripts/find-unused-base-images.sh
 
 apply=0
-only=uv,mise,npx,npm,xcode,devicesupport,goimports,runner,docker,buildcache,chrome,go
+only=uv,mise,npx,npm,xcode,devicesupport,goimports,runner,docker,buildcache,chrome,brew,go
 while [ "$#" -gt 0 ]; do
   case $1 in
     --apply) apply=1 ;;
@@ -353,6 +353,40 @@ if want chrome; then
   else
     echo "  size $(human "$(kb "$CHROME_CACHE")")"
     if [ "$apply" = 1 ]; then s=$(avail); find "$CHROME_CACHE" -mindepth 1 -maxdepth 1 -exec rm -rf {} +; freed "$s"; fi
+  fi
+fi
+
+if want brew; then
+  section "Homebrew old versions and downloads (brew cleanup --prune=all)"
+  # --prune=all also drops downloads of what is installed now (the plain
+  # command keeps 120 days of them); a reinstall downloads them again.
+  if ! command -v brew >/dev/null; then
+    echo "  nothing to prune (no brew)"
+  elif running -f 'bin/ruby .*/Library/Homebrew/brew\.rb'; then
+    skip "brew is running (or pgrep could not tell)"
+  elif ! plan=$(brew cleanup --prune=all -n 2>/dev/null); then
+    skip "brew cleanup -n failed; nothing removed"
+  else
+    # An old version a running program still has open is kept: its kegs are
+    # listed by the dry run, and any open file under one stops the whole item.
+    cellar=$(brew --cellar)
+    kegs=$(printf '%s\n' "$plan" | awk -v c="$cellar/" 'index($0, "Would remove: " c) == 1 {print $3}')
+    open_files=$(lsof -Fn 2>/dev/null | sed -n 's/^n//p')
+    held=
+    if [ -n "$kegs" ] && [ -z "$open_files" ]; then
+      held="(lsof listed no open files)"
+    else
+      for k in $kegs; do
+        printf '%s\n' "$open_files" | grep -qF "$k/" && held="$held ${k#"$cellar"/}"
+      done
+    fi
+    echo "  $(printf '%s\n' "$plan" | grep -c '^Would remove:') item(s), $(printf '%s\n' "$plan" | sed -n 's/.*would free approximately //p' | sed 's/ of disk space.//' | grep . || echo '0 MB')"
+    for k in $kegs; do echo "    old version ${k#"$cellar"/}"; done
+    if [ -n "$held" ]; then
+      skip "an old version is still open:$held; quit what uses it, then rerun"
+    elif [ "$apply" = 1 ]; then
+      s=$(avail); brew cleanup --prune=all >/dev/null 2>&1 || skip "brew cleanup failed"; freed "$s"
+    fi
   fi
 fi
 
