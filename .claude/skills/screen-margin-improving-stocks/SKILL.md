@@ -1,6 +1,6 @@
 ---
 name: screen-margin-improving-stocks
-description: Screen Japanese stocks that satisfy three conditions at once — margin ratio falling across a three-week window, trading volume rising, and a lecture-derived technique firing in the forward ledger — then report code, name, sector and the Japanese technique names in a table, and list apart the stocks whose techniques are only about to fire (approaching a cross) so they are never read as fired. Triggers on requests like "売買代金が上がっていて信用倍率が改善している銘柄を教えて", "買い推奨できそうな銘柄を30個", "信用需給が改善している銘柄のスクリーニング", "ALL_半導体関連 の中から条件に合う銘柄を出して", "もうすぐクロスしそうな銘柄", "シグナルが出そうな銘柄". A watchlist name restricts the population to that list's Japanese stocks and also reports which condition removed each member that did not match. Reads mcp-tradingview JSONL data (data/seido-margin-daily, data/paper-ledger) and one TradingView scanner response. Do NOT use for US stocks, for backtesting a single technique, for placing or sizing orders, or for evaluating the seido study itself (that is tradingview-seido-study).
+description: Screen Japanese stocks that satisfy three conditions at once — margin ratio falling at each of three weekly steps, trading volume rising, and a lecture-derived technique firing in the forward ledger — then report code, name, sector and the Japanese technique names in a table, and list apart the stocks whose techniques are only about to fire (approaching a cross) so they are never read as fired. Triggers on requests like "売買代金が上がっていて信用倍率が改善している銘柄を教えて", "買い推奨できそうな銘柄を30個", "信用需給が改善している銘柄のスクリーニング", "ALL_半導体関連 の中から条件に合う銘柄を出して", "もうすぐクロスしそうな銘柄", "シグナルが出そうな銘柄". A watchlist name restricts the population to that list's Japanese stocks and also reports which condition removed each member that did not match. Reads mcp-tradingview JSONL data (data/seido-margin-daily, data/paper-ledger) and one TradingView scanner response. Do NOT use for US stocks, for backtesting a single technique, for placing or sizing orders, or for evaluating the seido study itself (that is tradingview-seido-study).
 compatibility: Requires local clones of mcp-tradingview and mcp-invest-knowledge, Docker, and outbound access to scanner.tradingview.com. The screen runs inside a container so the host's Go version and TLS roots cannot change the result; the image is rebuilt on every run so a source change cannot be judged with stale code. No API key, no Python, no jq. Read-only; the data and notes are mounted read-only and nothing is written.
 allowed-tools: Bash(sh *), Bash(docker *), Bash(ls *), Bash(grep *), Read, Glob, Grep, Agent
 ---
@@ -22,7 +22,7 @@ allowed-tools: Bash(sh *), Bash(docker *), Bash(ls *), Bash(grep *), Read, Glob,
 
 | 正式名 | 意味 |
 | --- | --- |
-| 倍率が改善 | 条件 1。信用倍率が**約 3 週間前**より下がっている。**公表は日次なので、約 7 日おきに 4 時点を取る**。点が 4 つなら間は 3 つなので、張る期間は 3 週間 |
+| 倍率が改善 | 条件 1。**約 7 日おきに取った 4 時点で、3 つの間のすべてで信用倍率が下がっている**（3 週連続の低下）。1 つでも上がった間があれば、約 3 週間前より低くても当てはまらない。公表は日次。点が 4 つなら間は 3 つなので、張る期間は 3 週間 |
 | 窓の起点 | 比べる 4 時点のうち一番新しい日。最新の公表で 4 時点が揃わないとき、**揃う日まで最大 6 日戻す**。戻した事実は標準エラーに出る |
 | 売買が活発 | 条件 2。出来高比と当日代金の条件を満たす |
 | 技法が該当 | 条件 3。講義由来の技法が台帳で**完成して**発火している。予兆だけの記録は数えない |
